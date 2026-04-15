@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     .catch(()=>loadWeather(lat,lon,'Your Location'));
             },
             ()=>loadWeather(-20.52,29.33,'{{ $mineLocation }}'),
-            {timeout:8000,maximumAge:300000}
+            {timeout:10000,maximumAge:0,enableHighAccuracy:true}
         );
     } else {
         loadWeather(-20.52,29.33,'{{ $mineLocation }}');
