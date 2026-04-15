@@ -28,7 +28,7 @@
             <a href="{{ route('machines.edit', $machine) }}"
                class="px-4 py-2 rounded-lg font-semibold text-sm"
                style="background:#fcb913;color:#001a4d;">Edit</a>
-            <form method="POST" action="{{ route('machines.destroy', $machine) }}" onsubmit="return confirm('Delete this record?')">
+            <form method="POST" action="{{ route('machines.destroy', $machine) }}" onsubmit="event.preventDefault();confirmDelete('Delete this machine? This cannot be undone.',this)">
                 @csrf @method('DELETE')
                 <button type="submit" class="px-4 py-2 rounded-lg font-semibold text-sm" style="background:#fee2e2;color:#991b1b;">Delete</button>
             </form>

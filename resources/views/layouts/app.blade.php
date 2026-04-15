@@ -243,6 +243,26 @@
             .toast-error   .toast-bar{background:#ef4444;}
             .toast-warning .toast-bar{background:#f59e0b;}
             .toast-info    .toast-bar{background:#3b82f6;}
+
+            /* ── Confirm dialog ── */
+            #confirm-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+            #confirm-overlay.cd-show{opacity:1;pointer-events:all;}
+            #confirm-box{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.22);width:340px;max-width:calc(100vw - 40px);overflow:hidden;transform:scale(.88) translateY(14px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+            html.dark #confirm-box{background:#1e2a3a;}
+            #confirm-overlay.cd-show #confirm-box{transform:scale(1) translateY(0);}
+            #confirm-icon-ring{width:68px;height:68px;border-radius:50%;background:#fee2e2;color:#ef4444;display:flex;align-items:center;justify-content:center;margin:-34px auto 0;border:5px solid #fff;position:relative;z-index:1;}
+            html.dark #confirm-icon-ring{border-color:#1e2a3a;}
+            #confirm-body{padding:44px 28px 28px;text-align:center;}
+            #confirm-title{font-size:1.1rem;font-weight:800;color:#dc2626;margin-bottom:8px;}
+            html.dark #confirm-title{color:#f87171;}
+            #confirm-msg{font-size:.88rem;color:#64748b;line-height:1.55;margin-bottom:24px;}
+            html.dark #confirm-msg{color:#94a3b8;}
+            #confirm-btns{display:flex;gap:10px;}
+            #confirm-btns button{flex:1;padding:11px;border-radius:12px;font-size:.88rem;font-weight:700;border:none;cursor:pointer;transition:filter .15s,transform .12s;}
+            #confirm-btns button:hover{filter:brightness(.92);transform:translateY(-1px);}
+            #confirm-btn-ok{background:#ef4444;color:#fff;}
+            #confirm-btn-cancel{background:#f1f5f9;color:#475569;}
+            html.dark #confirm-btn-cancel{background:#2d3748;color:#94a3b8;}
         </style>
         @stack('styles')
     </head>
@@ -420,6 +440,23 @@
             </main>
         </div>
 
+        {{-- ── Confirm Dialog ── --}}
+        <div id="confirm-overlay" role="dialog" aria-modal="true">
+            <div id="confirm-box">
+                <div id="confirm-icon-ring">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </div>
+                <div id="confirm-body">
+                    <div id="confirm-title">Are you sure?</div>
+                    <div id="confirm-msg"></div>
+                    <div id="confirm-btns">
+                        <button id="confirm-btn-cancel" type="button">Cancel</button>
+                        <button id="confirm-btn-ok" type="button">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- ── Global Toast Notifications ── --}}
         <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
         <script>
@@ -473,6 +510,23 @@
 
             function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
             window.showToast = showToast;
+
+            /* ── Custom confirm dialog ── */
+            window.confirmDelete = function(msg, formEl) {
+                var ov  = document.getElementById('confirm-overlay');
+                var box = document.getElementById('confirm-box');
+                document.getElementById('confirm-msg').textContent = msg;
+                ov.classList.add('cd-show');
+                var ok  = document.getElementById('confirm-btn-ok');
+                var can = document.getElementById('confirm-btn-cancel');
+                function cleanup(){ ov.classList.remove('cd-show'); ok.replaceWith(ok.cloneNode(true)); can.replaceWith(can.cloneNode(true)); ok = document.getElementById('confirm-btn-ok'); can = document.getElementById('confirm-btn-cancel'); }
+                ok  = document.getElementById('confirm-btn-ok');
+                can = document.getElementById('confirm-btn-cancel');
+                ok.addEventListener('click', function(){ cleanup(); formEl.submit(); });
+                can.addEventListener('click', cleanup);
+                ov.addEventListener('click', function(e){ if(e.target===ov) cleanup(); }, {once:true});
+                document.addEventListener('keydown', function(e){ if(e.key==='Escape') cleanup(); }, {once:true});
+            };
 
             document.addEventListener('DOMContentLoaded', function () {
                 @if(session('success'))       showToast('success', @json(session('success')));             @endif
