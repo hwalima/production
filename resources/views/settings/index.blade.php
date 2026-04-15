@@ -405,6 +405,9 @@
 
 </div>
 
+@php
+$currencySymbolMap = ['USD'=>'$','ZWL'=>'ZWL','ZIG'=>'ZiG','ZAR'=>'R','BWP'=>'P','EUR'=>'€','GBP'=>'£','XAU'=>'Au'];
+@endphp
 @push('scripts')
 <script>
 function previewLogo(input) {
@@ -440,11 +443,7 @@ function toggleMailPw() {
 }
 
 // Currency symbol — sync dropdown → symbol input + preview
-const currencySymbols = @json([
-    'USD' => '$',   'ZWL' => 'ZWL', 'ZIG' => 'ZiG',
-    'ZAR' => 'R',   'BWP' => 'P',   'EUR' => '€',
-    'GBP' => '£',   'XAU' => 'Au',
-]);
+const currencySymbols = @json($currencySymbolMap);
 function syncCurrencySymbol(code) {
     const sym = currencySymbols[code] ?? code;
     document.getElementById('currencySymbolInput').value = sym;
