@@ -16,6 +16,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\MiningSiteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ConsumableController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -36,6 +37,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('drilling',      DrillingController::class)->except(['index', 'show']);
         Route::resource('blasting',      BlastingController::class)->except(['index', 'show']);
         Route::resource('chemicals',     ChemicalsController::class)->except(['index', 'show']);
+        Route::resource('consumables',   ConsumableController::class)->except(['index', 'show']);
+        Route::get('consumables/{consumable}/receive',  [ConsumableController::class, 'receiveForm'])->name('consumables.receive.form');
+        Route::post('consumables/{consumable}/receive', [ConsumableController::class, 'receiveStock'])->name('consumables.receive');
+        Route::get('consumables/{consumable}/use',      [ConsumableController::class, 'useForm'])->name('consumables.use.form');
+        Route::post('consumables/{consumable}/use',     [ConsumableController::class, 'useStock'])->name('consumables.use');
+        Route::delete('consumables/{consumable}/movements/{movement}', [ConsumableController::class, 'deleteMovement'])->name('consumables.movements.destroy');
         Route::resource('labour-energy', LabourEnergyController::class)->except(['index', 'show']);
         Route::resource('machines',      MachineController::class)->except(['index', 'show']);
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
@@ -46,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('drilling',      DrillingController::class)->only(['index', 'show']);
     Route::resource('blasting',      BlastingController::class)->only(['index', 'show']);
     Route::resource('chemicals',     ChemicalsController::class)->only(['index', 'show']);
+    Route::resource('consumables',   ConsumableController::class)->only(['index', 'show']);
     Route::resource('labour-energy', LabourEnergyController::class)->only(['index', 'show']);
     Route::resource('machines',      MachineController::class)->only(['index', 'show']);
     Route::resource('assay',         AssayController::class)->only(['index', 'show']);

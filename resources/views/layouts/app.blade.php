@@ -307,6 +307,7 @@
                     <a href="{{ route('drilling.index') }}" class="{{ request()->routeIs('drilling.*') ? 'active' : '' }}" title="Drilling"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Drilling</span></a>
                     <a href="{{ route('blasting.index') }}" class="{{ request()->routeIs('blasting.*') ? 'active' : '' }}" title="Blasting"><span class="nav-icon">&#128165;</span><span class="nav-text">&nbsp;Blasting</span></a>
                     <a href="{{ route('chemicals.index') }}" class="{{ request()->routeIs('chemicals.*') ? 'active' : '' }}" title="Chemicals"><span class="nav-icon">&#9879;</span><span class="nav-text">&nbsp;Chemicals</span></a>
+                    <a href="{{ route('consumables.index') }}" class="{{ request()->routeIs('consumables.*') ? 'active' : '' }}" title="Stores"><span class="nav-icon">&#128230;</span><span class="nav-text">&nbsp;Stores</span></a>
                     <a href="{{ route('labour-energy.index') }}" class="{{ request()->routeIs('labour-energy.*') ? 'active' : '' }}" title="Labour &amp; Energy"><span class="nav-icon">&#9889;</span><span class="nav-text">&nbsp;Labour &amp; Energy</span></a>
                     <a href="{{ route('machines.index') }}" class="{{ request()->routeIs('machines.*') ? 'active' : '' }}" title="Machines"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Machines</span></a>
                     <a href="{{ route('assay.index') }}" class="{{ request()->routeIs('assay.*') ? 'active' : '' }}" title="Assay Results"><span class="nav-icon">&#128300;</span><span class="nav-text">&nbsp;Assay Results</span></a>
@@ -962,6 +963,8 @@
                     'drilling':'{{ route("drilling.index") }}',
                     'blasting':'{{ route("blasting.index") }}',
                     'chemicals':'{{ route("chemicals.index") }}',
+                    'consumables':'{{ route("consumables.index") }}',
+                    'stores':'{{ route("consumables.index") }}',
                     'labour':'{{ route("labour-energy.index") }}',
                     'energy':'{{ route("labour-energy.index") }}',
                     'machines':'{{ route("machines.index") }}',
