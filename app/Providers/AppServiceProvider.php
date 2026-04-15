@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +41,22 @@ class AppServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             // Fail silently during migrations / fresh installs
+        }
+
+        // Share currency symbols with all views
+        try {
+            if (Schema::hasTable('settings')) {
+                $currSym  = \App\Models\Setting::where('key', 'currency_symbol')->value('value');
+                $currCode = \App\Models\Setting::where('key', 'currency_code')->value('value');
+                View::share('currencySymbol', $currSym  ?: '$');
+                View::share('currencyCode',   $currCode ?: 'USD');
+            } else {
+                View::share('currencySymbol', '$');
+                View::share('currencyCode',   'USD');
+            }
+        } catch (\Throwable $e) {
+            View::share('currencySymbol', '$');
+            View::share('currencyCode',   'USD');
         }
     }
 }

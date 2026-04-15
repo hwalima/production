@@ -17,17 +17,17 @@
             </div>
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">ZESA Cost ($)</label>
+                    <label class="fc-label">ZESA Cost ({{ $currencySymbol }})</label>
                     <input type="number" name="zesa_cost" step="0.01" class="fc-input" value="{{ old('zesa_cost', $defaults['zesa'] ?? '') }}" required>
                     @error('zesa_cost')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Diesel Cost ($)</label>
+                    <label class="fc-label">Diesel Cost ({{ $currencySymbol }})</label>
                     <input type="number" name="diesel_cost" step="0.01" class="fc-input" value="{{ old('diesel_cost', $defaults['diesel'] ?? '') }}" required>
                     @error('diesel_cost')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Labour Cost ($)</label>
+                    <label class="fc-label">Labour Cost ({{ $currencySymbol }})</label>
                     <input type="number" name="labour_cost" step="0.01" class="fc-input" value="{{ old('labour_cost', $defaults['labour'] ?? '') }}" required>
                     @error('labour_cost')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>

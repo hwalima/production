@@ -65,7 +65,7 @@
                     <td class="text-center">{{ number_format($p->ore_milled, 2) }}</td>
                     <td class="text-center">{{ number_format($p->gold_smelted, 3) }}</td>
                     <td class="text-center">{{ $p->purity_percentage }}%</td>
-                    <td class="text-center">${{ number_format($p->fidelity_price, 2) }}</td>
+                    <td class="text-center">{{ $currencySymbol }}{{ number_format($p->fidelity_price, 2) }}</td>
                 </tr>
                 @empty
                 <tr><td colspan="12" style="text-align:center;padding:32px;color:#9ca3af;">No records found for this month.</td></tr>

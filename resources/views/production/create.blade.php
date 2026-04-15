@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div style="margin-bottom:14px;">
-                <label class="fc-label">Fidelity Price ($/kg)</label>
+                <label class="fc-label">Fidelity Price ({{ $currencySymbol }}/kg)</label>
                 <input type="number" name="fidelity_price" id="fidelity_price" step="0.01" class="fc-input" value="{{ old('fidelity_price') }}" required>
                 @error('fidelity_price')<p class="fc-error">{{ $message }}</p>@enderror
             </div>

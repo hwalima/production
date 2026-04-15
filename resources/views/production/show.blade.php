@@ -32,7 +32,7 @@
         <div class="detail-row"><span class="dr-label">Ore Milled</span><span class="dr-value">{{ number_format($production->ore_milled, 2) }} t</span></div>
         <div class="detail-row"><span class="dr-label">Gold Smelted</span><span class="dr-value">{{ number_format($production->gold_smelted, 3) }} kg</span></div>
         <div class="detail-row"><span class="dr-label">Purity</span><span class="dr-value">{{ $production->purity_percentage }}%</span></div>
-        <div class="detail-row"><span class="dr-label">Fidelity Price</span><span class="dr-value">${{ number_format($production->fidelity_price, 2) }}/kg</span></div>
+        <div class="detail-row"><span class="dr-label">Fidelity Price</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($production->fidelity_price, 2) }}/kg</span></div>
     </div>
 </div>
 @endsection

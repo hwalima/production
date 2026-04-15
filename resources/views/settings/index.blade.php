@@ -107,13 +107,65 @@
             </div>
         </div>
 
+        {{-- ══════════════ CURRENCY & REGION ══════════════ --}}
+        <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
+            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Currency &amp; Region</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Currency</label>
+                    <select name="currency_code" id="currencyCodeSelect"
+                            class="w-full border rounded-lg px-3 py-2 text-sm"
+                            style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);"
+                            onchange="syncCurrencySymbol(this.value)">
+                        @php
+                            $currencies = [
+                                'USD' => ['name' => 'US Dollar',              'symbol' => '$'],
+                                'ZWL' => ['name' => 'Zimbabwe Dollar',        'symbol' => 'ZWL'],
+                                'ZIG' => ['name' => 'Zimbabwe Gold (ZiG)',    'symbol' => 'ZiG'],
+                                'ZAR' => ['name' => 'South African Rand',     'symbol' => 'R'],
+                                'BWP' => ['name' => 'Botswana Pula',          'symbol' => 'P'],
+                                'EUR' => ['name' => 'Euro',                   'symbol' => '€'],
+                                'GBP' => ['name' => 'British Pound',          'symbol' => '£'],
+                                'XAU' => ['name' => 'Gold (troy oz)',         'symbol' => 'Au'],
+                            ];
+                            $savedCode = old('currency_code', $settings['currency_code'] ?? 'USD');
+                        @endphp
+                        @foreach($currencies as $code => $info)
+                            <option value="{{ $code }}" {{ $savedCode === $code ? 'selected' : '' }}>
+                                {{ $info['symbol'] }} — {{ $info['name'] }} ({{ $code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Currency Symbol</label>
+                    <input type="text" name="currency_symbol" id="currencySymbolInput"
+                           value="{{ old('currency_symbol', $settings['currency_symbol'] ?? '$') }}"
+                           maxlength="10"
+                           placeholder="e.g. $ or ZWL"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    <p class="text-xs mt-1" style="color:#9ca3af;">Auto-filled from the currency selection, or enter a custom symbol.</p>
+                    @error('currency_symbol')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            {{-- Preview --}}
+            <p class="text-xs" style="color:#9ca3af;">
+                Preview: monetary values will display as
+                <strong id="currencyPreview" style="color:var(--text);">{{ $settings['currency_symbol'] ?? '$' }}1,234.56</strong>
+            </p>
+        </div>
+
         {{-- ══════════════ OPERATIONAL DEFAULTS ══════════════ --}}
         <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
             <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Default Daily Costs</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">ZESA Cost / Day ($)</label>
+                    <label class="block text-sm font-medium mb-1">ZESA Cost / Day ({{ $currencySymbol }})</label>
                     <input type="number" name="zesa_daily" step="0.01" min="0"
                            value="{{ old('zesa_daily', $settings['zesa_daily'] ?? 633) }}"
                            class="w-full border rounded-lg px-3 py-2 text-sm"
@@ -121,7 +173,7 @@
                     @error('zesa_daily')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Diesel Cost / Day ($)</label>
+                    <label class="block text-sm font-medium mb-1">Diesel Cost / Day ({{ $currencySymbol }})</label>
                     <input type="number" name="diesel_daily" step="0.01" min="0"
                            value="{{ old('diesel_daily', $settings['diesel_daily'] ?? 428) }}"
                            class="w-full border rounded-lg px-3 py-2 text-sm"
@@ -129,7 +181,7 @@
                     @error('diesel_daily')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Labour Cost / Day ($)</label>
+                    <label class="block text-sm font-medium mb-1">Labour Cost / Day ({{ $currencySymbol }})</label>
                     <input type="number" name="labour_daily" step="0.01" min="0"
                            value="{{ old('labour_daily', $settings['labour_daily'] ?? 0) }}"
                            class="w-full border rounded-lg px-3 py-2 text-sm"
@@ -386,6 +438,22 @@ function toggleMailPw() {
         inp.type = 'password'; eye.style.display = ''; eyeOff.style.display = 'none';
     }
 }
+
+// Currency symbol — sync dropdown → symbol input + preview
+const currencySymbols = @json([
+    'USD' => '$',   'ZWL' => 'ZWL', 'ZIG' => 'ZiG',
+    'ZAR' => 'R',   'BWP' => 'P',   'EUR' => '€',
+    'GBP' => '£',   'XAU' => 'Au',
+]);
+function syncCurrencySymbol(code) {
+    const sym = currencySymbols[code] ?? code;
+    document.getElementById('currencySymbolInput').value = sym;
+    document.getElementById('currencyPreview').textContent = sym + '1,234.56';
+}
+// Update preview live when symbol is manually edited
+document.getElementById('currencySymbolInput').addEventListener('input', function() {
+    document.getElementById('currencyPreview').textContent = (this.value || '$') + '1,234.56';
+});
 
 // Test email: spinner + disable on submit
 document.getElementById('testEmailForm').addEventListener('submit', function() {

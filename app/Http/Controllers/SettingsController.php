@@ -35,6 +35,9 @@ class SettingsController extends Controller
             'mail_encryption'  => 'nullable|in:tls,ssl,starttls,',
             'mail_from_address'=> 'nullable|email|max:255',
             'mail_from_name'   => 'nullable|string|max:255',
+            // currency
+            'currency_symbol'  => 'nullable|string|max:10',
+            'currency_code'    => 'nullable|string|max:10',
         ]);
 
         $scalar = [
@@ -43,6 +46,7 @@ class SettingsController extends Controller
             'zesa_daily', 'diesel_daily', 'labour_daily',
             'mail_host', 'mail_port', 'mail_username',
             'mail_encryption', 'mail_from_address', 'mail_from_name',
+            'currency_symbol', 'currency_code',
         ];
 
         foreach ($scalar as $key) {

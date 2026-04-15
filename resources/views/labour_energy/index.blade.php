@@ -16,10 +16,10 @@
         <thead>
             <tr>
                 <th>Date</th>
-                <th class="th-r">ZESA Cost ($)</th>
-                <th class="th-r">Diesel Cost ($)</th>
-                <th class="th-r">Labour Cost ($)</th>
-                <th class="th-r">Total ($)</th>
+                <th class="th-r">ZESA Cost ({{ $currencySymbol }})</th>
+                <th class="th-r">Diesel Cost ({{ $currencySymbol }})</th>
+                <th class="th-r">Labour Cost ({{ $currencySymbol }})</th>
+                <th class="th-r">Total ({{ $currencySymbol }})</th>
                 <th class="th-c">Actions</th>
             </tr>
         </thead>
@@ -28,10 +28,10 @@
             @php $total = ($rec->zesa_cost ?? 0) + ($rec->diesel_cost ?? 0) + ($rec->labour_cost ?? 0); @endphp
             <tr>
                 <td><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
-                <td class="td-r">${{ number_format($rec->zesa_cost, 2) }}</td>
-                <td class="td-r">${{ number_format($rec->diesel_cost, 2) }}</td>
-                <td class="td-r">${{ number_format($rec->labour_cost, 2) }}</td>
-                <td class="td-r" style="font-weight:600;color:#fcc104;">${{ number_format($total, 2) }}</td>
+                <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->zesa_cost, 2) }}</td>
+                <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->diesel_cost, 2) }}</td>
+                <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->labour_cost, 2) }}</td>
+                <td class="td-r" style="font-weight:600;color:#fcc104;">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                 <td class="td-c">
                     <div class="act-group">
                         <a href="{{ route('labour-energy.show', $rec) }}" class="act-btn act-view" title="View record">
