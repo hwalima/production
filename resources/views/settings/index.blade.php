@@ -69,6 +69,28 @@
                            style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
                     @error('company_website')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
                 </div>
+
+                {{-- Mine GPS --}}
+                <div>
+                    <label class="block text-sm font-medium mb-1">Mine Latitude</label>
+                    <input type="number" name="mine_latitude" step="any"
+                           value="{{ old('mine_latitude', $settings['mine_latitude'] ?? '-20.52') }}"
+                           placeholder="-20.52"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mine_latitude')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Mine Longitude</label>
+                    <input type="number" name="mine_longitude" step="any"
+                           value="{{ old('mine_longitude', $settings['mine_longitude'] ?? '29.33') }}"
+                           placeholder="29.33"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mine_longitude')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                    <p class="text-xs mt-1" style="color:#9ca3af;">Used to show accurate weather for the mine site. <a href="https://www.latlong.net/" target="_blank" style="color:#fcb913;">Find coordinates ↗</a></p>
+                </div>
             </div>
 
             {{-- Logo upload --}}

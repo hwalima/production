@@ -89,7 +89,9 @@ class DashboardController extends Controller
         $trendOreMilled    = $trend->pluck('ore_milled')->map(fn($v) => (float) $v)->toArray();
         $trendGoldSmelted  = $trend->pluck('gold_smelted')->map(fn($v) => (float) $v)->toArray();
 
-        $mineLocation = Setting::where('key', 'company_location')->value('value') ?? 'Filabusi, Zimbabwe';
+        $mineLocation  = Setting::where('key', 'company_location')->value('value') ?? 'Filabusi, Zimbabwe';
+        $mineLat       = (float) (Setting::where('key', 'mine_latitude')->value('value')  ?: -20.52);
+        $mineLon       = (float) (Setting::where('key', 'mine_longitude')->value('value') ?: 29.33);
 
         // ── Quick-access preset ranges ────────────────────────────────────
         $isDefaultRange = $filterFromStr === $now->copy()->startOfMonth()->toDateString()
@@ -105,7 +107,7 @@ class DashboardController extends Controller
             'machinesTotal', 'machinesOverdue', 'machinesDueSoon',
             'trendLabels', 'trendOreHoisted', 'trendWasteHoisted',
             'trendOreCrushed', 'trendOreMilled', 'trendGoldSmelted',
-            'mineLocation',
+            'mineLocation', 'mineLat', 'mineLon',
             'filterFromStr', 'filterToStr', 'isDefaultRange'
         ));
     }

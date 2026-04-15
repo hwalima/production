@@ -440,7 +440,10 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
 
         {{-- Weather --}}
         <div class="wcrd" id="weatherCard">
-            <p class="wey">⛅ Weather — <span id="weatherLocName">Detecting location…</span></p>
+            <p class="wey">⛅ Weather — <span id="weatherLocName">Loading…</span>
+                <button id="myLocBtn" onclick="switchToMyLocation()" title="Show my current location"
+                    style="margin-left:8px;background:none;border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:1px 8px;font-size:.65rem;color:rgba(255,255,255,.6);cursor:pointer;vertical-align:middle;">📍 My location</button>
+            </p>
             <div id="weatherBody" class="wldg">Locating &amp; loading weather…</div>
         </div>
 
@@ -563,20 +566,29 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(()=>{document.getElementById('weatherBody').innerHTML='<div class="wldg" style="color:rgba(255,255,255,.5)">Weather data unavailable</div>';});
     }
 
-    if(navigator.geolocation){
+    // Always load mine-site weather first (reliable, no permission needed)
+    const MINE_LAT = {{ $mineLat }};
+    const MINE_LON = {{ $mineLon }};
+    const MINE_NAME = '{{ addslashes($mineLocation) }}';
+    loadWeather(MINE_LAT, MINE_LON, MINE_NAME);
+
+    // "My location" button — switches to browser geolocation on demand
+    function switchToMyLocation() {
+        const btn = document.getElementById('myLocBtn');
+        if (!navigator.geolocation) { btn.textContent = 'Not supported'; return; }
+        btn.textContent = '⏳ Locating…';
+        btn.disabled = true;
         navigator.geolocation.getCurrentPosition(
-            pos=>{
-                const{latitude:lat,longitude:lon}=pos.coords;
-                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,{headers:{'Accept-Language':'en'}})
+            pos => {
+                const {latitude:lat, longitude:lon} = pos.coords;
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {headers:{'Accept-Language':'en'}})
                     .then(r=>r.json())
-                    .then(g=>{ const a=g.address||{}; const city=a.city||a.town||a.village||a.municipality||a.county||'Your Location'; const cc=(a.country_code||'').toUpperCase(); loadWeather(lat,lon,city+(cc?', '+cc:'')); })
-                    .catch(()=>loadWeather(lat,lon,'Your Location'));
+                    .then(g=>{ const a=g.address||{}; const city=a.city||a.town||a.village||a.municipality||a.county||'Your Location'; const cc=(a.country_code||'').toUpperCase(); loadWeather(lat,lon,city+(cc?', '+cc:'')); btn.textContent='⛏ Mine site'; btn.disabled=false; btn.onclick=()=>{ loadWeather(MINE_LAT,MINE_LON,MINE_NAME); btn.textContent='📍 My location'; btn.onclick=switchToMyLocation; }; })
+                    .catch(()=>{ loadWeather(lat,lon,'Your Location'); btn.textContent='⛏ Mine site'; btn.disabled=false; });
             },
-            ()=>loadWeather(-20.52,29.33,'{{ $mineLocation }}'),
-            {timeout:10000,maximumAge:0,enableHighAccuracy:true}
+            () => { btn.textContent = '📍 My location'; btn.disabled = false; showToast('warning','Could not get your location. Check browser permissions.'); },
+            {timeout:10000, maximumAge:0, enableHighAccuracy:true}
         );
-    } else {
-        loadWeather(-20.52,29.33,'{{ $mineLocation }}');
     }
 });
 </script>

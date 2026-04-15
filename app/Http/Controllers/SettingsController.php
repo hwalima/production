@@ -38,6 +38,9 @@ class SettingsController extends Controller
             // currency
             'currency_symbol'  => 'nullable|string|max:10',
             'currency_code'    => 'nullable|string|max:10',
+            // mine location
+            'mine_latitude'    => 'nullable|numeric|between:-90,90',
+            'mine_longitude'   => 'nullable|numeric|between:-180,180',
         ]);
 
         $scalar = [
@@ -47,6 +50,7 @@ class SettingsController extends Controller
             'mail_host', 'mail_port', 'mail_username',
             'mail_encryption', 'mail_from_address', 'mail_from_name',
             'currency_symbol', 'currency_code',
+            'mine_latitude', 'mine_longitude',
         ];
 
         foreach ($scalar as $key) {
