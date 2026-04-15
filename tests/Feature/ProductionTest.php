@@ -57,21 +57,6 @@ class ProductionTest extends TestCase
     }
 
     /** @test */
-    public function profit_is_auto_calculated_on_store(): void
-    {
-        $this->actingAs($this->adminUser())
-            ->post(route('production.store'), $this->productionPayload([
-                'gold_smelted'      => '2.5',
-                'fidelity_price'    => '90000',
-                'purity_percentage' => '85',
-            ]));
-
-        // 2.5 × 90000 × 0.85 = 191250
-        $record = DailyProduction::first();
-        $this->assertEquals(191250.0, (float) $record->profit_calculated);
-    }
-
-    /** @test */
     public function uncrushed_stockpile_is_calculated_on_store(): void
     {
         $this->actingAs($this->adminUser())
@@ -114,7 +99,6 @@ class ProductionTest extends TestCase
         $record = DailyProduction::create($this->productionPayload([
             'uncrushed_stockpile' => 20,
             'unmilled_stockpile'  => 5,
-            'profit_calculated'   => 191250,
         ]));
 
         $this->actingAs($this->adminUser())
@@ -129,7 +113,6 @@ class ProductionTest extends TestCase
         $record = DailyProduction::create($this->productionPayload([
             'uncrushed_stockpile' => 20,
             'unmilled_stockpile'  => 5,
-            'profit_calculated'   => 191250,
         ]));
 
         $this->actingAs($this->adminUser())
@@ -147,7 +130,6 @@ class ProductionTest extends TestCase
         $record = DailyProduction::create($this->productionPayload([
             'uncrushed_stockpile' => 20,
             'unmilled_stockpile'  => 5,
-            'profit_calculated'   => 191250,
         ]));
 
         $this->actingAs($this->adminUser())

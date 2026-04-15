@@ -42,7 +42,6 @@ class ProductionController extends Controller
     {
         $data = $request->validated();
 
-        $data['profit_calculated']   = $data['gold_smelted'] * $data['fidelity_price'] * ($data['purity_percentage'] / 100);
         $data['uncrushed_stockpile'] = 0; // set by cascade below
         $data['unmilled_stockpile']  = 0;
 
@@ -74,7 +73,6 @@ class ProductionController extends Controller
     public function update(UpdateDailyProductionRequest $request, DailyProduction $production)
     {
         $data = $request->validated();
-        $data['profit_calculated']   = $data['gold_smelted'] * $data['fidelity_price'] * ($data['purity_percentage'] / 100);
         $data['uncrushed_stockpile'] = 0;
         $data['unmilled_stockpile']  = 0;
 

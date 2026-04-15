@@ -28,7 +28,6 @@
                 <th>Ore Milled</th>
                 <th>Gold Smelted</th>
                 <th>Purity %</th>
-                <th class="th-r">Profit</th>
                 <th class="th-c">Actions</th>
             </tr>
         </thead>
@@ -46,7 +45,6 @@
                 <td>{{ number_format($prod->ore_milled, 1) }} t</td>
                 <td>{{ number_format($prod->gold_smelted, 3) }} kg</td>
                 <td>{{ $prod->purity_percentage }}%</td>
-                <td class="td-r" style="font-weight:600;">${{ number_format($prod->profit_calculated, 2) }}</td>
                 <td class="td-c">
                     <div class="act-group">
                         <a href="{{ route('production.show', $prod) }}" class="act-btn act-view" title="View record">
@@ -65,7 +63,7 @@
                 </td>
             </tr>
             @empty
-            <tr class="empty-row"><td colspan="13">No production records yet.</td></tr>
+            <tr class="empty-row"><td colspan="12">No production records yet.</td></tr>
             @endforelse
         </tbody>
     </table>

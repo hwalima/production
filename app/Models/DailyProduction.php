@@ -21,7 +21,6 @@ class DailyProduction extends Model
         'gold_smelted',
         'purity_percentage',
         'fidelity_price',
-        'profit_calculated',
     ];
 
     protected $casts = [
@@ -35,7 +34,6 @@ class DailyProduction extends Model
         'gold_smelted'         => 'decimal:2',
         'purity_percentage'    => 'decimal:2',
         'fidelity_price'       => 'decimal:2',
-        'profit_calculated'    => 'decimal:2',
     ];
 
     public function assayResults()

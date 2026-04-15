@@ -30,10 +30,6 @@
         <div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px;">Avg Purity %</div>
         <div style="font-size:1.4rem;font-weight:700;color:var(--text);">{{ number_format($avgPurity, 2) }}</div>
     </div>
-    <div class="data-card" style="padding:16px;text-align:center;">
-        <div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px;">Total Profit</div>
-        <div style="font-size:1.4rem;font-weight:700;color:#22c55e;">${{ number_format($totalProfit, 2) }}</div>
-    </div>
 </div>
 
 <div class="data-card">
@@ -53,7 +49,6 @@
                     <th>Gold Smelted</th>
                     <th>Purity %</th>
                     <th>Fidelity Price</th>
-                    <th>Profit</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,10 +66,9 @@
                     <td class="text-center">{{ number_format($p->gold_smelted, 3) }}</td>
                     <td class="text-center">{{ $p->purity_percentage }}%</td>
                     <td class="text-center">${{ number_format($p->fidelity_price, 2) }}</td>
-                    <td class="text-center" style="font-weight:600;color:#22c55e;">${{ number_format($p->profit_calculated, 2) }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="13" style="text-align:center;padding:32px;color:#9ca3af;">No records found for this month.</td></tr>
+                <tr><td colspan="12" style="text-align:center;padding:32px;color:#9ca3af;">No records found for this month.</td></tr>
                 @endforelse
             </tbody>
             @if($productions->count())
@@ -92,7 +86,6 @@
                     <td class="text-center">{{ number_format($totalGold, 2) }}</td>
                     <td class="text-center">{{ number_format($avgPurity, 2) }}%</td>
                     <td class="text-center">—</td>
-                    <td class="text-center" style="color:#22c55e;">${{ number_format($totalProfit, 2) }}</td>
                 </tr>
             </tfoot>
             @endif

@@ -20,10 +20,6 @@
             <div class="tile-label">Avg Purity (%)</div>
             <div class="tile-value">{{ number_format($avgPurity, 2) }}</div>
         </td>
-        <td>
-            <div class="tile-label">Total Profit (USD)</div>
-            <div class="tile-value green">${{ number_format($totalProfit, 2) }}</div>
-        </td>
     </tr>
 </table>
 
@@ -42,7 +38,6 @@
             <th class="th-r">Ore Milled (t)</th>
             <th class="th-r">Gold (kg)</th>
             <th class="th-r">Purity %</th>
-            <th class="th-r">Profit (USD)</th>
         </tr>
     </thead>
     <tbody>
@@ -59,10 +54,9 @@
             <td class="td-r">{{ number_format($p->ore_milled, 2) }}</td>
             <td class="td-r">{{ number_format($p->gold_smelted, 3) }}</td>
             <td class="td-r">{{ $p->purity_percentage }}%</td>
-            <td class="td-r green">${{ number_format($p->profit_calculated, 2) }}</td>
         </tr>
         @empty
-        <tr><td colspan="12" style="text-align:center;padding:16px;color:#9ca3af;">No records found for this period.</td></tr>
+        <tr><td colspan="11" style="text-align:center;padding:16px;color:#9ca3af;">No records found for this period.</td></tr>
         @endforelse
     </tbody>
     @if($productions->count())
@@ -77,7 +71,6 @@
             <td class="td-r">{{ number_format($totalOre, 2) }}</td>
             <td class="td-r">{{ number_format($totalGold, 3) }}</td>
             <td class="td-r">{{ number_format($avgPurity, 2) }}%</td>
-            <td class="td-r">${{ number_format($totalProfit, 2) }}</td>
         </tr>
     </tfoot>
     @endif

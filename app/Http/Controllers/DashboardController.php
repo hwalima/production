@@ -38,7 +38,6 @@ class DashboardController extends Controller
         $oreMilledMonth    = $rangeRows->sum('ore_milled');
         $goldSmeltedMonth  = $rangeRows->sum('gold_smelted');
         $avgPurity         = $rangeRows->avg('purity_percentage') ?? 0;
-        $totalProfit       = $rangeRows->sum('profit_calculated');
         $daysRecorded      = $rangeRows->count();
 
         // Computed metrics
@@ -57,7 +56,6 @@ class DashboardController extends Controller
         $goldTarget    = (float) (Setting::where('key', 'gold_monthly_target')->value('value') ?? 3.5);
         $goldTargetPct = $goldTarget > 0 ? min(100, round(($goldSmeltedMonth / $goldTarget) * 100, 1)) : 0;
 
-        $avgDailyProfit = $daysRecorded > 0 ? $totalProfit / $daysRecorded : 0;
         $avgDailyGold   = $daysRecorded > 0 ? $goldSmeltedMonth / $daysRecorded : 0;
 
         // Projection: always based on current month pace
@@ -79,13 +77,6 @@ class DashboardController extends Controller
             Carbon::parse($m->next_service_date)->diffInDays($now) <= 7
         )->count();
 
-        // ── Profit sparkline for selected range ─────────────────────────
-        $sparkRows   = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])
-            ->orderBy('date')
-            ->get(['date', 'profit_calculated']);
-        $sparkLabels = $sparkRows->pluck('date')->map(fn($d) => $d->format('M d'))->toArray();
-        $sparkProfit = $sparkRows->pluck('profit_calculated')->map(fn($v) => (float) $v)->toArray();
-
         // ── Production trend for selected range ───────────────────────────
         $trend = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])
             ->orderBy('date')
@@ -106,13 +97,12 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'oreHoistedMonth', 'wasteHoistedMonth', 'oreMilledMonth',
-            'goldSmeltedMonth', 'avgPurity', 'totalProfit',
+            'goldSmeltedMonth', 'avgPurity',
             'daysRecorded', 'daysInMonth', 'dayOfMonth',
             'strippingRatio', 'impliedGrade', 'millingEfficiency',
             'goldTarget', 'goldTargetPct', 'goldProjected',
-            'avgDailyProfit', 'avgDailyGold',
+            'avgDailyGold',
             'machinesTotal', 'machinesOverdue', 'machinesDueSoon',
-            'sparkLabels', 'sparkProfit',
             'trendLabels', 'trendOreHoisted', 'trendWasteHoisted',
             'trendOreCrushed', 'trendOreMilled', 'trendGoldSmelted',
             'mineLocation',

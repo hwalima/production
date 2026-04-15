@@ -21,7 +21,7 @@ class DailyProductionFactory extends Factory
             'gold_smelted'         => $this->faker->randomFloat(2, 0.5, 10),
             'purity_percentage'    => $this->faker->randomFloat(2, 70, 99),
             'fidelity_price'       => $this->faker->randomFloat(2, 80000, 120000),
-            'profit_calculated'    => $this->faker->randomFloat(2, 5000, 50000),
+
         ];
     }
 }

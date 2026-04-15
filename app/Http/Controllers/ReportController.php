@@ -22,13 +22,12 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        $totalOre    = $productions->sum('ore_milled');
-        $totalGold   = $productions->sum('gold_smelted');
-        $totalProfit = $productions->sum('profit_calculated');
-        $avgPurity   = $productions->avg('purity_percentage');
+        $totalOre  = $productions->sum('ore_milled');
+        $totalGold = $productions->sum('gold_smelted');
+        $avgPurity = $productions->avg('purity_percentage');
 
         return view('reports.production', compact(
-            'productions', 'month', 'totalOre', 'totalGold', 'totalProfit', 'avgPurity'
+            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity'
         ));
     }
 
@@ -79,13 +78,12 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        $totalOre    = $productions->sum('ore_milled');
-        $totalGold   = $productions->sum('gold_smelted');
-        $totalProfit = $productions->sum('profit_calculated');
-        $avgPurity   = $productions->avg('purity_percentage');
+        $totalOre  = $productions->sum('ore_milled');
+        $totalGold = $productions->sum('gold_smelted');
+        $avgPurity = $productions->avg('purity_percentage');
 
         $data = array_merge($this->pdfSettings(), compact(
-            'productions', 'month', 'totalOre', 'totalGold', 'totalProfit', 'avgPurity'
+            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity'
         ));
 
         $filename = 'production-report-' . $month . '.pdf';

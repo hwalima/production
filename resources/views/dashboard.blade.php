@@ -376,16 +376,6 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <span class="pill {{ $srPillCls }}">{{ $srLabel }}</span>
         </div>
 
-        {{-- Monthly Profit --}}
-        <div class="gc kpi">
-            <div class="orb ob-green"></div>
-            <div class="ib ib-green">💰</div>
-            <p class="kt">Monthly Profit</p>
-            <p class="kv gv-green" style="font-size:1.3rem;">${{ number_format($totalProfit, 0) }}</p>
-            <p class="ks">total this month</p>
-            <p class="kf">Avg/day <b>${{ number_format($avgDailyProfit, 0) }}</b></p>
-        </div>
-
     </div>
 
     {{-- ROW 2 — PROJECTIONS | FLEET --}}
@@ -408,7 +398,6 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <div class="mgrid">
                 <div><p class="mgl">Avg Daily Gold</p><p class="mgv">{{ number_format($avgDailyGold, 4) }} <span style="font-size:.68rem;color:#9ca3af">kg</span></p></div>
                 <div><p class="mgl">Days Recorded</p><p class="mgv">{{ $daysRecorded }}<span style="font-size:.68rem;color:#9ca3af"> / {{ $daysInMonth }}</span></p></div>
-                <div><p class="mgl">Avg Daily Profit</p><p class="mgv gv-green">${{ number_format($avgDailyProfit, 0) }}</p></div>
                 <div><p class="mgl">Days Remaining</p><p class="mgv">{{ $daysInMonth - $dayOfMonth }}</p></div>
             </div>
         </div>
@@ -446,18 +435,13 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
 
     </div>
 
-    {{-- ROW 3 — WEATHER | 7-DAY PROFIT TREND --}}
+    {{-- ROW 3 — WEATHER | TREND --}}
     <div class="two-col">
 
         {{-- Weather --}}
         <div class="wcrd" id="weatherCard">
             <p class="wey">⛅ Weather — <span id="weatherLocName">Detecting location…</span></p>
             <div id="weatherBody" class="wldg">Locating &amp; loading weather…</div>
-        </div>
-
-        <div class="gc ccrd">
-            <p class="cht-ttl" style="--g-purple:var(--g-gold)">Profit Trend — {{ \Carbon\Carbon::parse($filterFromStr)->format('d M') }} to {{ \Carbon\Carbon::parse($filterToStr)->format('d M Y') }}</p>
-            <canvas id="sparkChart" height="200"></canvas>
         </div>
 
     </div>
@@ -489,37 +473,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ttBody:  isDark() ? '#94a3b8'               : '#6b7280',
             ttBord:  isDark() ? '#334155'               : '#e2e8f0',
         };
-    }
-
-    /* ── 7-day profit bar ── */
-    function buildSpark() {
-        const c = cc(), raw = @json($sparkProfit);
-        return new Chart(document.getElementById('sparkChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: @json($sparkLabels),
-                datasets: [{
-                    data: raw,
-                    backgroundColor: raw.map(v => v >= 0 ? 'rgba(52,211,153,.8)' : 'rgba(248,113,113,.8)'),
-                    borderRadius: 6, borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: c.ttBg, titleColor: c.ttTitle, bodyColor: c.ttBody,
-                        borderColor: c.ttBord, borderWidth: 1, padding: 10, cornerRadius: 10,
-                        callbacks: { label: x => ' $' + x.parsed.y.toLocaleString(undefined,{maximumFractionDigits:0}) }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: c.text, font: { size: 10 } }, grid: { display: false }, border: { display: false } },
-                    y: { ticks: { color: c.text, font: { size: 10 }, callback: v => '$'+(v/1000).toFixed(0)+'k' }, grid: { color: c.grid }, border: { display: false } }
-                }
-            }
-        });
     }
 
     /* ── 30-day 5-line trend ── */
@@ -562,9 +515,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    let spark = buildSpark(), chart = buildChart();
+    let chart = buildChart();
     document.getElementById('darkToggle').addEventListener('click', () => {
-        setTimeout(() => { spark.destroy(); spark=buildSpark(); chart.destroy(); chart=buildChart(); }, 55);
+        setTimeout(() => { chart.destroy(); chart=buildChart(); }, 55);
     });
 
     /* ── Weather ── */

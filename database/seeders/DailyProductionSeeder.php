@@ -42,9 +42,6 @@ class DailyProductionSeeder extends Seeder
             // Fidelity gold price — spot ~$104,500/kg (Apr 2026), Fidelity pays 95-98 % of spot
             $fidelity_price = rand(99000, 104000); // USD/kg
 
-            // Profit = smelted_kg × price × (purity / 100)
-            $profit_calculated = round($gold_smelted * $fidelity_price * ($purity_percentage / 100), 2);
-
             // Running stockpile balances
             $hoisted_stockpile = round(max(0, $hoisted_stockpile + $ore_hoisted - $ore_crushed), 2);
             $crushed_stockpile = round(max(0, $crushed_stockpile + $ore_crushed - $ore_milled), 2);
@@ -60,7 +57,6 @@ class DailyProductionSeeder extends Seeder
                 'gold_smelted'       => $gold_smelted,
                 'purity_percentage'  => $purity_percentage,
                 'fidelity_price'     => $fidelity_price,
-                'profit_calculated'  => $profit_calculated,
                 'created_at'         => $date,
                 'updated_at'         => $date,
             ]);

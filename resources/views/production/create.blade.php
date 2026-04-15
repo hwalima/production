@@ -102,12 +102,6 @@
                            placeholder="Enter ore values above…" tabindex="-1">
                     <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Prev {{ number_format($prev?->unmilled_stockpile ?? 0, 2) }} t + Crushed &minus; Milled</p>
                 </div>
-                <div>
-                    <label class="fc-label">Profit Calculated ($)</label>
-                    <input type="text" id="profit_preview" class="fc-input fc-frozen" readonly
-                           placeholder="Enter gold values above…" tabindex="-1">
-                    <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Gold &times; Price &times; Purity%</p>
-                </div>
             </div>
 
             <div class="form-actions">
@@ -135,7 +129,6 @@
 
         document.getElementById('uncrushed_preview').value = fmt(prevUncrushed + hoisted - crushed) + ' t';
         document.getElementById('unmilled_preview').value  = fmt(prevUnmilled  + crushed - milled)  + ' t';
-        document.getElementById('profit_preview').value    = '$' + fmt(smelted * price * purity / 100);
     }
 
     ['ore_hoisted','ore_crushed','ore_milled','gold_smelted','fidelity_price','purity_percentage']

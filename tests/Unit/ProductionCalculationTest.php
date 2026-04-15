@@ -7,38 +7,6 @@ use Tests\TestCase;
 class ProductionCalculationTest extends TestCase
 {
     /** @test */
-    public function profit_calculation_formula_is_correct(): void
-    {
-        // profit = gold_smelted × fidelity_price × (purity / 100)
-        $goldSmelted    = 2.5;   // kg
-        $fidelityPrice  = 90000; // $/kg
-        $purity         = 85.0;  // %
-
-        $expected = $goldSmelted * $fidelityPrice * ($purity / 100);
-        // 2.5 × 90000 × 0.85 = 191250
-        $this->assertEquals(191250.0, $expected);
-    }
-
-    /** @test */
-    public function profit_is_zero_when_gold_smelted_is_zero(): void
-    {
-        $profit = 0 * 90000 * (85.0 / 100);
-        $this->assertEquals(0.0, $profit);
-    }
-
-    /** @test */
-    public function profit_scales_linearly_with_purity(): void
-    {
-        $gold  = 1.0;
-        $price = 100000;
-
-        $p50 = $gold * $price * (50.0 / 100);
-        $p100 = $gold * $price * (100.0 / 100);
-
-        $this->assertEquals($p50 * 2, $p100);
-    }
-
-    /** @test */
     public function hoisted_stockpile_accumulates_correctly(): void
     {
         // hoisted_stockpile = previous_hoisted + ore_hoisted - ore_crushed
