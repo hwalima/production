@@ -523,69 +523,62 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => { chart.destroy(); chart=buildChart(); }, 55);
     });
 
-    /* ── Weather ── */
-    const WI = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',77:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'🌨️',95:'⛈️',96:'⛈️',99:'⛈️'};
-    const WD = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Moderate rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Rain showers',81:'Heavy showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Severe thunderstorm'};
-    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const wCls = c => [95,96,99].includes(c)?'wc-storm':[45,48].includes(c)?'wc-fog':c>=51?'wc-rain':c>=2?'wc-cloudy':'wc-clear';
-
-    function renderWeather(data, loc) {
-        const cur=data.current, dly=data.daily, code=cur.weather_code, r0=dly.precipitation_sum[0]??0;
-        const el=document.getElementById('weatherCard');
-        el.classList.remove('wc-clear','wc-cloudy','wc-rain','wc-storm','wc-fog');
-        el.classList.add(wCls(code));
-        document.getElementById('weatherLocName').textContent = loc;
-
-        const alerts=[];
-        if([95,96,99].includes(code)) alerts.push('⚡ Thunderstorm now — <strong>suspend blasting immediately</strong>');
-        else if(dly.weather_code.slice(0,3).some(c=>[95,96,99].includes(c))) alerts.push('⚡ Thunderstorm within 3 days — confirm blasting schedule');
-        if(r0>=25) alerts.push(`🌊 Heavy rain (${r0.toFixed(0)} mm) — monitor shaft drainage & haul roads`);
-        else if(r0>=10) alerts.push(`🌧️ Moderate rain (${r0.toFixed(0)} mm) — check haul road conditions`);
-
-        let fc='';
-        for(let i=0;i<Math.min(5,dly.time.length);i++){
-            const d=new Date(dly.time[i]+'T00:00:00');
-            const rn=dly.precipitation_sum[i]>0?`<div class="dr">${dly.precipitation_sum[i].toFixed(0)}mm</div>`:'';
-            fc+=`<div class="wday"><div class="dn">${i===0?'Today':DAYS[d.getDay()]}</div><div class="di">${WI[dly.weather_code[i]]??'🌡️'}</div><div class="dh">${Math.round(dly.temperature_2m_max[i])}°</div><div class="dl">${Math.round(dly.temperature_2m_min[i])}°</div>${rn}</div>`;
-        }
-        document.getElementById('weatherBody').innerHTML=`
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
-                <div class="wicn">${WI[code]??'🌡️'}</div>
-                <div><div class="wtmp">${Math.round(cur.temperature_2m)}°C</div><div class="wdsc">${WD[code]??'Unknown'}</div></div>
-            </div>
-            <div class="wpls"><span class="wpil">💧 ${cur.relative_humidity_2m}%</span><span class="wpil">💨 ${cur.wind_speed_10m} km/h</span><span class="wpil">🌧️ ${cur.precipitation} mm</span></div>
-            <div class="wfcst">${fc}</div>
-            ${alerts.map(a=>`<div class="walt"><span>${a}</span></div>`).join('')}`;
-    }
-
-    function loadWeather(lat, lon, loc) {
-        const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Harare';
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=${encodeURIComponent(tz)}&forecast_days=5`)
-            .then(r=>r.ok?r.json():Promise.reject())
-            .then(d=>renderWeather(d,loc))
-            .catch(()=>{document.getElementById('weatherBody').innerHTML='<div class="wldg" style="color:rgba(255,255,255,.5)">Weather data unavailable</div>';});
-    }
-
-    // Always load mine-site weather first (reliable, no permission needed)
-    const MINE_LAT = {{ $mineLat }};
-    const MINE_LON = {{ $mineLon }};
-    const MINE_NAME = '{{ addslashes($mineLocation) }}';
+    /* ── Weather init ── */
     loadWeather(MINE_LAT, MINE_LON, MINE_NAME);
-
     document.getElementById('myLocBtn').addEventListener('click', switchToMyLocation);
 });
 
-// Global — must be outside DOMContentLoaded so onclick can reach it
+/* ══════════════ WEATHER GLOBALS (outside DOMContentLoaded) ══════════════ */
+const WI = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'🌨️',77:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'🌨️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WD = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Moderate rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Rain showers',81:'Heavy showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Severe thunderstorm'};
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const wCls = c => [95,96,99].includes(c)?'wc-storm':[45,48].includes(c)?'wc-fog':c>=51?'wc-rain':c>=2?'wc-cloudy':'wc-clear';
+const MINE_LAT  = {{ $mineLat }};
+const MINE_LON  = {{ $mineLon }};
+const MINE_NAME = '{{ addslashes($mineLocation) }}';
+
+function renderWeather(data, loc) {
+    const cur=data.current, dly=data.daily, code=cur.weather_code, r0=dly.precipitation_sum[0]??0;
+    const el=document.getElementById('weatherCard');
+    el.classList.remove('wc-clear','wc-cloudy','wc-rain','wc-storm','wc-fog');
+    el.classList.add(wCls(code));
+    document.getElementById('weatherLocName').textContent = loc;
+
+    const alerts=[];
+    if([95,96,99].includes(code)) alerts.push('⚡ Thunderstorm now — <strong>suspend blasting immediately</strong>');
+    else if(dly.weather_code.slice(0,3).some(c=>[95,96,99].includes(c))) alerts.push('⚡ Thunderstorm within 3 days — confirm blasting schedule');
+    if(r0>=25) alerts.push(`🌊 Heavy rain (${r0.toFixed(0)} mm) — monitor shaft drainage & haul roads`);
+    else if(r0>=10) alerts.push(`🌧️ Moderate rain (${r0.toFixed(0)} mm) — check haul road conditions`);
+
+    let fc='';
+    for(let i=0;i<Math.min(5,dly.time.length);i++){
+        const d=new Date(dly.time[i]+'T00:00:00');
+        const rn=dly.precipitation_sum[i]>0?`<div class="dr">${dly.precipitation_sum[i].toFixed(0)}mm</div>`:'';
+        fc+=`<div class="wday"><div class="dn">${i===0?'Today':DAYS[d.getDay()]}</div><div class="di">${WI[dly.weather_code[i]]??'🌡️'}</div><div class="dh">${Math.round(dly.temperature_2m_max[i])}°</div><div class="dl">${Math.round(dly.temperature_2m_min[i])}°</div>${rn}</div>`;
+    }
+    document.getElementById('weatherBody').innerHTML=`
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+            <div class="wicn">${WI[code]??'🌡️'}</div>
+            <div><div class="wtmp">${Math.round(cur.temperature_2m)}°C</div><div class="wdsc">${WD[code]??'Unknown'}</div></div>
+        </div>
+        <div class="wpls"><span class="wpil">💧 ${cur.relative_humidity_2m}%</span><span class="wpil">💨 ${cur.wind_speed_10m} km/h</span><span class="wpil">🌧️ ${cur.precipitation} mm</span></div>
+        <div class="wfcst">${fc}</div>
+        ${alerts.map(a=>`<div class="walt"><span>${a}</span></div>`).join('')}`;
+}
+
+function loadWeather(lat, lon, loc) {
+    const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Harare';
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=${encodeURIComponent(tz)}&forecast_days=5`)
+        .then(r=>r.ok?r.json():Promise.reject())
+        .then(d=>renderWeather(d,loc))
+        .catch(()=>{document.getElementById('weatherBody').innerHTML='<div class="wldg" style="color:rgba(255,255,255,.5)">Weather data unavailable</div>';});
+}
+
 function switchToMyLocation() {
     const btn = document.getElementById('myLocBtn');
     if (!navigator.geolocation) { btn.textContent = 'Not supported'; return; }
     btn.textContent = '⏳ Locating…';
     btn.disabled = true;
-
-    const MINE_LAT = {{ $mineLat }};
-    const MINE_LON = {{ $mineLon }};
-    const MINE_NAME = '{{ addslashes($mineLocation) }}';
-
     navigator.geolocation.getCurrentPosition(
         pos => {
             const {latitude:lat, longitude:lon} = pos.coords;
