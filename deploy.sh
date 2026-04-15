@@ -5,7 +5,7 @@
 # ============================================================
 set -e
 
-APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_DIR="${APP_DIR:-/home/trukumb2/public_html/mymine}"
 cd "$APP_DIR"
 
 echo "==> Pulling latest code..."
