@@ -331,7 +331,7 @@
             </div>
         @endif
 
-        <form id="testEmailForm" action="{{ route('settings.test-email') }}" method="POST"
+        <form id="testEmailForm" action="{{ url('/settings/test-email') }}" method="POST"
               style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
             @csrf
             <div style="flex:1;min-width:240px;">
