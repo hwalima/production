@@ -11,17 +11,6 @@
     </a>
 </div>
 
-@if(session('success'))
-<div style="background:rgba(34,197,94,.1);border:1px solid #22c55e;color:#22c55e;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:16px;">
-    {{ session('success') }}
-</div>
-@endif
-@if(session('error'))
-<div style="background:rgba(239,68,68,.1);border:1px solid #ef4444;color:#ef4444;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:16px;">
-    {{ session('error') }}
-</div>
-@endif
-
 <div class="data-card">
     <div class="tbl-scroll">
     <table class="data-table">

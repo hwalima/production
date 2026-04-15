@@ -207,6 +207,36 @@
                 #topSearch { display:none; }
                 .topbar .search-wrap { display:none; }
             }
+
+            /* ── Toast notifications ── */
+            #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:380px;width:calc(100vw - 48px);}
+            .toast-item{position:relative;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);padding:14px 42px 22px 14px;display:flex;gap:12px;align-items:flex-start;overflow:hidden;pointer-events:all;opacity:0;transform:translateX(30px);transition:opacity .3s,transform .3s;}
+            html.dark .toast-item{background:#1e2a3a;box-shadow:0 8px 32px rgba(0,0,0,.45);}
+            .toast-item.toast-show{opacity:1;transform:translateX(0);}
+            .toast-item.toast-hide{opacity:0;transform:translateX(30px);transition:opacity .25s,transform .25s;}
+            .toast-icon-wrap{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+            .toast-success .toast-icon-wrap{background:#dcfce7;color:#16a34a;}
+            .toast-error   .toast-icon-wrap{background:#fee2e2;color:#dc2626;}
+            .toast-warning .toast-icon-wrap{background:#fef3c7;color:#d97706;}
+            .toast-info    .toast-icon-wrap{background:#dbeafe;color:#2563eb;}
+            .toast-body{flex:1;min-width:0;}
+            .toast-label{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;}
+            .toast-success .toast-label{color:#16a34a;}
+            .toast-error   .toast-label{color:#dc2626;}
+            .toast-warning .toast-label{color:#d97706;}
+            .toast-info    .toast-label{color:#2563eb;}
+            .toast-text{font-size:.855rem;font-weight:500;line-height:1.45;color:#1e293b;}
+            html.dark .toast-text{color:#e2e8f0;}
+            .toast-x{position:absolute;top:9px;right:9px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:#9ca3af;border-radius:4px;padding:0;transition:color .12s,background .12s;}
+            .toast-x:hover{color:#6b7280;background:rgba(0,0,0,.06);}
+            html.dark .toast-x:hover{background:rgba(255,255,255,.07);}
+            .toast-track{position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(0,0,0,.06);border-radius:0 0 14px 14px;overflow:hidden;}
+            html.dark .toast-track{background:rgba(255,255,255,.07);}
+            .toast-bar{height:100%;width:100%;}
+            .toast-success .toast-bar{background:#22c55e;}
+            .toast-error   .toast-bar{background:#ef4444;}
+            .toast-warning .toast-bar{background:#f59e0b;}
+            .toast-info    .toast-bar{background:#3b82f6;}
         </style>
         @stack('styles')
     </head>
@@ -380,19 +410,77 @@
                     @media(min-width:640px){ #mainContent { padding:24px 24px !important; } }
                     @media(min-width:1024px){ #mainContent { padding:28px 32px !important; } }
                 </style>
-                @if(session('success'))
-                    <div class="mb-4 p-3 rounded" style="background:#dcfce7;border:1px solid #86efac;color:#166534;">{{ session('success') }}</div>
-                @endif
-                @if($errors->any())
-                    <div class="mb-4 p-3 rounded" style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;">
-                        <ul class="list-disc pl-5">
-                            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                        </ul>
-                    </div>
-                @endif
                 @yield('content')
             </main>
         </div>
+
+        {{-- ── Global Toast Notifications ── --}}
+        <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+        <script>
+        (function () {
+            var D = 5000;
+            var SVG = {
+                success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+                error:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+                warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+                close:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+            };
+            var LBL = { success:'Success', error:'Error', warning:'Warning', info:'Info' };
+
+            function showToast(type, msg) {
+                var c = document.getElementById('toast-container');
+                if (!c) return;
+                type = SVG[type] ? type : 'info';
+                var el = document.createElement('div');
+                el.className = 'toast-item toast-' + type;
+                el.innerHTML =
+                    '<div class="toast-icon-wrap">' + SVG[type] + '</div>' +
+                    '<div class="toast-body">' +
+                        '<div class="toast-label">' + LBL[type] + '</div>' +
+                        '<div class="toast-text">' + esc(msg) + '</div>' +
+                    '</div>' +
+                    '<button class="toast-x" aria-label="Dismiss">' + SVG.close + '</button>' +
+                    '<div class="toast-track"><div class="toast-bar"></div></div>';
+                c.appendChild(el);
+                requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('toast-show'); }); });
+
+                var bar = el.querySelector('.toast-bar');
+                var rem = D, lastTs = null, rafId = null, gone = false;
+                function tick(ts) {
+                    if (gone) return;
+                    if (lastTs !== null) rem -= (ts - lastTs);
+                    lastTs = ts;
+                    bar.style.width = Math.max(0, rem / D * 100) + '%';
+                    if (rem > 0) rafId = requestAnimationFrame(tick); else dismiss();
+                }
+                function pause()  { cancelAnimationFrame(rafId); lastTs = null; }
+                function resume() { if (!gone) rafId = requestAnimationFrame(tick); }
+                function dismiss() {
+                    gone = true; cancelAnimationFrame(rafId);
+                    el.classList.remove('toast-show'); el.classList.add('toast-hide');
+                    setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, 300);
+                }
+                el.addEventListener('mouseenter', pause);
+                el.addEventListener('mouseleave', resume);
+                el.querySelector('.toast-x').addEventListener('click', dismiss);
+                rafId = requestAnimationFrame(tick);
+            }
+
+            function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+            window.showToast = showToast;
+
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(session('success'))       showToast('success', @json(session('success')));             @endif
+                @if(session('error'))         showToast('error',   @json(session('error')));               @endif
+                @if(session('warning'))       showToast('warning', @json(session('warning')));             @endif
+                @if(session('info'))          showToast('info',    @json(session('info')));                @endif
+                @if(session('email_success')) showToast('success', @json(session('email_success')));       @endif
+                @if(session('email_error'))   showToast('error',   @json(session('email_error')));         @endif
+                @if($errors->any())           showToast('error',   @json($errors->first()));               @endif
+            });
+        }());
+        </script>
 
         @stack('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

@@ -320,17 +320,6 @@
             Send a test message to verify your SMTP settings are working. <strong style="color:var(--text);">Save your settings first</strong>, then enter any email address below.
         </p>
 
-        @if(session('email_success'))
-            <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.35);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#22c55e;margin-bottom:12px;">
-                ✓ {{ session('email_success') }}
-            </div>
-        @endif
-        @if(session('email_error'))
-            <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#ef4444;margin-bottom:12px;">
-                ✗ {{ session('email_error') }}
-            </div>
-        @endif
-
         <form id="testEmailForm" action="{{ url('/settings/test-email') }}" method="POST"
               style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
             @csrf

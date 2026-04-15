@@ -15,12 +15,6 @@
     @endif
 </div>
 
-@if(session('success'))
-<div style="background:rgba(34,197,94,.1);border:1px solid #22c55e;color:#22c55e;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:16px;">
-    {{ session('success') }}
-</div>
-@endif
-
 @php
 $tabs = [
     'fire'   => ['label' => 'Fire Assay',       'records' => $fire,   'color' => '#ef4444'],
