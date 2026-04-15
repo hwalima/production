@@ -188,12 +188,6 @@
                 Used for password resets, notifications and reports. Works with Gmail, Outlook, SendGrid, Mailgun, etc.
             </p>
 
-            @if(session('error'))
-                <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#ef4444;">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium mb-1">SMTP Host</label>
@@ -311,26 +305,6 @@
         </div>
 
         {{-- ══════════════ TEST EMAIL ══════════════ --}}
-        @if(!empty($settings['mail_host'] ?? ''))
-        <div class="rounded-xl shadow p-6" style="background:var(--card);border:1px solid rgba(252,185,19,.2);">
-            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Send a Test Email</h2>
-            <p style="font-size:.78rem;color:#9ca3af;margin-bottom:12px;">Verify your SMTP settings by sending a test email. Save settings first before testing.</p>
-            <form action="{{ route('settings.test-email') }}" method="POST" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-                @csrf
-                <div style="flex:1;min-width:240px;">
-                    <label class="block text-sm font-medium mb-1">Send test to</label>
-                    <input type="email" name="test_email" required
-                           placeholder="your@email.com"
-                           class="w-full border rounded-lg px-3 py-2 text-sm"
-                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
-                </div>
-                <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-sm"
-                        style="background:rgba(252,185,19,.15);color:#fcb913;border:1px solid #fcb913;white-space:nowrap;">
-                    ✉ Send Test
-                </button>
-            </form>
-        </div>
-        @endif
 
         <div class="flex items-center gap-3">
             <button type="submit" class="px-6 py-2 rounded-lg font-semibold text-sm" style="background:#fcb913;color:#001a4d;">
@@ -338,6 +312,56 @@
             </button>
         </div>
     </form>
+
+    {{-- ══════════════ TEST EMAIL (outside main form) ══════════════ --}}
+    <div class="rounded-xl shadow p-6" style="background:var(--card);border:1px solid rgba(252,185,19,.25);">
+        <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">✉ Send a Test Email</h2>
+        <p style="font-size:.78rem;color:#9ca3af;margin-top:6px;margin-bottom:14px;">
+            Send a test message to verify your SMTP settings are working. <strong style="color:var(--text);">Save your settings first</strong>, then enter any email address below.
+        </p>
+
+        @if(session('email_success'))
+            <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.35);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#22c55e;margin-bottom:12px;">
+                ✓ {{ session('email_success') }}
+            </div>
+        @endif
+        @if(session('email_error'))
+            <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#ef4444;margin-bottom:12px;">
+                ✗ {{ session('email_error') }}
+            </div>
+        @endif
+
+        <form id="testEmailForm" action="{{ route('settings.test-email') }}" method="POST"
+              style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+            @csrf
+            <div style="flex:1;min-width:240px;">
+                <label class="block text-sm font-medium mb-1">Recipient email</label>
+                <input type="email" name="test_email" id="testEmailInput" required
+                       value="{{ old('test_email') }}"
+                       placeholder="your@email.com"
+                       class="w-full border rounded-lg px-3 py-2 text-sm"
+                       style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                @error('test_email')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+            </div>
+            <button type="submit" id="testEmailBtn"
+                    class="px-5 py-2 rounded-lg font-semibold text-sm"
+                    style="background:rgba(252,185,19,.15);color:#fcb913;border:1px solid #fcb913;white-space:nowrap;display:flex;align-items:center;gap:6px;">
+                <svg id="testEmailSpinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     style="display:none;animation:spin .8s linear infinite;">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <span id="testEmailLabel">Send Test</span>
+            </button>
+        </form>
+
+        <div style="margin-top:14px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--topbar-border);">
+            <p style="font-size:.73rem;color:#6b7280;line-height:1.6;margin:0;">
+                <strong style="color:#9ca3af;">Gmail tip:</strong> Use an <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#fcb913;">App Password</a> (not your account password) — requires 2-Step Verification to be on.<br>
+                <strong style="color:#9ca3af;">Other providers:</strong> Check your SMTP credentials in your email provider's dashboard.
+            </p>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -373,6 +397,22 @@ function toggleMailPw() {
         inp.type = 'password'; eye.style.display = ''; eyeOff.style.display = 'none';
     }
 }
+
+// Test email: spinner + disable on submit
+document.getElementById('testEmailForm').addEventListener('submit', function() {
+    const btn     = document.getElementById('testEmailBtn');
+    const spinner = document.getElementById('testEmailSpinner');
+    const label   = document.getElementById('testEmailLabel');
+    spinner.style.display = '';
+    label.textContent = 'Sending…';
+    btn.disabled = true;
+    btn.style.opacity = '.7';
+});
+
+// Keyframe for spinner (inject once)
+const style = document.createElement('style');
+style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(style);
 </script>
 @endpush
 @endsection

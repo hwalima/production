@@ -102,9 +102,9 @@ class SettingsController extends Controller
                             ->subject('Test Email — ' . ($settings['company_name'] ?? config('app.name')));
                 }
             );
-            return back()->with('success', 'Test email sent to ' . $request->test_email . '. Please check your inbox.');
+            return back()->with('email_success', 'Test email sent to ' . $request->test_email . '. Check your inbox.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to send test email: ' . $e->getMessage());
+            return back()->with('email_error', $e->getMessage());
         }
     }
 }
