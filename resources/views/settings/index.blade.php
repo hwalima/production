@@ -179,6 +179,159 @@
             @endif
         </div>
 
+        {{-- ══════════════ EMAIL / SMTP ══════════════ --}}
+        <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
+            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">
+                📧 Email / SMTP Settings
+            </h2>
+            <p style="font-size:.78rem;color:#9ca3af;margin-top:-8px;">
+                Used for password resets, notifications and reports. Works with Gmail, Outlook, SendGrid, Mailgun, etc.
+            </p>
+
+            @if(session('error'))
+                <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#ef4444;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">SMTP Host</label>
+                    <input type="text" name="mail_host"
+                           value="{{ old('mail_host', $settings['mail_host'] ?? '') }}"
+                           placeholder="smtp.gmail.com"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mail_host')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">SMTP Port</label>
+                    <input type="number" name="mail_port"
+                           value="{{ old('mail_port', $settings['mail_port'] ?? '587') }}"
+                           placeholder="587"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mail_port')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">SMTP Username</label>
+                    <input type="text" name="mail_username" autocomplete="off"
+                           value="{{ old('mail_username', $settings['mail_username'] ?? '') }}"
+                           placeholder="you@gmail.com"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mail_username')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">SMTP Password</label>
+                    <div style="position:relative;display:flex;align-items:center;">
+                        <input type="password" name="mail_password" id="mailPassword" autocomplete="new-password"
+                               placeholder="{{ !empty($settings['mail_password'] ?? '') ? '••••••••' : 'App password / API key' }}"
+                               class="w-full border rounded-lg px-3 py-2 text-sm"
+                               style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);padding-right:44px;">
+                        <button type="button" onclick="toggleMailPw()" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:#9ca3af;display:flex;align-items:center;">
+                            <svg id="mailEye" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg id="mailEyeOff" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                    <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Leave blank to keep the existing password.</p>
+                    @error('mail_password')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Encryption</label>
+                    <select name="mail_encryption"
+                            class="w-full border rounded-lg px-3 py-2 text-sm"
+                            style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                        @foreach(['tls' => 'TLS (recommended)', 'ssl' => 'SSL', 'starttls' => 'STARTTLS', '' => 'None'] as $val => $label)
+                            <option value="{{ $val }}" {{ old('mail_encryption', $settings['mail_encryption'] ?? 'tls') === $val ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">From Address</label>
+                    <input type="email" name="mail_from_address"
+                           value="{{ old('mail_from_address', $settings['mail_from_address'] ?? '') }}"
+                           placeholder="noreply@epochmines.co.zw"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('mail_from_address')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium mb-1">From Name</label>
+                    <input type="text" name="mail_from_name"
+                           value="{{ old('mail_from_name', $settings['mail_from_name'] ?? '') }}"
+                           placeholder="{{ $settings['company_name'] ?? 'My Mine' }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                </div>
+            </div>
+
+            {{-- Quick reference table --}}
+            <details style="margin-top:4px;">
+                <summary style="font-size:.78rem;color:#fcb913;cursor:pointer;font-weight:600;">Common SMTP settings ▾</summary>
+                <div style="margin-top:10px;overflow-x:auto;">
+                    <table style="width:100%;font-size:.75rem;border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:rgba(252,185,19,.08);">
+                                <th style="padding:5px 10px;text-align:left;color:#9ca3af;">Provider</th>
+                                <th style="padding:5px 10px;text-align:left;color:#9ca3af;">Host</th>
+                                <th style="padding:5px 10px;text-align:left;color:#9ca3af;">Port</th>
+                                <th style="padding:5px 10px;text-align:left;color:#9ca3af;">Encryption</th>
+                                <th style="padding:5px 10px;text-align:left;color:#9ca3af;">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach([
+                                ['Gmail',    'smtp.gmail.com',           '587', 'TLS',  'Use an App Password (2FA required)'],
+                                ['Outlook',  'smtp.office365.com',       '587', 'STARTTLS', 'Microsoft 365 / Outlook.com'],
+                                ['SendGrid', 'smtp.sendgrid.net',        '587', 'TLS',  'Username = apikey, Password = API key'],
+                                ['Mailgun',  'smtp.mailgun.org',         '587', 'TLS',  'SMTP credentials from Mailgun dashboard'],
+                                ['Yahoo',    'smtp.mail.yahoo.com',      '587', 'TLS',  'Generate an app password'],
+                            ] as [$p,$h,$pt,$e,$n])
+                            <tr style="border-top:1px solid var(--topbar-border);">
+                                <td style="padding:5px 10px;font-weight:600;color:var(--text);">{{ $p }}</td>
+                                <td style="padding:5px 10px;color:#fcb913;font-family:monospace;">{{ $h }}</td>
+                                <td style="padding:5px 10px;">{{ $pt }}</td>
+                                <td style="padding:5px 10px;">{{ $e }}</td>
+                                <td style="padding:5px 10px;color:#9ca3af;">{{ $n }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        {{-- ══════════════ TEST EMAIL ══════════════ --}}
+        @if(!empty($settings['mail_host'] ?? ''))
+        <div class="rounded-xl shadow p-6" style="background:var(--card);border:1px solid rgba(252,185,19,.2);">
+            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Send a Test Email</h2>
+            <p style="font-size:.78rem;color:#9ca3af;margin-bottom:12px;">Verify your SMTP settings by sending a test email. Save settings first before testing.</p>
+            <form action="{{ route('settings.test-email') }}" method="POST" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                @csrf
+                <div style="flex:1;min-width:240px;">
+                    <label class="block text-sm font-medium mb-1">Send test to</label>
+                    <input type="email" name="test_email" required
+                           placeholder="your@email.com"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                </div>
+                <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-sm"
+                        style="background:rgba(252,185,19,.15);color:#fcb913;border:1px solid #fcb913;white-space:nowrap;">
+                    ✉ Send Test
+                </button>
+            </form>
+        </div>
+        @endif
+
         <div class="flex items-center gap-3">
             <button type="submit" class="px-6 py-2 rounded-lg font-semibold text-sm" style="background:#fcb913;color:#001a4d;">
                 Save All Settings
@@ -197,7 +350,6 @@ function previewLogo(input) {
             if (preview.tagName === 'IMG') {
                 preview.src = e.target.result;
             } else {
-                // Replace the placeholder div with an img
                 const img = document.createElement('img');
                 img.id = 'logoPreview';
                 img.src = e.target.result;
@@ -209,6 +361,16 @@ function previewLogo(input) {
         };
         reader.readAsDataURL(input.files[0]);
         document.getElementById('logoFileName').textContent = '✓ ' + input.files[0].name;
+    }
+}
+function toggleMailPw() {
+    const inp = document.getElementById('mailPassword');
+    const eye    = document.getElementById('mailEye');
+    const eyeOff = document.getElementById('mailEyeOff');
+    if (inp.type === 'password') {
+        inp.type = 'text'; eye.style.display = 'none'; eyeOff.style.display = '';
+    } else {
+        inp.type = 'password'; eye.style.display = ''; eyeOff.style.display = 'none';
     }
 }
 </script>

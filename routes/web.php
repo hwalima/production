@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('settings.test-email');
 
         // Shifts
         Route::resource('settings/shifts', ShiftController::class)->names('shifts')->except(['show', 'create']);
