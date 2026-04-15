@@ -247,7 +247,7 @@
             /* ── Confirm dialog ── */
             #confirm-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
             #confirm-overlay.cd-show{opacity:1;pointer-events:all;}
-            #confirm-box{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.22);width:340px;max-width:calc(100vw - 40px);overflow:hidden;transform:scale(.88) translateY(14px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+            #confirm-box{background:#fff;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.22);width:340px;max-width:calc(100vw - 40px);transform:scale(.88) translateY(14px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
             html.dark #confirm-box{background:#1e2a3a;}
             #confirm-overlay.cd-show #confirm-box{transform:scale(1) translateY(0);}
             #confirm-icon-ring{width:68px;height:68px;border-radius:50%;background:#fee2e2;color:#ef4444;display:flex;align-items:center;justify-content:center;margin:-34px auto 0;border:5px solid #fff;position:relative;z-index:1;}
