@@ -241,14 +241,15 @@
             letter-spacing: .07em;
             margin-bottom: 7px;
         }
-        .field-wrap { position: relative; }
-        .field-wrap svg {
+        .field-wrap { position: relative; display: flex; align-items: center; }
+        .field-wrap > svg {
             position: absolute;
-            left: 14px; top: 50%; transform: translateY(-50%);
+            left: 14px;
             width: 16px; height: 16px;
             color: rgba(255,255,255,.3);
             pointer-events: none;
             transition: color .2s;
+            z-index: 1;
         }
         .field input {
             width: 100%;
@@ -279,12 +280,13 @@
         /* Password toggle */
         .pw-toggle {
             position: absolute;
-            right: 12px; top: 50%; transform: translateY(-50%);
+            right: 12px;
             background: none; border: none; cursor: pointer;
             color: rgba(255,255,255,.3);
             padding: 4px;
             transition: color .2s;
-            display: flex;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1;
         }
         .pw-toggle:hover { color: #fcb913; }
         .pw-input { padding-right: 44px !important; }
