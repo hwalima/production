@@ -184,7 +184,7 @@
             <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">
                 📧 Email / SMTP Settings
             </h2>
-            <p style="font-size:.78rem;color:#9ca3af;margin-top:-8px;">
+            <p style="font-size:.78rem;color:#9ca3af;margin-top:6px;">
                 Used for password resets, notifications and reports. Works with Gmail, Outlook, SendGrid, Mailgun, etc.
             </p>
 
