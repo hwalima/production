@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        @php
+            $appSettings  = \App\Models\Setting::all()->pluck('value', 'key');
+            $companyName  = $appSettings['company_name'] ?? config('app.name', 'My Mine');
+            $logoPath     = $appSettings['logo_path'] ?? '';
+            $logoUrl      = $logoPath ? asset('storage/' . $logoPath) : null;
+            $faviconUrl   = $logoUrl ?? asset('favicon.ico');
+        @endphp
+        <title>@yield('title', $companyName) — {{ $companyName }}</title>
+        <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            /* ── Dark mode ── */
+            :root { --bg:#f5f5f5; --text:#001a4d; --card:#fff; --topbar:#fff; --topbar-border:#e5e7eb; --input-bg:#f3f4f6; }
+            html.dark { --bg:#111827; --text:#f3f4f6; --card:#1f2937; --topbar:#1f2937; --topbar-border:#374151; --input-bg:#374151; }
+            body { background-color:var(--bg); color:var(--text); transition:background .2s,color .2s; }
+
+            /* ── Sidebar ── */
+            .sidebar { background-color:#001a4d; color:#fff; width:224px; transition:width .26s ease; overflow:hidden; z-index:10; }
+            .sidebar.collapsed { width:64px; }
+            .sidebar a { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:6px; color:#ccc; text-decoration:none; font-size:0.875rem; transition:background .15s,color .15s; overflow:hidden; }
+            .sidebar.collapsed a { padding:10px 0; justify-content:center; gap:0; }
+            .sidebar a:hover { background-color:#fcb913; color:#001a4d; }
+            .sidebar a.active { background-color:#fcb913; color:#001a4d; font-weight:600; }
+            .sidebar hr { border-color:#202e65; margin:8px 0; }
+            .sidebar .nav-icon { width:20px; text-align:center; flex-shrink:0; font-size:1rem; }
+            .nav-text { overflow:hidden; white-space:nowrap; max-width:160px; opacity:1; transition:max-width .22s ease,opacity .15s; }
+            .sidebar.collapsed .nav-text { max-width:0; opacity:0; }
+            .brand-text { overflow:hidden; white-space:nowrap; max-width:130px; opacity:1; transition:max-width .22s ease,opacity .15s; }
+            .sidebar.collapsed .brand-text { max-width:0; opacity:0; }
+            .sb-footer { transition:opacity .2s; overflow:hidden; white-space:nowrap; }
+            .sidebar.collapsed .sb-footer { opacity:0; pointer-events:none; }
+            .sb-toggle { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:transparent; border:none; cursor:pointer; color:#9ca3af; font-size:1rem; transition:background .15s,color .15s; flex-shrink:0; padding:0; line-height:1; }
+            .sb-toggle:hover { background:#202e65; color:#fcb913; }
+            /* Mobile sidebar overlay */
+            .sb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:30; }
+            .sb-overlay.visible { display:block; }
+            @media(max-width:1023px){
+                .sidebar { transform:translateX(-100%); width:224px !important; z-index:40;
+                           transition:transform .28s ease; }
+                /* prevent the collapsed (64px) class from taking effect on small screens */
+                .sidebar.collapsed { width:224px !important; transform:translateX(-100%); }
+                .sidebar.mobile-open { transform:translateX(0) !important; }
+                .topbar { left:0 !important; }
+                .main-area { margin-left:0 !important; }
+            }
+
+            /* ── Topbar ── */
+            .topbar { background-color:var(--topbar); border-bottom:1px solid var(--topbar-border); height:60px; position:fixed; top:0; left:224px; right:0; z-index:20; display:flex; align-items:center; padding:0 20px; gap:10px; transition:background .2s,left .26s ease; }
+            .topbar-logo { display:flex; align-items:center; gap:8px; text-decoration:none; flex-shrink:0; overflow:hidden; }
+            .topbar-logo .tl-icon { width:28px; height:28px; border-radius:8px; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fcb913; color:#001a4d; font-size:.9rem; }
+            .topbar-logo .tl-icon img { width:100%; height:100%; object-fit:contain; }
+            .topbar-logo .tl-name { font-size:.75rem; font-weight:700; color:var(--text); white-space:nowrap; }
+            .topbar input[type=search] { background:var(--input-bg); color:var(--text); border:none; border-radius:8px; padding:7px 14px 7px 36px; font-size:0.875rem; width:240px; outline:none; transition:background .2s; }
+            .topbar .search-wrap { position:relative; }
+            .topbar .search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:#9ca3af; pointer-events:none; }
+
+            /* icon buttons */
+            .topbar .icon-btn { position:relative; display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; border:none; cursor:pointer; background:var(--input-bg); color:var(--text); transition:background .15s; outline:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+            .topbar .icon-btn:hover { background:#fcb913; color:#001a4d; }
+            .topbar .icon-btn:focus-visible { box-shadow:0 0 0 2px #fcb913; }
+            .topbar .badge { position:absolute; top:4px; right:4px; width:8px; height:8px; border-radius:50%; background:#ef4444; border:2px solid var(--topbar); }
+
+            /* profile button */
+            .topbar .profile-btn { display:flex; align-items:center; gap:8px; padding:5px 10px 5px 5px; border-radius:50px; border:none; cursor:pointer; background:var(--input-bg); color:var(--text); font-size:0.8rem; font-weight:600; transition:background .15s; }
+            .topbar .profile-btn:hover { background:#fcb913; color:#001a4d; }
+            .topbar .avatar { width:28px; height:28px; border-radius:50%; background:#fcb913; color:#001a4d; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; }
+
+            /* dropdown */
+            .dropdown { position:relative; }
+            .dropdown-menu { display:none; position:absolute; right:0; top:calc(100% + 8px); min-width:180px; background:var(--card); border:1px solid var(--topbar-border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.12); padding:6px; z-index:100; }
+            .dropdown-menu.open { display:block; }
+            .dropdown-menu a, .dropdown-menu button { display:flex; align-items:center; gap:8px; width:100%; padding:8px 12px; border-radius:6px; font-size:0.85rem; color:var(--text); text-decoration:none; background:none; border:none; cursor:pointer; transition:background .12s; }
+            .dropdown-menu a:hover, .dropdown-menu button:hover { background:#fcb913; color:#001a4d; }
+            .dropdown-menu hr { border-color:var(--topbar-border); margin:4px 0; }
+
+            /* notif panel */
+            .notif-panel { min-width:300px; right:0; }
+            .notif-panel .notif-item { padding:10px 12px; border-radius:6px; font-size:0.82rem; color:var(--text); transition:background .12s; }
+            .notif-panel .notif-item:hover { background:var(--input-bg); }
+            .notif-panel .notif-dot { width:8px; height:8px; border-radius:50%; background:#fcb913; flex-shrink:0; }
+
+            /* ── Page header ── */
+            .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:12px; flex-wrap:wrap; }
+            .page-title  { font-size:1.5rem; font-weight:700; color:var(--text); }
+            .btn-add { display:inline-flex; align-items:center; gap:6px; background:#fcb913; color:#001a4d; padding:8px 18px; border-radius:8px; font-weight:600; font-size:.875rem; text-decoration:none; transition:opacity .15s; border:none; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+            .btn-add:hover { opacity:.85; color:#001a4d; }
+
+            /* ── Form card (create/edit/show) ── */
+            .form-card { background:var(--card); border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.08); padding:24px; border:1px solid var(--topbar-border); }
+            .form-card h2.fc-section { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#9ca3af; padding-bottom:8px; border-bottom:1px solid var(--topbar-border); margin-bottom:16px; }
+            .fc-label { display:block; font-size:.8rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+            .fc-input { width:100%; background:var(--input-bg); color:var(--text); border:1.5px solid var(--topbar-border); border-radius:10px; padding:9px 13px; font-size:.875rem; outline:none; transition:border-color .15s,box-shadow .15s; }
+            .fc-input:focus { border-color:#fcb913; box-shadow:0 0 0 3px rgba(252,185,19,.15); }
+            .fc-frozen { background:var(--topbar-border) !important; color:#9ca3af !important; border-style:dashed !important; cursor:default; }
+            .fc-auto-label { font-size:.68rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#fcb913; padding:10px 0 8px; border-top:1px dashed var(--topbar-border); margin-top:8px; display:block; }
+            .fc-error { font-size:.75rem; color:#ef4444; margin-top:4px; }
+            .fc-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+            @media(max-width:599px){ .fc-grid { grid-template-columns:1fr; } }
+            .form-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:8px; }
+            .btn-submit { display:inline-flex; align-items:center; gap:7px; background:#fcb913; color:#001a4d; border:none; border-radius:10px; padding:10px 24px; font-size:.875rem; font-weight:700; cursor:pointer; transition:filter .15s,transform .1s; }
+            .btn-submit:hover { filter:brightness(1.08); transform:translateY(-1px); }
+            .btn-cancel { display:inline-flex; align-items:center; gap:5px; color:#9ca3af; font-size:.875rem; text-decoration:none; padding:10px 6px; }
+            .btn-cancel:hover { color:var(--text); }
+
+            /* ── Detail card (show views) ── */
+            .detail-card { background:var(--card); border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,.08); padding:24px; border:1px solid var(--topbar-border); }
+            .detail-row { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:9px 0; border-bottom:1px solid var(--topbar-border); font-size:.875rem; }
+            .detail-row:last-of-type { border-bottom:none; }
+            .detail-row .dr-label { color:#9ca3af; font-size:.78rem; font-weight:600; flex-shrink:0; }
+            .detail-row .dr-value { color:var(--text); font-weight:700; text-align:right; }
+
+            /* ── Data table card ── */
+            .data-card { background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.1); }
+            .tbl-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+            .data-table { width:100%; border-collapse:collapse; min-width:520px; }
+            .data-table thead tr { background:#fcb913; color:#001a4d; }
+            .data-table thead th { padding:11px 14px; text-align:left; font-size:.75rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; }
+            .data-table thead th.th-c { text-align:center; }
+            .data-table thead th.th-r { text-align:right; }
+            .data-table tbody tr { border-bottom:1px solid var(--topbar-border); transition:background .12s; }
+            .data-table tbody tr:last-child { border-bottom:none; }
+            .data-table tbody tr:hover { background:rgba(252,185,19,.07); }
+            .data-table tbody td { padding:10px 14px; font-size:.85rem; color:var(--text); white-space:nowrap; }
+            .data-table tbody td.td-c { text-align:center; }
+            .data-table tbody td.td-r { text-align:right; }
+            .data-table tbody td.td-muted { color:#9ca3af; font-size:.8rem; }
+            .data-table .empty-row td { text-align:center; padding:48px; color:#9ca3af; font-size:.9rem; }
+
+            /* ── CRUD icon buttons ── */
+            .act-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px; border:none; cursor:pointer; transition:opacity .15s,transform .15s; flex-shrink:0; padding:0; text-decoration:none; -webkit-tap-highlight-color:transparent; }
+            .act-btn:hover { opacity:.8; transform:scale(1.1); }
+            .act-btn svg { width:15px; height:15px; pointer-events:none; }
+            .act-view   { background:#dbeafe; color:#1e40af; }
+            .act-edit   { background:#fef3c7; color:#92400e; }
+            .act-delete { background:#fee2e2; color:#991b1b; }
+            html.dark .act-view   { background:#1e3a5f; color:#93c5fd; }
+            html.dark .act-edit   { background:#3d2400; color:#fde68a; }
+            html.dark .act-delete { background:#3d0a0a; color:#fca5a5; }
+            .act-group { display:flex; align-items:center; justify-content:center; gap:5px; }
+
+            /* ── DataTable toolbar ── */
+            .dt-toolbar { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--topbar-border); }
+            .dt-toolbar-left { display:flex; align-items:center; gap:8px; }
+            .dt-toolbar-right { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+            .dt-search-wrap { position:relative; }
+            .dt-search-wrap svg { position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:#9ca3af; pointer-events:none; }
+            .dt-search { background:var(--input-bg); color:var(--text); border:1px solid var(--topbar-border); border-radius:8px; padding:7px 12px 7px 30px; font-size:.85rem; width:200px; outline:none; transition:border-color .15s; }
+            .dt-search:focus { border-color:#fcb913; }
+            .dt-btn { display:inline-flex; align-items:center; gap:5px; padding:7px 12px; border-radius:8px; border:none; cursor:pointer; font-size:.8rem; font-weight:600; transition:opacity .15s,transform .12s; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+            .dt-btn:hover { opacity:.85; transform:translateY(-1px); }
+            .dt-btn svg { width:14px; height:14px; flex-shrink:0; }
+            .dt-btn-pdf      { background:#fee2e2; color:#991b1b; }
+            .dt-btn-whatsapp { background:#dcfce7; color:#166534; }
+            .dt-btn-email    { background:#dbeafe; color:#1e40af; }
+            html.dark .dt-btn-pdf      { background:#3d0a0a; color:#fca5a5; }
+            html.dark .dt-btn-whatsapp { background:#052e16; color:#86efac; }
+            html.dark .dt-btn-email    { background:#0a1d3d; color:#93c5fd; }
+            .data-table thead th.dt-sortable { cursor:pointer; user-select:none; }
+            .data-table thead th.dt-sortable:hover { opacity:.85; }
+            .data-table thead th.dt-sort-asc::after  { content:' ↑'; opacity:.55; font-size:.7em; font-weight:400; }
+            .data-table thead th.dt-sort-desc::after { content:' ↓'; opacity:.55; font-size:.7em; font-weight:400; }
+            tr.dt-hidden { display:none !important; }
+            .dt-no-match { text-align:center; padding:40px 16px !important; color:#9ca3af; font-size:.9rem; }
+
+            /* ── Date range filter bar (shared across all index pages) ── */
+            .fbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--card); border:1px solid var(--topbar-border); border-radius:16px; padding:11px 16px; margin-bottom:18px; }
+            html.dark .fbar { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.08); }
+            .fbar-label { font-size:.63rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#9ca3af; white-space:nowrap; }
+            .fbar-ctrl { display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+            .fbar input[type=date] { background:var(--input-bg,var(--bg)); border:1px solid var(--topbar-border); border-radius:9px; padding:6px 10px; font-size:.78rem; color:var(--text); outline:none; transition:border-color .15s; color-scheme:dark; }
+            .fbar input[type=date]:focus { border-color:#db9f01; }
+            html:not(.dark) .fbar input[type=date] { color-scheme:light; }
+            .fbar-sep { color:#6b7280; font-size:.75rem; }
+            .fbar-apply { padding:6px 16px; border-radius:9px; font-size:.75rem; font-weight:700; background:linear-gradient(135deg,#db9f01,#fcb913); color:#001a4d; border:none; cursor:pointer; transition:filter .15s,transform .15s; white-space:nowrap; }
+            .fbar-apply:hover { filter:brightness(1.1); transform:translateY(-1px); }
+            .fbar-presets { display:flex; gap:5px; flex-wrap:wrap; margin-left:auto; }
+            .fbar-preset { padding:5px 11px; border-radius:8px; font-size:.67rem; font-weight:700; background:transparent; border:1px solid var(--topbar-border); color:#9ca3af; cursor:pointer; text-decoration:none; transition:background .12s,color .12s; white-space:nowrap; }
+            .fbar-preset:hover, .fbar-preset.active { background:rgba(219,159,1,.12); border-color:rgba(219,159,1,.4); color:#db9f01; }
+            .fbar-active { display:inline-flex; align-items:center; gap:5px; font-size:.67rem; color:#db9f01; font-weight:600; background:rgba(219,159,1,.08); border:1px solid rgba(219,159,1,.2); border-radius:8px; padding:4px 9px; }
+
+            /* ── Mobile overrides ── */
+            @media(max-width:767px){
+                .fbar { flex-direction:column; align-items:stretch; gap:9px; }
+                .fbar-ctrl { flex-wrap:wrap; }
+                .fbar-ctrl input[type=date] { flex:1; min-width:110px; }
+                .fbar-ctrl .fbar-apply { flex:1; text-align:center; justify-content:center; }
+                .fbar-presets { margin-left:0; }
+                .fbar-active { justify-content:center; }
+                .dt-toolbar { flex-direction:column; align-items:stretch; }
+                .dt-toolbar-left, .dt-toolbar-right { width:100%; }
+                .dt-search { width:100%; }
+                .dt-toolbar-right { justify-content:flex-start; }
+                .page-title { font-size:1.2rem; }
+                .notif-panel { min-width:calc(100vw - 32px); right:-60px; }
+                #topSearch { width:140px; }
+            }
+            @media(max-width:479px){
+                #topSearch { display:none; }
+                .topbar .search-wrap { display:none; }
+            }
+        </style>
+        @stack('styles')
+    </head>
+    <body class="font-sans antialiased min-h-screen">
+        <div class="flex min-h-screen">
+
+            <!-- ═══════════════ SIDEBAR ═══════════════ -->
+            <aside class="sidebar flex flex-col py-5 px-3 h-screen fixed left-0 top-0" id="sidebar" style="background-color:#001a4d;">
+                <div class="mb-5 px-2">
+                    @if($logoUrl)
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-2" style="text-decoration:none;">
+                            <span style="
+                                display:inline-flex;
+                                align-items:center;
+                                justify-content:center;
+                                width:36px; height:36px;
+                                border-radius:8px;
+                                background:#fff;
+                                flex-shrink:0;
+                                overflow:hidden;
+                                padding:3px;
+                            ">
+                                <img src="{{ $logoUrl }}" alt="{{ $companyName }}"
+                                     style="width:30px;height:30px;object-fit:contain;">
+                            </span>
+                            <span style="color:#fcb913;font-size:.8rem;font-weight:700;line-height:1.25;max-width:110px;">{{ $companyName }}</span>
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-2" style="text-decoration:none;">
+                            <span style="
+                                display:inline-flex;align-items:center;justify-content:center;
+                                width:36px;height:36px;border-radius:8px;
+                                background:#fcb913;color:#001a4d;font-size:1.1rem;flex-shrink:0;
+                            ">&#9968;</span>
+                            <span style="color:#fcb913;font-size:.8rem;font-weight:700;line-height:1.25;max-width:110px;">{{ $companyName }}</span>
+                        </a>
+                    @endif
+                </div>
+                <nav class="flex-1 flex flex-col gap-0.5 overflow-y-auto">
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
+                    <a href="{{ route('production.index') }}" class="{{ request()->routeIs('production.*') ? 'active' : '' }}" title="Daily Production"><span class="nav-icon">&#129760;</span><span class="nav-text">&nbsp;Daily Production</span></a>
+                    <a href="{{ route('drilling.index') }}" class="{{ request()->routeIs('drilling.*') ? 'active' : '' }}" title="Drilling"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Drilling</span></a>
+                    <a href="{{ route('blasting.index') }}" class="{{ request()->routeIs('blasting.*') ? 'active' : '' }}" title="Blasting"><span class="nav-icon">&#128165;</span><span class="nav-text">&nbsp;Blasting</span></a>
+                    <a href="{{ route('chemicals.index') }}" class="{{ request()->routeIs('chemicals.*') ? 'active' : '' }}" title="Chemicals"><span class="nav-icon">&#9879;</span><span class="nav-text">&nbsp;Chemicals</span></a>
+                    <a href="{{ route('labour-energy.index') }}" class="{{ request()->routeIs('labour-energy.*') ? 'active' : '' }}" title="Labour &amp; Energy"><span class="nav-icon">&#9889;</span><span class="nav-text">&nbsp;Labour &amp; Energy</span></a>
+                    <a href="{{ route('machines.index') }}" class="{{ request()->routeIs('machines.*') ? 'active' : '' }}" title="Machines"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Machines</span></a>
+                    <a href="{{ route('assay.index') }}" class="{{ request()->routeIs('assay.*') ? 'active' : '' }}" title="Assay Results"><span class="nav-icon">&#128300;</span><span class="nav-text">&nbsp;Assay Results</span></a>
+                    <hr>
+                    <a href="{{ route('reports.production') }}" class="{{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
+                    <a href="{{ route('reports.consumables') }}" class="{{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>
+                    <hr>
+                    @if(auth()->user()?->isAdminOrAbove())
+                    <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}" title="User Management"><span class="nav-icon">&#128100;</span><span class="nav-text">&nbsp;Users</span></a>
+                    <a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
+                    @endif
+                    @if(auth()->user()?->isSuperAdmin())
+                    <a href="{{ route('roles.index') }}" class="{{ request()->routeIs('roles.*') ? 'active' : '' }}" title="Roles &amp; Permissions"><span class="nav-icon">&#128737;</span><span class="nav-text">&nbsp;Roles</span></a>
+                    @endif
+                </nav>
+                <div class="sb-footer mt-4 pt-3 px-2 text-xs" style="border-top:1px solid #374151; color:#6b7280;">
+                    {{ $companyName }} &copy; {{ date('Y') }}
+                </div>
+            </aside>
+
+            <!-- Mobile sidebar overlay -->
+            <div class="sb-overlay" id="sbOverlay"></div>
+
+            <!-- ═══════════════ TOPBAR ═══════════════ -->
+            <header class="topbar" id="topbar">
+                <!-- Hamburger (mobile + desktop) -->
+                <button id="sidebarToggleBtn" class="icon-btn" title="Toggle sidebar" style="flex-shrink:0;font-size:1.05rem;">&#9776;</button>
+
+                <!-- Page title slot -->
+                <span class="font-semibold text-sm flex-shrink-0 hidden sm:block" style="color:var(--text);">
+                    @yield('page-title', config('app.name', 'My Mine'))
+                </span>
+
+                <!-- Search -->
+                <div class="search-wrap flex-1 max-w-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                    <input type="search" placeholder="Search..." id="topSearch">
+                </div>
+
+                <div class="flex items-center gap-2 ml-auto">
+
+                    <!-- Dark mode toggle -->
+                    <button class="icon-btn" id="darkToggle" title="Toggle dark mode">
+                        <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+                        <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+                    </button>
+
+                    <!-- Notifications -->
+                    <div class="dropdown">
+                        <button class="icon-btn" id="notifBtn" title="Notifications">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/></svg>
+                            <span class="badge"></span>
+                        </button>
+                        <div class="dropdown-menu notif-panel" id="notifMenu">
+                            <div style="padding:10px 14px 6px;font-weight:600;font-size:.85rem;color:var(--text);">Notifications</div>
+                            <hr style="border-color:var(--topbar-border);margin:4px 0 6px;">
+                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
+                                <span class="notif-dot" style="margin-top:5px;"></span>
+                                <div><strong>Machine service due</strong><br><span style="color:#9ca3af;">Compressor #2 overdue by 3 days</span></div>
+                            </div>
+                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
+                                <span class="notif-dot" style="margin-top:5px;"></span>
+                                <div><strong>New assay result</strong><br><span style="color:#9ca3af;">Fire assay batch ready for review</span></div>
+                            </div>
+                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
+                                <span class="notif-dot" style="background:#6b7280;margin-top:5px;"></span>
+                                <div><strong>Monthly report generated</strong><br><span style="color:#9ca3af;">March 2026 production summary</span></div>
+                            </div>
+                            <hr style="border-color:var(--topbar-border);margin:6px 0 4px;">
+                            <a href="{{ route('reports.production') }}" style="text-align:center;justify-content:center;font-size:.8rem;color:#fcb913;">View all reports →</a>
+                        </div>
+                    </div>
+
+                    <!-- Profile dropdown -->
+                    <div class="dropdown">
+                        <button class="profile-btn" id="profileBtn">
+                            @if(auth()->user()->avatar_path)
+                                <img src="{{ asset('storage/'.auth()->user()->avatar_path) }}" alt="avatar"
+                                     style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #fcb913;">
+                            @else
+                                <span class="avatar">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
+                            @endif
+                            <span class="hidden sm:inline">{{ auth()->user()->name ?? 'User' }}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div class="dropdown-menu" id="profileMenu">
+                            <div style="padding:8px 12px 4px;">
+                                <div style="font-size:.78rem;color:#9ca3af;">{{ auth()->user()->email ?? '' }}</div>
+                                @php
+                                    $roleColour = match(auth()->user()?->role) {
+                                        'super_admin' => '#7c3aed',
+                                        'admin'       => '#ef4444',
+                                        'manager'     => '#fcb913',
+                                        default       => '#9ca3af',
+                                    };
+                                @endphp
+                                <span style="font-size:.68rem;font-weight:700;text-transform:uppercase;color:{{ $roleColour }};">{{ auth()->user()?->role }}</span>
+                            </div>
+                            <hr>
+                            <a href="{{ route('profile.edit') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/></svg>
+                                My Profile
+                            </a>
+                            @if(auth()->user()?->isAdminOrAbove())
+                            <a href="{{ route('settings.index') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0..."/></svg>
+                                Settings
+                            </a>
+                            @endif
+                            <hr>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"/></svg>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+            <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+            <main class="flex-1 min-h-screen main-area" id="mainContent" style="margin-left:224px; margin-top:60px; padding:20px 16px; transition:margin-left .26s ease;">
+                <style>
+                    @media(min-width:640px){ #mainContent { padding:24px 24px !important; } }
+                    @media(min-width:1024px){ #mainContent { padding:28px 32px !important; } }
+                </style>
+                @if(session('success'))
+                    <div class="mb-4 p-3 rounded" style="background:#dcfce7;border:1px solid #86efac;color:#166534;">{{ session('success') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="mb-4 p-3 rounded" style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;">
+                        <ul class="list-disc pl-5">
+                            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                        </ul>
+                    </div>
+                @endif
+                @yield('content')
+            </main>
+        </div>
+
+        @stack('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+        <script>
+        /* ── Company info for PDF / share ── */
+        window.companyInfo = {
+            name:       @json($companyName),
+            location:   @json($appSettings['company_location'] ?? ''),
+            address:    @json($appSettings['company_address']  ?? ''),
+            phone:      @json($appSettings['company_phone']    ?? ''),
+            email:      @json($appSettings['company_email']    ?? ''),
+            logoUrl:    @json($logoUrl),
+            exportedBy: @json(auth()->user()->name ?? 'Unknown'),
+        };
+
+        /* Pre-load logo so exportPDF can draw it synchronously */
+        window.__pdfLogoDataUrl = null;
+        (function () {
+            var url = (window.companyInfo || {}).logoUrl;
+            if (!url) return;
+            var img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function () {
+                try {
+                    var c = document.createElement('canvas');
+                    c.width  = img.naturalWidth  || 200;
+                    c.height = img.naturalHeight || 200;
+                    c.getContext('2d').drawImage(img, 0, 0);
+                    window.__pdfLogoDataUrl = c.toDataURL('image/png');
+                } catch (e) { /* tainted canvas — skip */ }
+            };
+            img.src = url;
+        }());
+
+        /* ════════════════════════════════════════════════════════════════════
+           DataTable — filter, sort, PDF export, WhatsApp & Email share
+        ════════════════════════════════════════════════════════════════════ */
+        (function () {
+            'use strict';
+
+            var ICONS = {
+                search:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+                pdf:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
+                whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 2C6.477 2 2 6.479 2 12.009a9.96 9.96 0 0 0 1.385 5.07L2 22l5.085-1.352A9.96 9.96 0 0 0 12 22c5.523 0 10-4.479 10-9.991C22 6.479 17.523 2 12 2zm0 18.16a8.2 8.2 0 0 1-4.186-1.148l-.3-.178-3.118.828.831-3.059-.196-.314A8.19 8.19 0 0 1 3.84 12.01C3.84 7.497 7.49 3.84 12 3.84s8.162 3.657 8.162 8.169c0 4.513-3.65 8.151-8.162 8.151z"/></svg>',
+                email:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+            };
+
+            /* ── Helpers ── */
+            function pageTitle() {
+                var el = document.querySelector('.page-title');
+                return el ? el.textContent.trim() : document.title;
+            }
+
+            function actionsColIdx(table) {
+                var ths = table.querySelectorAll('thead th');
+                for (var i = 0; i < ths.length; i++) {
+                    if (ths[i].textContent.trim() === 'Actions') return i;
+                }
+                return -1;
+            }
+
+            function getHeaders(table) {
+                var skip = actionsColIdx(table);
+                return Array.from(table.querySelectorAll('thead th'))
+                    .filter(function (_, i) { return i !== skip; })
+                    .map(function (th) { return th.textContent.trim(); });
+            }
+
+            function visibleRows(table) {
+                return Array.from(table.querySelectorAll('tbody tr')).filter(function (r) {
+                    return !r.classList.contains('dt-hidden') &&
+                           !r.classList.contains('empty-row') &&
+                           !r.classList.contains('dt-no-match-row');
+                });
+            }
+
+            function getRowData(table) {
+                var skip = actionsColIdx(table);
+                return visibleRows(table).map(function (row) {
+                    return Array.from(row.cells)
+                        .filter(function (_, i) { return i !== skip; })
+                        .map(function (td) { return td.textContent.trim(); });
+                });
+            }
+
+            function tableToText(table, title) {
+                var ci = window.companyInfo || {};
+                var headers = getHeaders(table);
+                var rows = getRowData(table);
+                var sep = headers.map(function () { return '───────────'; }).join('─┼─');
+                var lines = [
+                    '╔══ ' + (ci.name || 'My Mine') + ' ══╗',
+                    [ci.location, ci.address].filter(Boolean).join(' | '),
+                    ci.phone ? 'Tel: ' + ci.phone : '',
+                    '',
+                    '📄 ' + title,
+                    'Generated: ' + new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}),
+                    sep,
+                    headers.join(' | '),
+                    sep,
+                ].filter(function (l) { return l !== null; });
+                rows.forEach(function (r) { lines.push(r.join(' | ')); });
+                lines.push(sep);
+                lines.push('Total: ' + rows.length + ' records');
+                return lines.join('\n');
+            }
+
+            /* ── PDF Export ── */
+            function exportPDF(table, title) {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    alert('PDF library is still loading — please try again in a moment.');
+                    return;
+                }
+                var ci  = window.companyInfo || {};
+                var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                var W   = doc.internal.pageSize.getWidth();
+                var rows = getRowData(table);
+
+                /* Header — white background with gold accent bar */
+                var HDR = 34;
+                doc.setFillColor(255, 255, 255);
+                doc.rect(0, 0, W, HDR, 'F');
+                doc.setFillColor(252, 193, 4);
+                doc.rect(0, HDR, W, 2, 'F');
+
+                /* Logo — left-aligned, vertically centred in header */
+                var textX = 14;
+                if (window.__pdfLogoDataUrl) {
+                    try {
+                        var props  = doc.getImageProperties(window.__pdfLogoDataUrl);
+                        var logoH  = 24;
+                        var logoW  = Math.round(logoH * props.width / props.height);
+                        doc.addImage(window.__pdfLogoDataUrl, 'PNG', 14, 5, logoW, logoH);
+                        textX = 14 + logoW + 6;
+                    } catch (e) { /* skip if image fails */ }
+                }
+
+                /* Company name */
+                doc.setTextColor(0, 26, 77);
+                doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+                doc.text(ci.name || 'My Mine', textX, 13);
+
+                /* Location / address */
+                doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+                doc.setTextColor(107, 114, 128);
+                var sub = [ci.location, ci.address].filter(Boolean).join('   ·   ');
+                if (sub) doc.text(sub, textX, 21);
+
+                /* Phone / email */
+                if (ci.phone || ci.email) {
+                    doc.text([ci.phone, ci.email].filter(Boolean).join('   ·   '), textX, 28);
+                }
+
+                /* Record count — top-right */
+                doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+                doc.setTextColor(107, 114, 128);
+                doc.text(rows.length + ' records', W - 14, 13, { align: 'right' });
+
+                /* Report title — below accent bar */
+                doc.setTextColor(0, 26, 77);
+                doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+                doc.text(title, 14, HDR + 10);
+
+                /* Table */
+                doc.autoTable({
+                    head: [getHeaders(table)],
+                    body: rows,
+                    startY: HDR + 15,
+                    styles: { fontSize: 8, cellPadding: 3, overflow: 'linebreak', textColor: [30, 30, 30] },
+                    headStyles: { fillColor: [252, 193, 4], textColor: [26, 26, 26], fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [249, 250, 251] },
+                    tableLineColor: [229, 231, 235], tableLineWidth: 0.1,
+                    margin: { left: 14, right: 14 },
+                    didDrawPage: function () {
+                        var pH = doc.internal.pageSize.getHeight();
+                        var pageNum = doc.getCurrentPageInfo().pageNumber;
+                        var totalPages = doc.internal.getNumberOfPages();
+
+                        /* Footer rule */
+                        doc.setDrawColor(209, 213, 219);
+                        doc.setLineWidth(0.3);
+                        doc.line(14, pH - 14, W - 14, pH - 14);
+
+                        doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+
+                        /* Left: company name — Confidential */
+                        doc.setTextColor(107, 114, 128);
+                        doc.text((ci.name || '') + '  —  Confidential', 14, pH - 10);
+
+                        /* Centre: exported by */
+                        doc.setTextColor(107, 114, 128);
+                        doc.text('Exported by: ' + (ci.exportedBy || 'Unknown'), W / 2, pH - 10, { align: 'center' });
+
+                        /* Right: page x of y */
+                        doc.setTextColor(107, 114, 128);
+                        doc.text('Page ' + pageNum + ' of ' + totalPages, W - 14, pH - 10, { align: 'right' });
+
+                        /* Second line — generated datetime */
+                        doc.setTextColor(156, 163, 175);
+                        doc.text('Generated: ' + new Date().toLocaleString(), W - 14, pH - 6, { align: 'right' });
+                    }
+                });
+
+                doc.save(title.replace(/[^a-z0-9]/gi, '_') + '_' + new Date().toISOString().slice(0, 10) + '.pdf');
+            }
+
+            /* ── WhatsApp Share ── */
+            function shareWhatsApp(table, title) {
+                var text = tableToText(table, title);
+                window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+            }
+
+            /* ── Email Share ── */
+            function shareEmail(table, title) {
+                var ci = window.companyInfo || {};
+                var subject = (ci.name ? ci.name + ' — ' : '') + title;
+                window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) +
+                    '&body=' + encodeURIComponent(tableToText(table, title));
+            }
+
+            /* ── Filter ── */
+            function applyFilter(table, q) {
+                var hasVisible = false;
+                table.querySelectorAll('tbody tr:not(.dt-no-match-row):not(.empty-row)').forEach(function (row) {
+                    var match = q === '' || row.textContent.toLowerCase().includes(q);
+                    row.classList.toggle('dt-hidden', !match);
+                    if (match) hasVisible = true;
+                });
+                var nmr = table.querySelector('.dt-no-match-row');
+                if (!nmr) {
+                    nmr = document.createElement('tr');
+                    nmr.className = 'dt-no-match-row dt-hidden';
+                    var td = document.createElement('td');
+                    td.className = 'dt-no-match';
+                    td.colSpan = table.querySelectorAll('thead th').length;
+                    td.textContent = 'No matching records.';
+                    nmr.appendChild(td);
+                    table.querySelector('tbody').appendChild(nmr);
+                }
+                nmr.classList.toggle('dt-hidden', hasVisible || q === '');
+            }
+
+            /* ── Sort ── */
+            function initSort(table) {
+                table.querySelectorAll('thead th').forEach(function (th, idx) {
+                    if (th.textContent.trim() === 'Actions') return;
+                    th.classList.add('dt-sortable');
+                    var dir = 1;
+                    th.addEventListener('click', function () {
+                        var tbody  = table.querySelector('tbody');
+                        var rows   = Array.from(tbody.querySelectorAll('tr:not(.empty-row):not(.dt-no-match-row)'));
+                        rows.sort(function (a, b) {
+                            var aVal = a.cells[idx] ? a.cells[idx].textContent.trim() : '';
+                            var bVal = b.cells[idx] ? b.cells[idx].textContent.trim() : '';
+                            /* numeric (strip $, commas; parseFloat handles trailing units) */
+                            var aN = parseFloat(aVal.replace(/[$,]/g, ''));
+                            var bN = parseFloat(bVal.replace(/[$,]/g, ''));
+                            if (!isNaN(aN) && !isNaN(bN)) return (aN - bN) * dir;
+                            /* date */
+                            var aD = Date.parse(aVal), bD = Date.parse(bVal);
+                            if (!isNaN(aD) && !isNaN(bD)) return (aD - bD) * dir;
+                            return aVal.localeCompare(bVal) * dir;
+                        });
+                        rows.forEach(function (r) { tbody.appendChild(r); });
+                        var nmr = tbody.querySelector('.dt-no-match-row');
+                        if (nmr) tbody.appendChild(nmr);
+                        table.querySelectorAll('thead th').forEach(function (t) {
+                            t.classList.remove('dt-sort-asc', 'dt-sort-desc');
+                        });
+                        th.classList.add(dir === 1 ? 'dt-sort-asc' : 'dt-sort-desc');
+                        dir *= -1;
+                    });
+                });
+            }
+
+            /* ── Per-card init ── */
+            function initCard(card) {
+                var table = card.querySelector('.data-table');
+                if (!table) return;
+                var title = pageTitle();
+
+                var toolbar = document.createElement('div');
+                toolbar.className = 'dt-toolbar';
+                toolbar.innerHTML =
+                    '<div class="dt-toolbar-left">' +
+                    '  <div class="dt-search-wrap">' + ICONS.search +
+                    '    <input type="search" class="dt-search" placeholder="Search table…">' +
+                    '  </div>' +
+                    '</div>' +
+                    '<div class="dt-toolbar-right">' +
+                    '  <button class="dt-btn dt-btn-pdf"      title="Export as PDF">' + ICONS.pdf      + ' PDF</button>' +
+                    '  <button class="dt-btn dt-btn-whatsapp" title="Share via WhatsApp">' + ICONS.whatsapp + ' WhatsApp</button>' +
+                    '  <button class="dt-btn dt-btn-email"    title="Share via Email">' + ICONS.email    + ' Email</button>' +
+                    '</div>';
+
+                card.insertBefore(toolbar, card.firstChild);
+
+                toolbar.querySelector('.dt-search').addEventListener('input', function () {
+                    applyFilter(table, this.value.trim().toLowerCase());
+                });
+                initSort(table);
+                toolbar.querySelector('.dt-btn-pdf').addEventListener('click',      function () { exportPDF(table, title); });
+                toolbar.querySelector('.dt-btn-whatsapp').addEventListener('click', function () { shareWhatsApp(table, title); });
+                toolbar.querySelector('.dt-btn-email').addEventListener('click',    function () { shareEmail(table, title); });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.data-card').forEach(initCard);
+            });
+        })();
+        </script>
+        <script>
+        // ── Sidebar collapse ──
+        (function(){
+            var sidebar   = document.getElementById('sidebar');
+            var topbar    = document.getElementById('topbar');
+            var mainEl    = document.getElementById('mainContent');
+            var overlay   = document.getElementById('sbOverlay');
+            var WIDE = 224, SLIM = 64;
+
+            function isMobile(){ return window.innerWidth < 1024; }
+
+            function applyDesktop(collapsed){
+                sidebar.classList.toggle('collapsed', collapsed);
+                var w = collapsed ? SLIM : WIDE;
+                topbar.style.left     = w + 'px';
+                mainEl.style.marginLeft = w + 'px';
+                localStorage.setItem('sbCollapsed', collapsed ? '1' : '0');
+            }
+
+            // Restore desktop state on load; on mobile ensure clean state
+            if(isMobile()){
+                sidebar.classList.remove('collapsed');
+                topbar.style.left     = '';
+                mainEl.style.marginLeft = '';
+            } else if(localStorage.getItem('sbCollapsed') === '1'){
+                sidebar.classList.add('collapsed');
+                topbar.style.left     = SLIM + 'px';
+                mainEl.style.marginLeft = SLIM + 'px';
+            }
+
+            // Topbar hamburger (mobile + desktop)
+            document.getElementById('sidebarToggleBtn').addEventListener('click', function(e){
+                e.stopPropagation();
+                if(isMobile()){
+                    var open = sidebar.classList.toggle('mobile-open');
+                    overlay.classList.toggle('visible', open);
+                } else {
+                    applyDesktop(!sidebar.classList.contains('collapsed'));
+                }
+            });
+
+            // Sidebar collapse button (desktop ◀ inside sidebar)
+            var colBtn = document.getElementById('sidebarCollapseBtn');
+            if(colBtn){
+                colBtn.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    if(!isMobile()) applyDesktop(!sidebar.classList.contains('collapsed'));
+                });
+            }
+
+            // Close mobile sidebar on overlay click
+            overlay.addEventListener('click', function(){
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('visible');
+            });
+
+            // Handle resize
+            window.addEventListener('resize', function(){
+                if(!isMobile()){
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.remove('visible');
+                    var c = localStorage.getItem('sbCollapsed') === '1';
+                    sidebar.classList.toggle('collapsed', c);
+                    topbar.style.left     = (c ? SLIM : WIDE) + 'px';
+                    mainEl.style.marginLeft = (c ? SLIM : WIDE) + 'px';
+                } else {
+                    // On mobile: undo any desktop collapse, let CSS media query take over
+                    sidebar.classList.remove('collapsed');
+                    overlay.classList.remove('visible');
+                    sidebar.classList.remove('mobile-open');
+                    topbar.style.left     = '';
+                    mainEl.style.marginLeft = '';
+                }
+            });
+        })();
+
+        // ── Dark mode ──
+        (function(){
+            if(localStorage.getItem('theme')==='dark'){
+                document.documentElement.classList.add('dark');
+                document.getElementById('iconSun').style.display='none';
+                document.getElementById('iconMoon').style.display='';
+            }
+        })();
+        document.getElementById('darkToggle').addEventListener('click',function(){
+            const isDark=document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme',isDark?'dark':'light');
+            document.getElementById('iconSun').style.display=isDark?'none':'';
+            document.getElementById('iconMoon').style.display=isDark?'':'none';
+        });
+
+        // ── Dropdowns ──
+        function toggleDropdown(menuId, btnId){
+            const menu=document.getElementById(menuId);
+            const isOpen=menu.classList.contains('open');
+            document.querySelectorAll('.dropdown-menu.open').forEach(m=>m.classList.remove('open'));
+            if(!isOpen) menu.classList.add('open');
+        }
+        document.getElementById('notifBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleDropdown('notifMenu','notifBtn'); });
+        document.getElementById('profileBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleDropdown('profileMenu','profileBtn'); });
+        document.addEventListener('click',function(){ document.querySelectorAll('.dropdown-menu.open').forEach(m=>m.classList.remove('open')); });
+
+        // ── Search (client-side navigation hint) ──
+        document.getElementById('topSearch').addEventListener('keydown',function(e){
+            if(e.key==='Enter' && this.value.trim()){
+                const q=this.value.trim().toLowerCase();
+                const routes={
+                    'production':'{{ route("production.index") }}',
+                    'drilling':'{{ route("drilling.index") }}',
+                    'blasting':'{{ route("blasting.index") }}',
+                    'chemicals':'{{ route("chemicals.index") }}',
+                    'labour':'{{ route("labour-energy.index") }}',
+                    'energy':'{{ route("labour-energy.index") }}',
+                    'machines':'{{ route("machines.index") }}',
+                    'assay':'{{ route("assay.index") }}',
+                    'settings':'{{ route("settings.index") }}',
+                    'report':'{{ route("reports.production") }}',
+                    'dashboard':'{{ route("dashboard") }}',
+                };
+                for(const[k,v] of Object.entries(routes)){
+                    if(q.includes(k)){ window.location.href=v; return; }
+                }
+            }
+        });
+        </script>
+    </body>
+</html>

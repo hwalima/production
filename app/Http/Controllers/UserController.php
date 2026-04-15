@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::orderBy('name')->get();
+        return view('users.index', compact('users'));
+    }
+
+    public function create()
+    {
+        return view('users.create');
+    }
+
+    public function store(Request $request)
+    {
+        /** @var \App\Models\User $actor */
+        $actor = auth()->user();
+        // Only super_admin may assign the super_admin role
+        $allowedRoles = $actor->isSuperAdmin()
+            ? ['super_admin', 'admin', 'manager', 'viewer']
+            : ['admin', 'manager', 'viewer'];
+
+        $data = $request->validate([
+            'name'      => 'required|string|max:100',
+            'email'     => 'required|email|max:150|unique:users,email',
+            'role'      => ['required', Rule::in($allowedRoles)],
+            'job_title' => 'nullable|string|max:100',
+            'phone'     => 'nullable|string|max:30',
+            'password'  => ['required', Password::min(8)->letters()->numbers()],
+        ]);
+
+        User::create([
+            'name'      => $data['name'],
+            'email'     => $data['email'],
+            'role'      => $data['role'],
+            'job_title' => $data['job_title'] ?? null,
+            'phone'     => $data['phone'] ?? null,
+            'password'  => Hash::make($data['password']),
+            'email_verified_at' => now(),
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    }
+
+    public function edit(User $user)
+    {
+        return view('users.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        /** @var \App\Models\User $actor */
+        $actor = auth()->user();
+        // Only super_admin may assign or keep the super_admin role
+        $allowedRoles = $actor->isSuperAdmin()
+            ? ['super_admin', 'admin', 'manager', 'viewer']
+            : ['admin', 'manager', 'viewer'];
+
+        $rules = [
+            'name'      => 'required|string|max:100',
+            'email'     => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
+            'role'      => ['required', Rule::in($allowedRoles)],
+            'job_title' => 'nullable|string|max:100',
+            'phone'     => 'nullable|string|max:30',
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', Password::min(8)->letters()->numbers()];
+        }
+
+        $data = $request->validate($rules);
+
+        $update = [
+            'name'      => $data['name'],
+            'email'     => $data['email'],
+            'role'      => $data['role'],
+            'job_title' => $data['job_title'] ?? null,
+            'phone'     => $data['phone'] ?? null,
+        ];
+
+        if ($request->filled('password')) {
+            $update['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($update);
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')->with('error', 'You cannot delete your own account here.');
+        }
+
+        /** @var \App\Models\User $actor */
+        $actor = auth()->user();
+        if ($user->isSuperAdmin() && !$actor->isSuperAdmin()) {
+            return redirect()->route('users.index')->with('error', 'Only a Super Administrator can delete another Super Administrator.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User deleted.');
+    }
+}
