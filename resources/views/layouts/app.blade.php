@@ -209,28 +209,34 @@
             }
 
             /* ── Toast notifications ── */
-            #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:380px;width:calc(100vw - 48px);}
-            .toast-item{position:relative;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);padding:14px 42px 22px 14px;display:flex;gap:12px;align-items:flex-start;overflow:hidden;pointer-events:all;opacity:0;transform:translateX(30px);transition:opacity .3s,transform .3s;}
-            html.dark .toast-item{background:#1e2a3a;box-shadow:0 8px 32px rgba(0,0,0,.45);}
-            .toast-item.toast-show{opacity:1;transform:translateX(0);}
-            .toast-item.toast-hide{opacity:0;transform:translateX(30px);transition:opacity .25s,transform .25s;}
-            .toast-icon-wrap{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
-            .toast-success .toast-icon-wrap{background:#dcfce7;color:#16a34a;}
-            .toast-error   .toast-icon-wrap{background:#fee2e2;color:#dc2626;}
-            .toast-warning .toast-icon-wrap{background:#fef3c7;color:#d97706;}
-            .toast-info    .toast-icon-wrap{background:#dbeafe;color:#2563eb;}
-            .toast-body{flex:1;min-width:0;}
-            .toast-label{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;}
+            #toast-container{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;pointer-events:none;}
+            .toast-item{position:relative;background:#fff;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.16),0 4px 16px rgba(0,0,0,.08);padding:44px 28px 20px;width:280px;text-align:center;overflow:visible;pointer-events:all;opacity:0;transform:scale(.84) translateY(-18px);transition:opacity .32s cubic-bezier(.34,1.56,.64,1),transform .32s cubic-bezier(.34,1.56,.64,1);}
+            html.dark .toast-item{background:#1e2a3a;box-shadow:0 24px 64px rgba(0,0,0,.55);}
+            .toast-item.toast-show{opacity:1;transform:scale(1) translateY(0);}
+            .toast-item.toast-hide{opacity:0;transform:scale(.84) translateY(-18px);transition:opacity .22s ease,transform .22s ease;}
+            .toast-success{border-left:5px solid #22c55e;}
+            .toast-error  {border-left:5px solid #ef4444;}
+            .toast-warning{border-left:5px solid #f59e0b;}
+            .toast-info   {border-left:5px solid #3b82f6;}
+            .toast-icon-wrap{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:absolute;top:-34px;left:50%;transform:translateX(-50%);border:5px solid var(--bg,#f5f5f5);}
+            html.dark .toast-icon-wrap{border-color:#111827;}
+            .toast-success .toast-icon-wrap{background:#22c55e;color:#fff;}
+            .toast-error   .toast-icon-wrap{background:#ef4444;color:#fff;}
+            .toast-warning .toast-icon-wrap{background:#f59e0b;color:#fff;}
+            .toast-info    .toast-icon-wrap{background:#3b82f6;color:#fff;}
+            .toast-label{font-size:1.1rem;font-weight:800;margin-bottom:6px;margin-top:6px;}
             .toast-success .toast-label{color:#16a34a;}
             .toast-error   .toast-label{color:#dc2626;}
             .toast-warning .toast-label{color:#d97706;}
             .toast-info    .toast-label{color:#2563eb;}
-            .toast-text{font-size:.855rem;font-weight:500;line-height:1.45;color:#1e293b;}
-            html.dark .toast-text{color:#e2e8f0;}
-            .toast-x{position:absolute;top:9px;right:9px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:#9ca3af;border-radius:4px;padding:0;transition:color .12s,background .12s;}
-            .toast-x:hover{color:#6b7280;background:rgba(0,0,0,.06);}
-            html.dark .toast-x:hover{background:rgba(255,255,255,.07);}
-            .toast-track{position:absolute;bottom:0;left:0;right:0;height:4px;background:rgba(0,0,0,.06);border-radius:0 0 14px 14px;overflow:hidden;}
+            html.dark .toast-label{filter:brightness(1.25);}
+            .toast-text{font-size:.83rem;color:#64748b;line-height:1.5;margin-bottom:4px;}
+            html.dark .toast-text{color:#94a3b8;}
+            .toast-x{position:absolute;top:10px;right:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.06);border:none;cursor:pointer;color:#94a3b8;border-radius:50%;padding:0;transition:background .12s,color .12s;}
+            .toast-x:hover{background:rgba(0,0,0,.12);color:#64748b;}
+            html.dark .toast-x{background:rgba(255,255,255,.08);}
+            html.dark .toast-x:hover{background:rgba(255,255,255,.15);}
+            .toast-track{position:absolute;bottom:0;left:0;right:0;height:5px;background:rgba(0,0,0,.06);border-radius:0 0 20px 20px;overflow:hidden;}
             html.dark .toast-track{background:rgba(255,255,255,.07);}
             .toast-bar{height:100%;width:100%;}
             .toast-success .toast-bar{background:#22c55e;}
@@ -420,13 +426,13 @@
         (function () {
             var D = 5000;
             var SVG = {
-                success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-                error:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-                warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-                info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+                success: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+                error:   '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+                warning: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                info:    '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
                 close:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
             };
-            var LBL = { success:'Success', error:'Error', warning:'Warning', info:'Info' };
+            var LBL = { success:'Success', error:'Failed', warning:'Warning', info:'Info' };
 
             function showToast(type, msg) {
                 var c = document.getElementById('toast-container');
@@ -436,10 +442,8 @@
                 el.className = 'toast-item toast-' + type;
                 el.innerHTML =
                     '<div class="toast-icon-wrap">' + SVG[type] + '</div>' +
-                    '<div class="toast-body">' +
-                        '<div class="toast-label">' + LBL[type] + '</div>' +
-                        '<div class="toast-text">' + esc(msg) + '</div>' +
-                    '</div>' +
+                    '<div class="toast-label">' + LBL[type] + '</div>' +
+                    '<div class="toast-text">' + esc(msg) + '</div>' +
                     '<button class="toast-x" aria-label="Dismiss">' + SVG.close + '</button>' +
                     '<div class="toast-track"><div class="toast-bar"></div></div>';
                 c.appendChild(el);
