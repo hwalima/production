@@ -10,9 +10,25 @@
 // ── Config ───────────────────────────────────────────────────
 define('DEPLOY_SECRET', getenv('DEPLOY_SECRET') ?: 'epochmines-deploy-2026');
 define('APP_DIR',       '/home/trukumb2/public_html/mymine');
-define('PHP_BIN',       '/usr/bin/php');          // adjust if needed
 define('LOG_FILE',      APP_DIR . '/storage/logs/deploy.log');
 define('BRANCH',        'main');
+
+// Detect the correct PHP CLI binary (cPanel EasyApache path)
+function findPhpBin(): string {
+    $candidates = [
+        '/opt/cpanel/ea-php82/root/usr/bin/php',
+        '/usr/local/bin/php82',
+        '/usr/local/bin/php8.2',
+        '/usr/local/bin/php',
+        '/usr/bin/php82',
+        '/usr/bin/php8.2',
+        '/usr/bin/php',
+    ];
+    foreach ($candidates as $c) {
+        if (file_exists($c) && is_executable($c)) return $c;
+    }
+    return 'php'; // fallback
+}
 // ─────────────────────────────────────────────────────────────
 
 header('Content-Type: text/plain');
@@ -42,7 +58,7 @@ if ($ref !== 'refs/heads/' . BRANCH) {
 }
 
 // 4. Run deploy commands
-$php = PHP_BIN;
+$php = findPhpBin();
 $dir = APP_DIR;
 
 $commands = [
