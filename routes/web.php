@@ -18,6 +18,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ConsumableController;
 use App\Http\Controllers\MiningDepartmentController;
+use App\Http\Controllers\SheController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -63,6 +64,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/consumables', [ReportController::class, 'consumables'])->name('reports.consumables');
     Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf')->middleware('throttle:10,1');
     Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf')->middleware('throttle:10,1');
+
+    // ── SHE — read-only for all roles ────────────────────────────────────
+    Route::get('/she', [SheController::class, 'index'])->name('she.index');
+
+    // ── SHE — write access ───────────────────────────────────────────────
+    Route::middleware('role:super_admin,admin,manager')->group(function () {
+        Route::get('/she/indicators/edit', [SheController::class, 'editIndicators'])->name('she.indicators.edit');
+        Route::post('/she/indicators',     [SheController::class, 'storeIndicators'])->name('she.indicators.store');
+        Route::get('/she/requirements/edit', [SheController::class, 'editRequirements'])->name('she.requirements.edit');
+        Route::post('/she/requirements',     [SheController::class, 'storeRequirements'])->name('she.requirements.store');
+    });
+
+    // ── SHE items management — admin+ only ───────────────────────────────
+    Route::middleware('role:super_admin,admin')->group(function () {
+        Route::post('/she/items',          [SheController::class, 'storeItem'])->name('she.items.store');
+        Route::delete('/she/items/{item}', [SheController::class, 'destroyItem'])->name('she.items.destroy');
+    });
 
     // ── Admin + super_admin ───────────────────────────────────────────────
     Route::middleware('role:super_admin,admin')->group(function () {

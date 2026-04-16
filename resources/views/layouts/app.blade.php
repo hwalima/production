@@ -312,6 +312,7 @@
                     <a href="{{ route('labour-energy.index') }}" class="{{ request()->routeIs('labour-energy.*') ? 'active' : '' }}" title="Labour &amp; Energy"><span class="nav-icon">&#9889;</span><span class="nav-text">&nbsp;Labour &amp; Energy</span></a>
                     <a href="{{ route('machines.index') }}" class="{{ request()->routeIs('machines.*') ? 'active' : '' }}" title="Machines"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Machines</span></a>
                     <a href="{{ route('assay.index') }}" class="{{ request()->routeIs('assay.*') ? 'active' : '' }}" title="Assay Results"><span class="nav-icon">&#128300;</span><span class="nav-text">&nbsp;Assay Results</span></a>
+                    <a href="{{ route('she.index') }}" class="{{ request()->routeIs('she.*') ? 'active' : '' }}" title="SHE"><span class="nav-icon">&#9888;</span><span class="nav-text">&nbsp;SHE</span></a>
                     <hr>
                     <a href="{{ route('reports.production') }}" class="{{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
                     <a href="{{ route('reports.consumables') }}" class="{{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>
