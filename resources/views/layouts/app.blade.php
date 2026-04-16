@@ -318,7 +318,8 @@
                     <hr>
                     @if(auth()->user()?->isAdminOrAbove())
                     <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}" title="User Management"><span class="nav-icon">&#128100;</span><span class="nav-text">&nbsp;Users</span></a>
-                    <a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
+                    <a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') && !request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
+                    <a href="{{ route('mining-departments.index') }}" class="{{ request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Mining Departments"><span class="nav-icon">&#127970;</span><span class="nav-text">&nbsp;Departments</span></a>
                     @endif
                     @if(auth()->user()?->isSuperAdmin())
                     <a href="{{ route('roles.index') }}" class="{{ request()->routeIs('roles.*') ? 'active' : '' }}" title="Roles &amp; Permissions"><span class="nav-icon">&#128737;</span><span class="nav-text">&nbsp;Roles</span></a>

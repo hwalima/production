@@ -8,12 +8,7 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Mining Departments</h1>
-            <p style="font-size:.78rem;color:#9ca3af;margin-top:2px;">
-                <a href="{{ route('settings.index') }}" style="color:#fcb913;">Settings</a>
-                &rsaquo; Mining Departments
-            </p>
         </div>
-        <a href="{{ route('settings.index') }}" class="btn-cancel">&larr; Settings</a>
     </div>
 
     @if(session('success'))
