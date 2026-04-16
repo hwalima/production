@@ -32,15 +32,14 @@ class DailyProductionSeeder extends Seeder
             // Metallurgical recovery: 87 – 93 %
             $recovery = rand(87, 93) / 100;
 
-            // Gold produced in grams, then convert to kg
-            $gold_grams   = $ore_milled * $grade * $recovery;
-            $gold_smelted = round($gold_grams / 1000, 3);  // kg (target ~0.09-0.17/day)
+            // Gold produced in grams
+            $gold_smelted = round($ore_milled * $grade * $recovery, 2);  // g (target ~90-170 g/day)
 
             // Purity: tightly around 95 %
             $purity_percentage = rand(92, 98);    // %
 
-            // Fidelity gold price — spot ~$104,500/kg (Apr 2026), Fidelity pays 95-98 % of spot
-            $fidelity_price = rand(99000, 104000); // USD/kg
+            // Fidelity gold price — spot ~$104.50/g (Apr 2026), Fidelity pays 95-98 % of spot
+            $fidelity_price = round(rand(9900, 10400) / 100, 2); // USD/g
 
             // Running stockpile balances
             $hoisted_stockpile = round(max(0, $hoisted_stockpile + $ore_hoisted - $ore_crushed), 2);

@@ -71,7 +71,7 @@
             {{-- Gold --}}
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">Gold Smelted (kg)</label>
+                    <label class="fc-label">Gold Smelted (g)</label>
                     <input type="number" name="gold_smelted" id="gold_smelted" step="0.01" class="fc-input" value="{{ old('gold_smelted') }}" required>
                     @error('gold_smelted')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div style="margin-bottom:14px;">
-                <label class="fc-label">Fidelity Price ({{ $currencySymbol }}/kg)</label>
+                <label class="fc-label">Fidelity Price ({{ $currencySymbol }}/g)</label>
                 <input type="number" name="fidelity_price" id="fidelity_price" step="0.01" class="fc-input" value="{{ old('fidelity_price') }}" required>
                 @error('fidelity_price')<p class="fc-error">{{ $message }}</p>@enderror
             </div>

@@ -13,7 +13,7 @@
             <div class="tile-value">{{ number_format($totalOre, 2) }}</div>
         </td>
         <td style="width:33.33%;">
-            <div class="tile-label">Total Gold Smelted (kg)</div>
+            <div class="tile-label">Total Gold Smelted (g)</div>
             <div class="tile-value gold">{{ number_format($totalGold, 3) }}</div>
         </td>
         <td style="width:33.33%;">
@@ -36,7 +36,7 @@
             <th class="th-r">Ore Crushed (t)</th>
             <th class="th-r">Unmilled Stk (t)</th>
             <th class="th-r">Ore Milled (t)</th>
-            <th class="th-r">Gold (kg)</th>
+            <th class="th-r">Gold (g)</th>
             <th class="th-r">Purity %</th>
         </tr>
     </thead>

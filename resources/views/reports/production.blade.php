@@ -46,9 +46,9 @@
                     <th>Ore Crushed</th>
                     <th style="background:rgba(0,0,0,.18);">&#x3A3; Unmilled Stk</th>
                     <th>Ore Milled</th>
-                    <th>Gold Smelted</th>
+                    <th>Gold (g)</th>
                     <th>Purity %</th>
-                    <th>Fidelity Price</th>
+                    <th>Fidelity Price (/g)</th>
                 </tr>
             </thead>
             <tbody>

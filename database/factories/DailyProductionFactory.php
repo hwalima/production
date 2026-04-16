@@ -20,7 +20,7 @@ class DailyProductionFactory extends Factory
             'ore_milled'           => $this->faker->randomFloat(2, 30, 200),
             'gold_smelted'         => $this->faker->randomFloat(2, 0.5, 10),
             'purity_percentage'    => $this->faker->randomFloat(2, 70, 99),
-            'fidelity_price'       => $this->faker->randomFloat(2, 80000, 120000),
+            'fidelity_price'       => $this->faker->randomFloat(2, 80, 120),
 
         ];
     }

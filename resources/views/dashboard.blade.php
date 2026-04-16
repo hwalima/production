@@ -324,9 +324,9 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <div class="ib ib-gold">🥇</div>
             <p class="kt">Gold Smelted</p>
             <p class="kv gv-gold">{{ number_format($goldSmeltedMonth, 3) }}</p>
-            <p class="ks">kg this month</p>
+            <p class="ks">g this month</p>
             <div class="ptrack"><div class="pfill" style="width:{{ $goldTargetPct }}%;background:var(--g-gold);"></div></div>
-            <p class="plabel">{{ $goldTargetPct }}% of {{ $goldTarget }} kg target</p>
+            <p class="plabel">{{ $goldTargetPct }}% of {{ number_format($goldTarget, 0) }} g target</p>
         </div>
 
         {{-- Implied Grade --}}
@@ -407,16 +407,16 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <p class="slbl">Month-End Projections</p>
             <p class="kt" style="margin-bottom:6px;">Projected Gold Output</p>
             <p class="pval {{ $onTrack ? 'gv-green' : 'gv-orange' }}">
-                {{ number_format($goldProjected, 3) }}<span style="font-size:1rem;font-weight:500;-webkit-text-fill-color:#9ca3af"> kg</span>
+                {{ number_format($goldProjected, 1) }}<span style="font-size:1rem;font-weight:500;-webkit-text-fill-color:#9ca3af"> g</span>
             </p>
-            <p class="psub">Target: <b style="color:var(--text)">{{ $goldTarget }} kg</b></p>
+            <p class="psub">Target: <b style="color:var(--text)">{{ number_format($goldTarget, 0) }} g</b></p>
             @if($onTrack)
                 <span class="pill p-green" style="margin-top:8px">✓ On Track</span>
             @else
-                <span class="pill p-red" style="margin-top:8px">↓ {{ number_format($goldTarget - $goldProjected, 3) }} kg short</span>
+                <span class="pill p-red" style="margin-top:8px">↓ {{ number_format($goldTarget - $goldProjected, 1) }} g short</span>
             @endif
             <div class="mgrid">
-                <div><p class="mgl">Avg Daily Gold</p><p class="mgv">{{ number_format($avgDailyGold, 4) }} <span style="font-size:.68rem;color:#9ca3af">kg</span></p></div>
+                <div><p class="mgl">Avg Daily Gold</p><p class="mgv">{{ number_format($avgDailyGold, 1) }} <span style="font-size:.68rem;color:#9ca3af">g</span></p></div>
                 <div><p class="mgl">Days Recorded</p><p class="mgv">{{ $daysRecorded }}<span style="font-size:.68rem;color:#9ca3af"> / {{ $daysInMonth }}</span></p></div>
                 <div><p class="mgl">Days Remaining</p><p class="mgv">{{ $daysInMonth - $dayOfMonth }}</p></div>
             </div>
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     { label:'Waste Hoisted (t)', data:@json($trendWasteHoisted), yAxisID:'yT', borderColor:'#f87171', backgroundColor:'transparent', borderWidth:2, borderDash:[5,4], pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Ore Crushed (t)',   data:@json($trendOreCrushed),   yAxisID:'yT', borderColor:'#38bdf8', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Ore Milled (t)',    data:@json($trendOreMilled),    yAxisID:'yT', borderColor:'#a78bfa', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
-                    { label:'Gold Smelted (kg)', data:@json($trendGoldSmelted),  yAxisID:'yG', borderColor:'#34d399', backgroundColor:'rgba(52,211,153,.07)', fill:true, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, tension:.4 },
+                    { label:'Gold Smelted (g)', data:@json($trendGoldSmelted),  yAxisID:'yG', borderColor:'#34d399', backgroundColor:'rgba(52,211,153,.07)', fill:true, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, tension:.4 },
                 ]
             },
             options: {
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tooltip: {
                         backgroundColor:c.ttBg, titleColor:c.ttTitle, bodyColor:c.ttBody,
                         borderColor:c.ttBord, borderWidth:1, padding:12, cornerRadius:12,
-                        callbacks: { label: x => '  '+x.dataset.label+': '+x.parsed.y.toFixed(x.dataset.yAxisID==='yG'?3:1)+(x.dataset.yAxisID==='yG'?' kg':' t') }
+                        callbacks: { label: x => '  '+x.dataset.label+': '+x.parsed.y.toFixed(x.dataset.yAxisID==='yG'?1:1)+(x.dataset.yAxisID==='yG'?' g':' t') }
                     }
                 },
                 scales: {

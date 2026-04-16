@@ -51,7 +51,7 @@ class DashboardController extends Controller
             : 0;
 
         $impliedGrade = $oreMilledMonth > 0
-            ? round(($goldSmeltedMonth * 1000) / $oreMilledMonth, 3)
+            ? round($goldSmeltedMonth / $oreMilledMonth, 3)
             : 0;
 
         $millingEfficiency = $oreHoistedMonth > 0
@@ -60,7 +60,7 @@ class DashboardController extends Controller
 
         $dashSettings  = Setting::whereIn('key', ['gold_monthly_target','company_location','mine_latitude','mine_longitude'])
                             ->pluck('value', 'key');
-        $goldTarget    = (float) ($dashSettings->get('gold_monthly_target') ?? 3.5);
+        $goldTarget    = (float) ($dashSettings->get('gold_monthly_target') ?? 3500);
         $goldTargetPct = $goldTarget > 0 ? min(100, round(($goldSmeltedMonth / $goldTarget) * 100, 1)) : 0;
 
         $avgDailyGold   = $daysRecorded > 0 ? $goldSmeltedMonth / $daysRecorded : 0;

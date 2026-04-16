@@ -45,7 +45,7 @@
                 <td>{{ number_format($prod->ore_crushed, 1) }} t</td>
                 <td style="color:#fcb913;font-weight:600;">{{ number_format($prod->unmilled_stockpile, 1) }} t</td>
                 <td>{{ number_format($prod->ore_milled, 1) }} t</td>
-                <td>{{ number_format($prod->gold_smelted, 3) }} kg</td>
+                <td>{{ number_format($prod->gold_smelted, 2) }} g</td>
                 <td>{{ $prod->purity_percentage }}%</td>
                 <td class="td-c">
                     <div class="act-group">
