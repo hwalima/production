@@ -20,6 +20,7 @@ use App\Http\Controllers\ConsumableController;
 use App\Http\Controllers\MiningDepartmentController;
 use App\Http\Controllers\SheController;
 use App\Http\Controllers\ActionItemController;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -118,6 +119,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Mining Departments
         Route::resource('settings/mining-departments', MiningDepartmentController::class)->names('mining-departments')->parameter('mining-departments', 'miningDepartment')->except(['show', 'create']);
         Route::patch('settings/mining-departments/{miningDepartment}/toggle', [MiningDepartmentController::class, 'toggle'])->name('mining-departments.toggle');
+
+        // Maintenance
+        Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::post('/maintenance/cache/clear', [MaintenanceController::class, 'clearCache'])->name('maintenance.cache.clear');
+        Route::get('/maintenance/audit-logs', [MaintenanceController::class, 'auditLogs'])->name('maintenance.audit-logs');
+        Route::post('/maintenance/audit-logs/purge', [MaintenanceController::class, 'purgeAuditLogs'])->name('maintenance.audit-logs.purge');
+        Route::get('/maintenance/login-logs', [MaintenanceController::class, 'loginLogs'])->name('maintenance.login-logs');
+        Route::post('/maintenance/login-logs/purge', [MaintenanceController::class, 'purgeLoginLogs'])->name('maintenance.login-logs.purge');
     });
 
     // ── Super admin only ──────────────────────────────────────────────────

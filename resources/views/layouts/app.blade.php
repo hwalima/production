@@ -357,18 +357,19 @@
 
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
-                    <button type="button" class="nav-group-btn {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*') ? 'open' : '' }}" data-group="admin">
+                    <button type="button" class="nav-group-btn {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*','maintenance.*') ? 'open' : '' }}" data-group="admin">
                         <span class="nav-icon" style="font-size:.8rem;">&#128737;</span>
                         <span class="ng-label">Admin</span>
                         <svg class="ng-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
-                    <div class="nav-group-items {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*') ? '' : 'closed' }}" id="ng-admin">
+                    <div class="nav-group-items {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*','maintenance.*') ? '' : 'closed' }}" id="ng-admin">
                         <a href="{{ route('users.index') }}" class="sub {{ request()->routeIs('users.*') ? 'active' : '' }}" title="User Management"><span class="nav-icon">&#128100;</span><span class="nav-text">&nbsp;Users</span></a>
                         <a href="{{ route('settings.index') }}" class="sub {{ request()->routeIs('settings.*') && !request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
                         <a href="{{ route('mining-departments.index') }}" class="sub {{ request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Mining Departments"><span class="nav-icon">&#127970;</span><span class="nav-text">&nbsp;Departments</span></a>
                         @if(auth()->user()?->isSuperAdmin())
                         <a href="{{ route('roles.index') }}" class="sub {{ request()->routeIs('roles.*') ? 'active' : '' }}" title="Roles &amp; Permissions"><span class="nav-icon">&#128737;</span><span class="nav-text">&nbsp;Roles</span></a>
                         @endif
+                        <a href="{{ route('maintenance.index') }}" class="sub {{ request()->routeIs('maintenance.*') ? 'active' : '' }}" title="Maintenance"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Maintenance</span></a>
                     </div>
                     @endif
                 </nav>
