@@ -60,4 +60,15 @@
 @include('pdf._stores_table', ['items' => $other])
 @endif
 
+{{-- ── Grand Total ── --}}
+<table class="data-table" style="margin-top:14px;">
+    <tfoot>
+        <tr>
+            <td colspan="5" style="font-weight:700;font-size:9px;">GRAND TOTAL — All Categories ({{ $consumables->count() }} items)</td>
+            <td class="td-r" style="font-weight:700;font-size:9px;">{{ $currencySymbol }}{{ number_format($totalValue, 2) }}</td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
 @endsection

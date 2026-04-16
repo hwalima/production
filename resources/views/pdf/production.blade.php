@@ -6,17 +6,35 @@
 @section('content')
 
 {{-- ── Summary tiles ──────────────────────────────────────── --}}
-<table class="summary-grid" style="width:75%;">
+<table class="summary-grid">
     <tr>
-        <td style="width:33.33%;">
+        <td style="width:20%;">
+            <div class="tile-label">Total Ore Hoisted (t)</div>
+            <div class="tile-value">{{ number_format($productions->sum('ore_hoisted'), 2) }}</div>
+        </td>
+        <td style="width:20%;">
+            <div class="tile-label">Total Waste Hoisted (t)</div>
+            <div class="tile-value">{{ number_format($productions->sum('waste_hoisted'), 2) }}</div>
+        </td>
+        <td style="width:20%;">
+            <div class="tile-label">Total Ore Crushed (t)</div>
+            <div class="tile-value">{{ number_format($productions->sum('ore_crushed'), 2) }}</div>
+        </td>
+        <td style="width:20%;">
             <div class="tile-label">Total Ore Milled (t)</div>
             <div class="tile-value">{{ number_format($totalOre, 2) }}</div>
         </td>
-        <td style="width:33.33%;">
-            <div class="tile-label">Total Gold Smelted (g)</div>
-            <div class="tile-value gold">{{ number_format($totalGold, 3) }}</div>
+        <td style="width:20%;">
+            <div class="tile-label">Total Gold (g)</div>
+            <div class="tile-value gold">{{ number_format($totalGold, 2) }}</div>
         </td>
-        <td style="width:33.33%;">
+    </tr>
+    <tr>
+        <td colspan="4">
+            <div class="tile-label">Records in Period</div>
+            <div class="tile-value">{{ $productions->count() }}</div>
+        </td>
+        <td>
             <div class="tile-label">Avg Purity (%)</div>
             <div class="tile-value">{{ number_format($avgPurity, 2) }}</div>
         </td>
@@ -75,15 +93,34 @@
     </tbody>
     @if($productions->count())
     <tfoot>
+        @php
+            $totHoisted     = $productions->sum('ore_hoisted');
+            $totHoistTgt    = $productions->whereNotNull('ore_hoisted_target')->sum('ore_hoisted_target');
+            $totHoistVar    = $productions->whereNotNull('ore_hoisted_target')->count() ? $totHoistTgt - $totHoisted : null;
+            $totWaste       = $productions->sum('waste_hoisted');
+            $totCrushed     = $productions->sum('ore_crushed');
+            $totMilled      = $productions->sum('ore_milled');
+            $totMillTgt     = $productions->whereNotNull('ore_milled_target')->sum('ore_milled_target');
+            $totMillVar     = $productions->whereNotNull('ore_milled_target')->count() ? $totMillTgt - $totMilled : null;
+            $totGold        = $productions->sum('gold_smelted');
+        @endphp
         <tr>
-            <td colspan="3">Totals</td>
-            <td class="td-r">{{ number_format($productions->sum('ore_hoisted'), 2) }}</td>
-            <td class="td-r">{{ number_format($productions->sum('waste_hoisted'), 2) }}</td>
+            <td colspan="3" style="font-weight:700;">TOTALS</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($totHoisted, 2) }}</td>
+            <td class="td-r">{{ $totHoistTgt ? number_format($totHoistTgt, 2) : '—' }}</td>
+            <td class="td-r" style="font-weight:700;color:{{ $totHoistVar === null ? '#9ca3af' : ($totHoistVar > 0 ? '#b91c1c' : '#15803d') }}">
+                {{ $totHoistVar === null ? '—' : (($totHoistVar > 0 ? '+' : '').number_format($totHoistVar, 2)) }}
+            </td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($totWaste, 2) }}</td>
             <td class="td-r">—</td>
-            <td class="td-r">{{ number_format($productions->sum('ore_crushed'), 2) }}</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($totCrushed, 2) }}</td>
             <td class="td-r">—</td>
-            <td class="td-r">{{ number_format($totalOre, 2) }}</td>
-            <td class="td-r">{{ number_format($totalGold, 3) }}</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($totMilled, 2) }}</td>
+            <td class="td-r">{{ $totMillTgt ? number_format($totMillTgt, 2) : '—' }}</td>
+            <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#9ca3af' : ($totMillVar > 0 ? '#b91c1c' : '#15803d') }}">
+                {{ $totMillVar === null ? '—' : (($totMillVar > 0 ? '+' : '').number_format($totMillVar, 2)) }}
+            </td>
+            <td class="td-r" style="font-weight:700;color:#b45309;">{{ number_format($totGold, 2) }} g</td>
             <td class="td-r">{{ number_format($avgPurity, 2) }}%</td>
         </tr>
     </tfoot>
