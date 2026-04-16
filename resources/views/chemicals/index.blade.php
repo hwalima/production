@@ -34,7 +34,7 @@
         <tbody>
             @forelse($chemicals as $chem)
             <tr>
-                <td><span style="font-weight:600;">{{ $chem->date->format('d M Y') }}</span></td>
+                <td data-sort="{{ $chem->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $chem->date->format('d M Y') }}</span></td>
                 <td class="td-r">{{ $chem->sodium_cyanide }}</td>
                 <td class="td-r">{{ $chem->lime }}</td>
                 <td class="td-r">{{ $chem->caustic_soda }}</td>

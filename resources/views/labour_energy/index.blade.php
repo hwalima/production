@@ -29,7 +29,7 @@
             @forelse($records as $rec)
             @php $total = ($rec->zesa_cost ?? 0) + ($rec->diesel_cost ?? 0) + ($rec->labour_cost ?? 0); @endphp
             <tr>
-                <td><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
+                <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->zesa_cost, 2) }}</td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->diesel_cost, 2) }}</td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->labour_cost, 2) }}</td>

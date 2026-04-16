@@ -31,7 +31,7 @@
         <tbody>
             @forelse($records as $rec)
             <tr>
-                <td><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
+                <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
                 <td class="td-r">{{ $rec->fractures }}</td>
                 <td class="td-r">{{ $rec->fuse }}</td>
                 <td class="td-r">{{ $rec->carmes_ieds }}</td>

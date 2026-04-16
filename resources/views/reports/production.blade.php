@@ -54,7 +54,7 @@
             <tbody>
                 @forelse($productions as $p)
                 <tr>
-                    <td>{{ $p->date->format('d M Y') }}</td>
+                    <td data-sort="{{ $p->date->format('Y-m-d') }}">{{ $p->date->format('d M Y') }}</td>
                     <td class="text-center">{{ $p->shift ?? '—' }}</td>
                     <td class="text-center">{{ $p->mining_site ?? '—' }}</td>
                     <td class="text-center">{{ number_format($p->ore_hoisted, 2) }}</td>

@@ -117,7 +117,7 @@
                 };
             @endphp
             <tr>
-                <td style="font-size:.8rem;">{{ \Carbon\Carbon::parse($mv->movement_date)->format('d M Y') }}</td>
+                <td data-sort="{{ \Carbon\Carbon::parse($mv->movement_date)->format('Y-m-d') }}" style="font-size:.8rem;">{{ \Carbon\Carbon::parse($mv->movement_date)->format('d M Y') }}</td>
                 <td>
                     <span style="background:{{ $badge[2] }};color:{{ $badge[1] }};border-radius:20px;
                                  padding:2px 10px;font-size:.7rem;font-weight:700;">

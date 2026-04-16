@@ -55,7 +55,7 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
         <tbody>
             @forelse($tab['records'] as $rec)
             <tr>
-                <td><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
+                <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
                 <td style="color:#9ca3af;font-size:.82rem;">{{ $rec->description ?: '—' }}</td>
                 <td class="td-r">
                     <span style="font-weight:700;color:{{ $tab['color'] }};">

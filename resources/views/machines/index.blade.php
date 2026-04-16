@@ -54,10 +54,10 @@
                     <tr class="border-t" style="border-color:var(--topbar-border);">
                         <td class="px-4 py-3" style="font-family:monospace;font-weight:600;">{{ $m->machine_code }}</td>
                         <td class="px-4 py-3">{{ $m->description }}</td>
-                        <td class="px-4 py-3 td-muted" style="font-size:.8rem;">{{ $m->start_time?->format('d M Y H:i') ?? '-' }}</td>
-                        <td class="px-4 py-3 td-muted" style="font-size:.8rem;">{{ $m->end_time?->format('d M Y H:i') ?? '-' }}</td>
+                        <td class="px-4 py-3 td-muted" data-sort="{{ $m->start_time?->format('Y-m-d H:i:s') ?? '0000-00-00' }}" style="font-size:.8rem;">{{ $m->start_time?->format('d M Y H:i') ?? '-' }}</td>
+                        <td class="px-4 py-3 td-muted" data-sort="{{ $m->end_time?->format('Y-m-d H:i:s') ?? '0000-00-00' }}" style="font-size:.8rem;">{{ $m->end_time?->format('d M Y H:i') ?? '-' }}</td>
                         <td class="px-4 py-3 td-r" style="font-weight:600;">{{ $hours }} h</td>
-                        <td class="px-4 py-3 td-muted" style="font-size:.8rem;">{{ $m->next_service_date?->format('d M Y') ?? '-' }}</td>
+                        <td class="px-4 py-3 td-muted" data-sort="{{ $m->next_service_date?->format('Y-m-d') ?? '0000-00-00' }}" style="font-size:.8rem;">{{ $m->next_service_date?->format('d M Y') ?? '-' }}</td>
                         <td class="px-4 py-3">
                             @if($overdue)
                                 <span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:#fee2e2;color:#991b1b;">Overdue</span>

@@ -166,8 +166,9 @@
             html.dark .dt-btn-email    { background:#0a1d3d; color:#93c5fd; }
             .data-table thead th.dt-sortable { cursor:pointer; user-select:none; }
             .data-table thead th.dt-sortable:hover { opacity:.85; }
-            .data-table thead th.dt-sort-asc::after  { content:' ↑'; opacity:.55; font-size:.7em; font-weight:400; }
-            .data-table thead th.dt-sort-desc::after { content:' ↓'; opacity:.55; font-size:.7em; font-weight:400; }
+            .data-table thead th.dt-sortable::after  { content:' ↕'; opacity:.3;  font-size:.7em; font-weight:400; }
+            .data-table thead th.dt-sort-asc::after  { content:' ↑'; opacity:.7;  font-size:.7em; font-weight:400; }
+            .data-table thead th.dt-sort-desc::after { content:' ↓'; opacity:.7;  font-size:.7em; font-weight:400; }
             tr.dt-hidden { display:none !important; }
             .dt-no-match { text-align:center; padding:40px 16px !important; color:#9ca3af; font-size:.9rem; }
 
@@ -800,15 +801,18 @@
                         var tbody  = table.querySelector('tbody');
                         var rows   = Array.from(tbody.querySelectorAll('tr:not(.empty-row):not(.dt-no-match-row)'));
                         rows.sort(function (a, b) {
-                            var aVal = a.cells[idx] ? a.cells[idx].textContent.trim() : '';
-                            var bVal = b.cells[idx] ? b.cells[idx].textContent.trim() : '';
-                            /* numeric (strip $, commas; parseFloat handles trailing units) */
-                            var aN = parseFloat(aVal.replace(/[$,]/g, ''));
-                            var bN = parseFloat(bVal.replace(/[$,]/g, ''));
+                            var ac = a.cells[idx], bc = b.cells[idx];
+                            /* prefer data-sort attribute for reliable date/value sorting */
+                            var aVal = ac ? (ac.dataset.sort !== undefined ? ac.dataset.sort : ac.textContent.trim()) : '';
+                            var bVal = bc ? (bc.dataset.sort !== undefined ? bc.dataset.sort : bc.textContent.trim()) : '';
+                            /* numeric (strip currency symbols, commas; parseFloat handles trailing units) */
+                            var aN = parseFloat(aVal.replace(/[^0-9.\-]/g, ''));
+                            var bN = parseFloat(bVal.replace(/[^0-9.\-]/g, ''));
                             if (!isNaN(aN) && !isNaN(bN)) return (aN - bN) * dir;
-                            /* date */
-                            var aD = Date.parse(aVal), bD = Date.parse(bVal);
-                            if (!isNaN(aD) && !isNaN(bD)) return (aD - bD) * dir;
+                            /* ISO date string (YYYY-MM-DD or YYYY-MM-DD HH:mm:ss) — compare as string */
+                            if (/^\d{4}-\d{2}-\d{2}/.test(aVal) && /^\d{4}-\d{2}-\d{2}/.test(bVal)) {
+                                return aVal.localeCompare(bVal) * dir;
+                            }
                             return aVal.localeCompare(bVal) * dir;
                         });
                         rows.forEach(function (r) { tbody.appendChild(r); });
