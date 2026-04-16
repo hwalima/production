@@ -16,9 +16,7 @@
     <div style="background:var(--card);border-radius:14px;padding:16px 18px;border:1px solid var(--topbar-border);">
         <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Catalog Value</div>
         <div style="font-size:1.8rem;font-weight:800;color:#fcb913;">
-            {{ $currencySymbol }}{{ number_format($consumables->sum(fn($c)=>$c->pack_cost * 0), 0) }}
-            {{-- value = sum of (current_stock * unit_cost) --}}
-            {{ $currencySymbol }}{{ number_format($consumables->sum(fn($c)=>max(0,$c->current_stock)*$c->unit_cost), 2) }}
+            {{ $currencySymbol }}{{ number_format($consumables->sum(fn($c) => max(0, $c->current_stock) * $c->unit_cost), 2) }}
         </div>
     </div>
 </div>
