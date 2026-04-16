@@ -14,53 +14,53 @@
 
 @include('partials.date-filter', ['routeName' => 'production.index'])
 
-<div class="data-card">
+<div class="data-card" style="padding:0;overflow:hidden;">
     <div class="tbl-scroll">
-    <table class="data-table">
+    <table class="data-table" style="font-size:.78rem;min-width:1200px;">
         <thead>
-            <tr>
+            <tr style="white-space:nowrap;">
                 <th>Date</th>
                 <th>Shift</th>
-                <th>Mining Site</th>
-                <th>Ore Hoisted</th>
-                <th style="background:rgba(96,165,250,.12);">Hoist Tgt</th>
-                <th style="background:rgba(96,165,250,.12);">Hoist Var</th>
-                <th>Waste Hoisted</th>
-                <th style="background:rgba(0,0,0,.18);">&#x3A3; Uncrushed Stk</th>
-                <th>Ore Crushed</th>
-                <th style="background:rgba(0,0,0,.18);">&#x3A3; Unmilled Stk</th>
-                <th>Ore Milled</th>
-                <th style="background:rgba(96,165,250,.12);">Mill Tgt</th>
-                <th style="background:rgba(96,165,250,.12);">Mill Var</th>
-                <th>Gold Smelted</th>
-                <th>Purity %</th>
+                <th>Site</th>
+                <th class="th-r">Hoisted</th>
+                <th class="th-r" style="background:rgba(96,165,250,.15);">Hoist Tgt</th>
+                <th class="th-r" style="background:rgba(96,165,250,.15);">Hoist Var</th>
+                <th class="th-r">Waste</th>
+                <th class="th-r" style="background:rgba(252,185,19,.15);">Uncrush Stk</th>
+                <th class="th-r">Crushed</th>
+                <th class="th-r" style="background:rgba(252,185,19,.15);">Unmill Stk</th>
+                <th class="th-r">Milled</th>
+                <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Tgt</th>
+                <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Var</th>
+                <th class="th-r">Gold (g)</th>
+                <th class="th-r">Purity</th>
                 <th class="th-c">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($productions as $prod)
-            <tr>
+            <tr style="white-space:nowrap;">
                 <td data-sort="{{ $prod->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $prod->date->format('d M Y') }}</span></td>
                 <td>{{ $prod->shift ?? '—' }}</td>
                 <td>{{ $prod->mining_site ?? '—' }}</td>
-                <td>{{ number_format($prod->ore_hoisted, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->ore_hoisted, 1) }} t</td>
                 @php $hv = $prod->ore_hoisted_target !== null ? (float)$prod->ore_hoisted_target - (float)$prod->ore_hoisted : null; @endphp
-                <td style="color:#9ca3af;">{{ $prod->ore_hoisted_target !== null ? number_format($prod->ore_hoisted_target, 1).' t' : '—' }}</td>
-                <td style="font-weight:600;color:{{ $hv === null ? '#6b7280' : ($hv > 0 ? '#ef4444' : '#22c55e') }}">
+                <td class="td-r" style="color:#9ca3af;">{{ $prod->ore_hoisted_target !== null ? number_format($prod->ore_hoisted_target, 1).' t' : '—' }}</td>
+                <td class="td-r" style="font-weight:600;color:{{ $hv === null ? '#6b7280' : ($hv > 0 ? '#ef4444' : '#22c55e') }}">
                     {{ $hv === null ? '—' : (($hv > 0 ? '+' : '').number_format($hv, 1).' t') }}
                 </td>
-                <td>{{ number_format($prod->waste_hoisted, 1) }} t</td>
-                <td style="color:#fcb913;font-weight:600;">{{ number_format($prod->uncrushed_stockpile, 1) }} t</td>
-                <td>{{ number_format($prod->ore_crushed, 1) }} t</td>
-                <td style="color:#fcb913;font-weight:600;">{{ number_format($prod->unmilled_stockpile, 1) }} t</td>
-                <td>{{ number_format($prod->ore_milled, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->waste_hoisted, 1) }} t</td>
+                <td class="td-r" style="color:#fcb913;font-weight:600;">{{ number_format($prod->uncrushed_stockpile, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->ore_crushed, 1) }} t</td>
+                <td class="td-r" style="color:#fcb913;font-weight:600;">{{ number_format($prod->unmilled_stockpile, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->ore_milled, 1) }} t</td>
                 @php $mv = $prod->ore_milled_target !== null ? (float)$prod->ore_milled_target - (float)$prod->ore_milled : null; @endphp
-                <td style="color:#9ca3af;">{{ $prod->ore_milled_target !== null ? number_format($prod->ore_milled_target, 1).' t' : '—' }}</td>
-                <td style="font-weight:600;color:{{ $mv === null ? '#6b7280' : ($mv > 0 ? '#ef4444' : '#22c55e') }}">
+                <td class="td-r" style="color:#9ca3af;">{{ $prod->ore_milled_target !== null ? number_format($prod->ore_milled_target, 1).' t' : '—' }}</td>
+                <td class="td-r" style="font-weight:600;color:{{ $mv === null ? '#6b7280' : ($mv > 0 ? '#ef4444' : '#22c55e') }}">
                     {{ $mv === null ? '—' : (($mv > 0 ? '+' : '').number_format($mv, 1).' t') }}
                 </td>
-                <td>{{ number_format($prod->gold_smelted, 2) }} g</td>
-                <td>{{ $prod->purity_percentage }}%</td>
+                <td class="td-r">{{ number_format($prod->gold_smelted, 2) }} g</td>
+                <td class="td-r">{{ $prod->purity_percentage }}%</td>
                 <td class="td-c">
                     <div class="act-group">
                         <a href="{{ route('production.show', $prod) }}" class="act-btn act-view" title="View record">
