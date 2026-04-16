@@ -41,11 +41,15 @@
                     <th>Shift</th>
                     <th>Mining Site</th>
                     <th>Ore Hoisted</th>
+                    <th>Hoist Tgt</th>
+                    <th>Hoist Var</th>
                     <th>Waste Hoisted</th>
                     <th style="background:rgba(0,0,0,.18);">&#x3A3; Uncrushed Stk</th>
                     <th>Ore Crushed</th>
                     <th style="background:rgba(0,0,0,.18);">&#x3A3; Unmilled Stk</th>
                     <th>Ore Milled</th>
+                    <th>Mill Tgt</th>
+                    <th>Mill Var</th>
                     <th>Gold (g)</th>
                     <th>Purity %</th>
                     <th>Fidelity Price (/g)</th>
@@ -58,11 +62,21 @@
                     <td class="text-center">{{ $p->shift ?? '—' }}</td>
                     <td class="text-center">{{ $p->mining_site ?? '—' }}</td>
                     <td class="text-center">{{ number_format($p->ore_hoisted, 2) }}</td>
+                    @php $hv = $p->ore_hoisted_target !== null ? (float)$p->ore_hoisted_target - (float)$p->ore_hoisted : null; @endphp
+                    <td class="text-center" style="color:#9ca3af;">{{ $p->ore_hoisted_target !== null ? number_format($p->ore_hoisted_target, 2) : '—' }}</td>
+                    <td class="text-center" style="font-weight:600;color:{{ $hv === null ? '#6b7280' : ($hv > 0 ? '#ef4444' : '#22c55e') }}">
+                        {{ $hv === null ? '—' : (($hv > 0 ? '+' : '').number_format($hv, 2)) }}
+                    </td>
                     <td class="text-center">{{ number_format($p->waste_hoisted, 2) }}</td>
                     <td class="text-center" style="color:#fcb913;font-weight:600;">{{ number_format($p->uncrushed_stockpile, 2) }}</td>
                     <td class="text-center">{{ number_format($p->ore_crushed, 2) }}</td>
                     <td class="text-center" style="color:#fcb913;font-weight:600;">{{ number_format($p->unmilled_stockpile, 2) }}</td>
                     <td class="text-center">{{ number_format($p->ore_milled, 2) }}</td>
+                    @php $mv = $p->ore_milled_target !== null ? (float)$p->ore_milled_target - (float)$p->ore_milled : null; @endphp
+                    <td class="text-center" style="color:#9ca3af;">{{ $p->ore_milled_target !== null ? number_format($p->ore_milled_target, 2) : '—' }}</td>
+                    <td class="text-center" style="font-weight:600;color:{{ $mv === null ? '#6b7280' : ($mv > 0 ? '#ef4444' : '#22c55e') }}">
+                        {{ $mv === null ? '—' : (($mv > 0 ? '+' : '').number_format($mv, 2)) }}
+                    </td>
                     <td class="text-center">{{ number_format($p->gold_smelted, 3) }}</td>
                     <td class="text-center">{{ $p->purity_percentage }}%</td>
                     <td class="text-center">{{ $p->fidelity_price !== null ? $currencySymbol . number_format($p->fidelity_price, 2) : '—' }}</td>

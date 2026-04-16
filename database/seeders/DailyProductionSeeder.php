@@ -41,6 +41,10 @@ class DailyProductionSeeder extends Seeder
             // Fidelity gold price — spot ~$104.50/g (Apr 2026), Fidelity pays 95-98 % of spot
             $fidelity_price = round(rand(9900, 10400) / 100, 2); // USD/g
 
+            // Ore hoisted & milled targets (±10% of actuals for realistic variance)
+            $ore_hoisted_target = round($ore_hoisted * (rand(90, 110) / 100), 2);
+            $ore_milled_target  = round($ore_milled  * (rand(90, 110) / 100), 2);
+
             // Running stockpile balances
             $hoisted_stockpile = round(max(0, $hoisted_stockpile + $ore_hoisted - $ore_crushed), 2);
             $crushed_stockpile = round(max(0, $crushed_stockpile + $ore_crushed - $ore_milled), 2);
@@ -48,11 +52,13 @@ class DailyProductionSeeder extends Seeder
             DB::table('daily_productions')->insert([
                 'date'               => $date->toDateString(),
                 'ore_hoisted'        => $ore_hoisted,
+                'ore_hoisted_target' => $ore_hoisted_target,
                 'waste_hoisted'      => $waste_hoisted,
                 'hoisted_stockpile'  => $hoisted_stockpile,
                 'ore_crushed'        => $ore_crushed,
                 'crushed_stockpile'  => $crushed_stockpile,
                 'ore_milled'         => $ore_milled,
+                'ore_milled_target'  => $ore_milled_target,
                 'gold_smelted'       => $gold_smelted,
                 'purity_percentage'  => $purity_percentage,
                 'fidelity_price'     => $fidelity_price,

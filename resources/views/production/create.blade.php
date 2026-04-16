@@ -41,6 +41,7 @@
             </div>
 
             {{-- Hoisting --}}
+            {{-- Hoisting --}}
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
                     <label class="fc-label">Ore Hoisted (t)</label>
@@ -48,27 +49,26 @@
                     @error('ore_hoisted')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
+                    <label class="fc-label">Ore Hoisted Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+                    <input type="number" name="ore_hoisted_target" id="ore_hoisted_target" step="0.01" class="fc-input" value="{{ old('ore_hoisted_target') }}">
+                    @error('ore_hoisted_target')<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <div class="fc-grid" style="margin-bottom:14px;">
+                <div>
                     <label class="fc-label">Waste Hoisted (t)</label>
                     <input type="number" name="waste_hoisted" id="waste_hoisted" step="0.01" class="fc-input" value="{{ old('waste_hoisted') }}" required>
                     @error('waste_hoisted')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
             </div>
-
-            {{-- Crushing & Milling --}}
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">Ore Crushed (t)</label>
-                    <input type="number" name="ore_crushed" id="ore_crushed" step="0.01" class="fc-input" value="{{ old('ore_crushed') }}" required>
-                    @error('ore_crushed')<p class="fc-error">{{ $message }}</p>@enderror
-                </div>
-                <div>
-                    <label class="fc-label">Ore Milled (t)</label>
-                    <input type="number" name="ore_milled" id="ore_milled" step="0.01" class="fc-input" value="{{ old('ore_milled') }}" required>
-                    @error('ore_milled')<p class="fc-error">{{ $message }}</p>@enderror
+                    <label class="fc-label">Ore Milled Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+                    <input type="number" name="ore_milled_target" id="ore_milled_target" step="0.01" class="fc-input" value="{{ old('ore_milled_target') }}">
+                    @error('ore_milled_target')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
             </div>
-
-            {{-- Gold --}}
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
                     <label class="fc-label">Gold Smelted (g)</label>

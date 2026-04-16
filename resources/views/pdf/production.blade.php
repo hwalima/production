@@ -31,11 +31,15 @@
             <th class="th-c">Shift</th>
             <th class="th-c">Site</th>
             <th class="th-r">Ore Hoisted (t)</th>
+            <th class="th-r">Hoist Tgt</th>
+            <th class="th-r">Hoist Var</th>
             <th class="th-r">Waste Hoisted (t)</th>
             <th class="th-r">Uncrushed Stk (t)</th>
             <th class="th-r">Ore Crushed (t)</th>
             <th class="th-r">Unmilled Stk (t)</th>
             <th class="th-r">Ore Milled (t)</th>
+            <th class="th-r">Mill Tgt</th>
+            <th class="th-r">Mill Var</th>
             <th class="th-r">Gold (g)</th>
             <th class="th-r">Purity %</th>
         </tr>
@@ -47,11 +51,21 @@
             <td class="td-c muted">{{ $p->shift ?? '—' }}</td>
             <td class="td-c muted">{{ $p->mining_site ?? '—' }}</td>
             <td class="td-r">{{ number_format($p->ore_hoisted, 2) }}</td>
+            @php $hv = $p->ore_hoisted_target !== null ? (float)$p->ore_hoisted_target - (float)$p->ore_hoisted : null; @endphp
+            <td class="td-r muted">{{ $p->ore_hoisted_target !== null ? number_format($p->ore_hoisted_target, 2) : '—' }}</td>
+            <td class="td-r" style="color:{{ $hv === null ? '#9ca3af' : ($hv > 0 ? '#b91c1c' : '#15803d') }};font-weight:600;">
+                {{ $hv === null ? '—' : (($hv > 0 ? '+' : '').number_format($hv, 2)) }}
+            </td>
             <td class="td-r">{{ number_format($p->waste_hoisted, 2) }}</td>
             <td class="td-r gold">{{ number_format($p->uncrushed_stockpile, 2) }}</td>
             <td class="td-r">{{ number_format($p->ore_crushed, 2) }}</td>
             <td class="td-r gold">{{ number_format($p->unmilled_stockpile, 2) }}</td>
             <td class="td-r">{{ number_format($p->ore_milled, 2) }}</td>
+            @php $mv = $p->ore_milled_target !== null ? (float)$p->ore_milled_target - (float)$p->ore_milled : null; @endphp
+            <td class="td-r muted">{{ $p->ore_milled_target !== null ? number_format($p->ore_milled_target, 2) : '—' }}</td>
+            <td class="td-r" style="color:{{ $mv === null ? '#9ca3af' : ($mv > 0 ? '#b91c1c' : '#15803d') }};font-weight:600;">
+                {{ $mv === null ? '—' : (($mv > 0 ? '+' : '').number_format($mv, 2)) }}
+            </td>
             <td class="td-r">{{ number_format($p->gold_smelted, 3) }}</td>
             <td class="td-r">{{ $p->purity_percentage }}%</td>
         </tr>
