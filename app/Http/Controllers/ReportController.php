@@ -175,6 +175,70 @@ class ReportController extends Controller
             ->download($filename);
     }
 
+    public function accountsPdf(Request $request)
+    {
+        $from = $request->input('from')
+            ? Carbon::parse($request->input('from'))->startOfDay()
+            : Carbon::now()->startOfMonth();
+        $to = $request->input('to')
+            ? Carbon::parse($request->input('to'))->endOfDay()
+            : Carbon::now()->endOfMonth();
+
+        $productions = DailyProduction::whereBetween('date', [$from, $to])
+            ->orderBy('date')
+            ->get()
+            ->map(function ($p) {
+                $p->gold_revenue = round(
+                    (float)$p->gold_smelted * ((float)$p->purity_percentage / 100) * (float)$p->fidelity_price,
+                    2
+                );
+                return $p;
+            });
+
+        $totalGoldRevenue = $productions->sum('gold_revenue');
+        $totalGoldGrams   = $productions->sum('gold_smelted');
+
+        $consumablesBreakdown = ConsumableStockMovement::whereBetween('movement_date', [$from, $to])
+            ->where('direction', 'out')
+            ->join('consumables', 'consumables.id', '=', 'consumable_stock_movements.consumable_id')
+            ->selectRaw('consumables.category, SUM(consumable_stock_movements.total_cost) as total')
+            ->groupBy('consumables.category')
+            ->orderBy('consumables.category')
+            ->get()
+            ->keyBy('category');
+
+        $totalConsumablesCost = $consumablesBreakdown->sum('total');
+
+        $labourBreakdown = LabourEnergy::whereBetween('date', [$from, $to])
+            ->selectRaw('SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour')
+            ->first();
+
+        $totalLabourCost = ($labourBreakdown->zesa ?? 0)
+                         + ($labourBreakdown->diesel ?? 0)
+                         + ($labourBreakdown->labour ?? 0);
+
+        $totalCosts = $totalConsumablesCost + $totalLabourCost;
+        $profitLoss = $totalGoldRevenue - $totalCosts;
+        $isProfitable = $profitLoss >= 0;
+
+        $filterFrom = $from->format('d M Y');
+        $filterTo   = $to->format('d M Y');
+
+        $data = array_merge($this->pdfSettings(), compact(
+            'from', 'to', 'filterFrom', 'filterTo',
+            'productions', 'totalGoldRevenue', 'totalGoldGrams',
+            'consumablesBreakdown', 'totalConsumablesCost',
+            'labourBreakdown', 'totalLabourCost',
+            'totalCosts', 'profitLoss', 'isProfitable'
+        ));
+
+        $filename = 'accounts-report-' . $from->format('Y-m-d') . '-to-' . $to->format('Y-m-d') . '.pdf';
+
+        return Pdf::loadView('pdf.accounts', $data)
+            ->setPaper('a4', 'portrait')
+            ->download($filename);
+    }
+
     // ── Shared stores snapshot ─────────────────────────────────────
     private function fetchStoresSnapshot(): array
     {

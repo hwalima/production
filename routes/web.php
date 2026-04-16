@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/accounts',    [ReportController::class, 'accounts'])->name('reports.accounts');
     Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf')->middleware('throttle:10,1');
     Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf')->middleware('throttle:10,1');
+    Route::get('/reports/accounts/pdf',    [ReportController::class, 'accountsPdf'])->name('reports.accounts.pdf')->middleware('throttle:10,1');
 
     // ── Action Items — all roles can view, managers+ can write ─────────────
     Route::get('/action-items',     [ActionItemController::class, 'index'])->name('action-items.index');
