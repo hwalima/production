@@ -213,6 +213,22 @@
             </div>
         </div>
 
+        {{-- ══════════════ PRODUCTION TARGETS ══════════════ --}}
+        <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
+            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Production Targets</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Monthly Gold Target (g)</label>
+                    <input type="number" name="gold_monthly_target" step="0.01" min="1"
+                           value="{{ old('gold_monthly_target', $settings['gold_monthly_target'] ?? 3500) }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);" required>
+                    @error('gold_monthly_target')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                    <p class="text-xs mt-1" style="color:#9ca3af;">Target used on the dashboard gold progress bar.</p>
+                </div>
+            </div>
+        </div>
+
         {{-- ══════════════ WORK SHIFTS ══════════════ --}}
         <div class="rounded-xl shadow p-6 space-y-3" style="background:var(--card);">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #fcb913;padding-bottom:8px;">
