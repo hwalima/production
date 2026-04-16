@@ -1,7 +1,7 @@
 @extends('pdf.layout')
 
 @section('report-title', 'Monthly Production Report')
-@section('report-subtitle', \Carbon\Carbon::parse($month . '-01')->format('F Y'))
+@section('report-subtitle', $filterFrom . ' – ' . $filterTo)
 
 @section('content')
 
@@ -108,7 +108,7 @@
             <td colspan="3" style="font-weight:700;">TOTALS</td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totHoisted, 2) }}</td>
             <td class="td-r">{{ $totHoistTgt ? number_format($totHoistTgt, 2) : '—' }}</td>
-            <td class="td-r" style="font-weight:700;color:{{ $totHoistVar === null ? '#9ca3af' : ($totHoistVar > 0 ? '#b91c1c' : '#15803d') }}">
+            <td class="td-r" style="font-weight:700;color:{{ $totHoistVar === null ? '#94a3b8' : ($totHoistVar > 0 ? '#fca5a5' : '#86efac') }}">
                 {{ $totHoistVar === null ? '—' : (($totHoistVar > 0 ? '+' : '').number_format($totHoistVar, 2)) }}
             </td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totWaste, 2) }}</td>
@@ -117,10 +117,10 @@
             <td class="td-r">—</td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totMilled, 2) }}</td>
             <td class="td-r">{{ $totMillTgt ? number_format($totMillTgt, 2) : '—' }}</td>
-            <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#9ca3af' : ($totMillVar > 0 ? '#b91c1c' : '#15803d') }}">
+            <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#94a3b8' : ($totMillVar > 0 ? '#fca5a5' : '#86efac') }}">
                 {{ $totMillVar === null ? '—' : (($totMillVar > 0 ? '+' : '').number_format($totMillVar, 2)) }}
             </td>
-            <td class="td-r" style="font-weight:700;color:#b45309;">{{ number_format($totGold, 2) }} g</td>
+            <td class="td-r" style="font-weight:700;color:#fcd34d;">{{ number_format($totGold, 2) }} g</td>
             <td class="td-r">{{ number_format($avgPurity, 2) }}%</td>
         </tr>
     </tfoot>

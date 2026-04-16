@@ -75,8 +75,12 @@ class ReportController extends Controller
         $totalGold = $productions->sum('gold_smelted');
         $avgPurity = $productions->avg('purity_percentage');
 
+        $filterFrom = $start->format('d M Y');
+        $filterTo   = $end->format('d M Y');
+
         $data = array_merge($this->pdfSettings(), compact(
-            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity'
+            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity',
+            'filterFrom', 'filterTo'
         ));
 
         $filename = 'production-report-' . $month . '.pdf';
