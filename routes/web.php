@@ -19,7 +19,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ConsumableController;
 
 Route::get('/', function () {
-    return redirect('/dashboard');
+    return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -60,8 +60,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/reports/production',  [ReportController::class, 'production'])->name('reports.production');
     Route::get('/reports/consumables', [ReportController::class, 'consumables'])->name('reports.consumables');
-    Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf');
-    Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf');
+    Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf')->middleware('throttle:10,1');
+    Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf')->middleware('throttle:10,1');
 
     // ── Admin + super_admin ───────────────────────────────────────────────
     Route::middleware('role:super_admin,admin')->group(function () {

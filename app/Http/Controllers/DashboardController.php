@@ -12,6 +12,11 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'from' => 'nullable|date_format:Y-m-d',
+            'to'   => 'nullable|date_format:Y-m-d',
+        ]);
+
         $now = Carbon::now();
 
         // ── Date range (defaults to current month) ─────────────────────────
@@ -53,7 +58,9 @@ class DashboardController extends Controller
             ? round(($oreMilledMonth / $oreHoistedMonth) * 100, 1)
             : 0;
 
-        $goldTarget    = (float) (Setting::where('key', 'gold_monthly_target')->value('value') ?? 3.5);
+        $dashSettings  = Setting::whereIn('key', ['gold_monthly_target','company_location','mine_latitude','mine_longitude'])
+                            ->pluck('value', 'key');
+        $goldTarget    = (float) ($dashSettings->get('gold_monthly_target') ?? 3.5);
         $goldTargetPct = $goldTarget > 0 ? min(100, round(($goldSmeltedMonth / $goldTarget) * 100, 1)) : 0;
 
         $avgDailyGold   = $daysRecorded > 0 ? $goldSmeltedMonth / $daysRecorded : 0;
@@ -89,9 +96,9 @@ class DashboardController extends Controller
         $trendOreMilled    = $trend->pluck('ore_milled')->map(fn($v) => (float) $v)->toArray();
         $trendGoldSmelted  = $trend->pluck('gold_smelted')->map(fn($v) => (float) $v)->toArray();
 
-        $mineLocation  = Setting::where('key', 'company_location')->value('value') ?? 'Filabusi, Zimbabwe';
-        $mineLat       = (float) (Setting::where('key', 'mine_latitude')->value('value')  ?: -20.52);
-        $mineLon       = (float) (Setting::where('key', 'mine_longitude')->value('value') ?: 29.33);
+        $mineLocation  = $dashSettings->get('company_location') ?? 'Filabusi, Zimbabwe';
+        $mineLat       = (float) ($dashSettings->get('mine_latitude') ?: -20.52);
+        $mineLon       = (float) ($dashSettings->get('mine_longitude') ?: 29.33);
 
         // ── Quick-access preset ranges ────────────────────────────────────
         $isDefaultRange = $filterFromStr === $now->copy()->startOfMonth()->toDateString()

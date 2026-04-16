@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px;">
     <div class="data-card" style="padding:16px;text-align:center;">
         <div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px;">Total Ore Milled</div>
         <div style="font-size:1.4rem;font-weight:700;color:var(--text);">{{ number_format($totalOre, 2) }}</div>
@@ -65,7 +65,7 @@
                     <td class="text-center">{{ number_format($p->ore_milled, 2) }}</td>
                     <td class="text-center">{{ number_format($p->gold_smelted, 3) }}</td>
                     <td class="text-center">{{ $p->purity_percentage }}%</td>
-                    <td class="text-center">{{ $currencySymbol }}{{ number_format($p->fidelity_price, 2) }}</td>
+                    <td class="text-center">{{ $p->fidelity_price !== null ? $currencySymbol . number_format($p->fidelity_price, 2) : '—' }}</td>
                 </tr>
                 @empty
                 <tr><td colspan="12" style="text-align:center;padding:32px;color:#9ca3af;">No records found for this month.</td></tr>

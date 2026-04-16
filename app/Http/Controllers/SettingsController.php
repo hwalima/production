@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 
@@ -10,7 +11,7 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        $settings = Setting::all()->pluck('value', 'key');
+        $settings = Cache::remember('app_settings', 600, fn() => Setting::all()->pluck('value', 'key'));
         return view('settings.index', compact('settings'));
     }
 
@@ -80,6 +81,9 @@ class SettingsController extends Controller
 
             Setting::updateOrCreate(['key' => 'logo_path'], ['value' => $path]);
         }
+
+        // Invalidate the settings cache so updated values are picked up immediately
+        Cache::forget('app_settings');
 
         return redirect()->route('settings.index')->with('success', 'Settings saved successfully.');
     }

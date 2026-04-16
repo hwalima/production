@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @php
-            $appSettings  = \App\Models\Setting::all()->pluck('value', 'key');
+            $appSettings  = \Illuminate\Support\Facades\Cache::remember('app_settings', 600, fn() => \App\Models\Setting::all()->pluck('value', 'key'));
             $companyName  = $appSettings['company_name'] ?? config('app.name', 'My Mine');
             $logoPath     = $appSettings['logo_path'] ?? '';
             $logoUrl      = $logoPath ? asset('storage/' . $logoPath) : null;
@@ -200,7 +200,7 @@
                 .dt-search { width:100%; }
                 .dt-toolbar-right { justify-content:flex-start; }
                 .page-title { font-size:1.2rem; }
-                .notif-panel { min-width:calc(100vw - 32px); right:-60px; }
+                .notif-panel { left:16px; right:16px; min-width:unset; }
                 #topSearch { width:140px; }
             }
             @media(max-width:479px){

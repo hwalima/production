@@ -226,6 +226,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
 .two-col  { display:grid; grid-template-columns:repeat(2,1fr); gap:1.75rem; }
 @media(max-width:1023px){
     .kpi-grid { grid-template-columns:repeat(2,1fr); gap:1.25rem; }
+    .kpi-grid > :last-child:nth-child(odd) { grid-column:span 2; }
     .two-col  { grid-template-columns:1fr; gap:1.25rem; }
 }
 @media(max-width:599px){

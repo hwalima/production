@@ -12,20 +12,16 @@ class LabourEnergyController extends Controller
     public function index(Request $request)
     {
         $records = LabourEnergy::orderByDesc('date')->paginate(30);
-        $defaults = [
-            'zesa' => Setting::where('key', 'zesa_daily')->value('value'),
-            'diesel' => Setting::where('key', 'diesel_daily')->value('value'),
-            'labour' => Setting::where('key', 'labour_daily')->value('value'),
-        ];
-        return view('labour_energy.index', compact('records', 'defaults'));
+        return view('labour_energy.index', compact('records'));
     }
 
     public function create()
     {
+        $ds = Setting::whereIn('key', ['zesa_daily', 'diesel_daily', 'labour_daily'])->pluck('value', 'key');
         $defaults = [
-            'zesa' => Setting::where('key', 'zesa_daily')->value('value'),
-            'diesel' => Setting::where('key', 'diesel_daily')->value('value'),
-            'labour' => Setting::where('key', 'labour_daily')->value('value'),
+            'zesa'   => $ds->get('zesa_daily'),
+            'diesel' => $ds->get('diesel_daily'),
+            'labour' => $ds->get('labour_daily'),
         ];
         return view('labour_energy.create', compact('defaults'));
     }
@@ -43,10 +39,11 @@ class LabourEnergyController extends Controller
 
     public function edit(LabourEnergy $labour_energy)
     {
+        $ds = Setting::whereIn('key', ['zesa_daily', 'diesel_daily', 'labour_daily'])->pluck('value', 'key');
         $defaults = [
-            'zesa' => Setting::where('key', 'zesa_daily')->value('value'),
-            'diesel' => Setting::where('key', 'diesel_daily')->value('value'),
-            'labour' => Setting::where('key', 'labour_daily')->value('value'),
+            'zesa'   => $ds->get('zesa_daily'),
+            'diesel' => $ds->get('diesel_daily'),
+            'labour' => $ds->get('labour_daily'),
         ];
         return view('labour_energy.edit', compact('labour_energy', 'defaults'));
     }

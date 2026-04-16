@@ -31,7 +31,7 @@ class ConsumableController extends Controller
             });
 
         $categories   = Consumable::distinct()->pluck('category')->sort()->values();
-        $lowStockCount = $consumables->where('low_stock', true)->count();
+        $lowStockCount = $consumables->filter(fn($c) => $c->low_stock || $c->out_of_stock)->count();
         $totalItems   = $consumables->count();
 
         return view('consumables.index', compact(
@@ -77,13 +77,20 @@ class ConsumableController extends Controller
             ->orderByDesc('id')
             ->paginate(25);
 
-        $stockIn    = (float) $consumable->movements()->where('direction', 'in')->sum('quantity');
-        $stockOut   = (float) $consumable->movements()->where('direction', 'out')->sum('quantity');
+        $agg = $consumable->movements()->selectRaw("
+            SUM(CASE WHEN direction='in'  THEN quantity   ELSE 0 END) AS stock_in,
+            SUM(CASE WHEN direction='out' THEN quantity   ELSE 0 END) AS stock_out,
+            SUM(CASE WHEN direction='in'  THEN total_cost ELSE 0 END) AS total_spent,
+            SUM(CASE WHEN direction='out' THEN total_cost ELSE 0 END) AS total_used
+        ")->first();
+
+        $stockIn    = (float) $agg->stock_in;
+        $stockOut   = (float) $agg->stock_out;
         $stock      = $stockIn - $stockOut;
         $unitCost   = (float) $consumable->units_per_pack > 0
             ? (float) $consumable->pack_cost / (float) $consumable->units_per_pack : 0;
-        $totalSpent = (float) $consumable->movements()->where('direction', 'in')->sum('total_cost');
-        $totalUsed  = (float) $consumable->movements()->where('direction', 'out')->sum('total_cost');
+        $totalSpent = (float) $agg->total_spent;
+        $totalUsed  = (float) $agg->total_used;
 
         return view('consumables.show', compact(
             'consumable', 'movements',
@@ -130,8 +137,7 @@ class ConsumableController extends Controller
     {
         $unitCost = (float) $consumable->units_per_pack > 0
             ? (float) $consumable->pack_cost / (float) $consumable->units_per_pack : 0;
-        $stock    = (float) $consumable->movements()->where('direction', 'in')->sum('quantity')
-                  - (float) $consumable->movements()->where('direction', 'out')->sum('quantity');
+        $stock    = $consumable->current_stock;
 
         return view('consumables.receive', compact('consumable', 'unitCost', 'stock'));
     }
@@ -188,8 +194,7 @@ class ConsumableController extends Controller
     // ── Use / issue stock (OUT) ───────────────────────────────────────────
     public function useForm(Consumable $consumable)
     {
-        $stock    = (float) $consumable->movements()->where('direction', 'in')->sum('quantity')
-                  - (float) $consumable->movements()->where('direction', 'out')->sum('quantity');
+        $stock    = $consumable->current_stock;
         $unitCost = (float) $consumable->units_per_pack > 0
             ? (float) $consumable->pack_cost / (float) $consumable->units_per_pack : 0;
 

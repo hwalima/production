@@ -24,10 +24,12 @@
 {{-- ── Page header + add button ── --}}
 <div class="page-header">
     <h1 class="page-title">Stores &amp; Consumables</h1>
+    @if(auth()->user()->canWrite())
     <a href="{{ route('consumables.create') }}" class="btn-add">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Item
     </a>
+    @endif
 </div>
 
 {{-- ── Category filter pills ── --}}
@@ -125,6 +127,7 @@
                         <a href="{{ route('consumables.show', $item) }}" class="act-btn act-view" title="View history">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </a>
+                        @if(auth()->user()->canWrite())
                         <a href="{{ route('consumables.receive.form', $item) }}" class="act-btn" title="Receive stock"
                            style="background:rgba(34,197,94,.12);color:#16a34a;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -143,6 +146,7 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                             </button>
                         </form>
+                        @endif
                     </div>
                 </td>
             </tr>

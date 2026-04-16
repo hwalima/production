@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 
@@ -15,16 +16,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Load SMTP settings from the database at runtime so that
-        // password resets, notifications, and exports all use the
-        // credentials the admin has saved in Settings.
+        // Load all settings once per request, cached for 10 minutes.
+        // Cache is invalidated in SettingsController::update().
         try {
             if (Schema::hasTable('settings')) {
-                $s = \App\Models\Setting::whereIn('key', [
-                    'mail_host', 'mail_port', 'mail_username',
-                    'mail_password', 'mail_encryption',
-                    'mail_from_address', 'mail_from_name',
-                ])->pluck('value', 'key');
+                $s = Cache::remember('app_settings', 600, fn () =>
+                    \App\Models\Setting::all()->pluck('value', 'key')
+                );
 
                 if ($s->get('mail_host')) {
                     config([
@@ -38,18 +36,9 @@ class AppServiceProvider extends ServiceProvider
                         'mail.from.name'               => $s->get('mail_from_name')    ?: config('app.name'),
                     ]);
                 }
-            }
-        } catch (\Throwable $e) {
-            // Fail silently during migrations / fresh installs
-        }
 
-        // Share currency symbols with all views
-        try {
-            if (Schema::hasTable('settings')) {
-                $currSym  = \App\Models\Setting::where('key', 'currency_symbol')->value('value');
-                $currCode = \App\Models\Setting::where('key', 'currency_code')->value('value');
-                View::share('currencySymbol', $currSym  ?: '$');
-                View::share('currencyCode',   $currCode ?: 'USD');
+                View::share('currencySymbol', $s->get('currency_symbol') ?: '$');
+                View::share('currencyCode',   $s->get('currency_code')   ?: 'USD');
             } else {
                 View::share('currencySymbol', '$');
                 View::share('currencyCode',   'USD');

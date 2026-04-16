@@ -89,8 +89,8 @@ class RoleController extends Controller
         unset($data);
 
         // Users list keyed by role (for detail rows + role-edit dropdowns)
-        $usersByRole = User::orderBy('name')->get()->groupBy('role');
         $allUsers    = User::orderBy('name')->get();
+        $usersByRole = $allUsers->groupBy('role');
 
         return view('roles.index', compact('roles', 'usersByRole', 'allUsers'));
     }
