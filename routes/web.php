@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/reports/production',  [ReportController::class, 'production'])->name('reports.production');
     Route::get('/reports/consumables', [ReportController::class, 'consumables'])->name('reports.consumables');
+    Route::get('/reports/accounts',    [ReportController::class, 'accounts'])->name('reports.accounts');
     Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf')->middleware('throttle:10,1');
     Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf')->middleware('throttle:10,1');
 

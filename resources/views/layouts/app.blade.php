@@ -353,6 +353,7 @@
                     <div class="nav-group-items {{ request()->routeIs('reports.*') ? '' : 'closed' }}" id="ng-reports">
                         <a href="{{ route('reports.production') }}" class="sub {{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
                         <a href="{{ route('reports.consumables') }}" class="sub {{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>
+                        <a href="{{ route('reports.accounts') }}" class="sub {{ request()->routeIs('reports.accounts') ? 'active' : '' }}" title="Accounts Report"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Accounts Report</span></a>
                     </div>
 
                     {{-- ── Admin group ── --}}

@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyProduction;
 use App\Models\Consumable;
+use App\Models\ConsumableStockMovement;
+use App\Models\LabourEnergy;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -34,6 +36,64 @@ class ReportController extends Controller
     {
         [$consumables, $totalValue, $lowStockCount] = $this->fetchStoresSnapshot();
         return view('reports.consumables', compact('consumables', 'totalValue', 'lowStockCount'));
+    }
+
+    public function accounts(Request $request)
+    {
+        $from = $request->input('from')
+            ? Carbon::parse($request->input('from'))->startOfDay()
+            : Carbon::now()->startOfMonth();
+        $to = $request->input('to')
+            ? Carbon::parse($request->input('to'))->endOfDay()
+            : Carbon::now()->endOfMonth();
+
+        // ── Gold Revenue ──────────────────────────────────────────
+        $productions = DailyProduction::whereBetween('date', [$from, $to])
+            ->orderBy('date')
+            ->get()
+            ->map(function ($p) {
+                $p->gold_revenue = round(
+                    (float)$p->gold_smelted * ((float)$p->purity_percentage / 100) * (float)$p->fidelity_price,
+                    2
+                );
+                return $p;
+            });
+
+        $totalGoldRevenue = $productions->sum('gold_revenue');
+        $totalGoldGrams   = $productions->sum('gold_smelted');
+
+        // ── Consumables Cost (actual usage issues) ────────────────
+        $consumablesBreakdown = ConsumableStockMovement::whereBetween('movement_date', [$from, $to])
+            ->where('direction', 'out')
+            ->join('consumables', 'consumables.id', '=', 'consumable_stock_movements.consumable_id')
+            ->selectRaw('consumables.category, SUM(consumable_stock_movements.total_cost) as total')
+            ->groupBy('consumables.category')
+            ->orderBy('consumables.category')
+            ->get()
+            ->keyBy('category');
+
+        $totalConsumablesCost = $consumablesBreakdown->sum('total');
+
+        // ── Labour & Energy Cost ──────────────────────────────────
+        $labourBreakdown = LabourEnergy::whereBetween('date', [$from, $to])
+            ->selectRaw('SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour')
+            ->first();
+
+        $totalLabourCost = ($labourBreakdown->zesa ?? 0)
+                         + ($labourBreakdown->diesel ?? 0)
+                         + ($labourBreakdown->labour ?? 0);
+
+        // ── Totals ────────────────────────────────────────────────
+        $totalCosts   = $totalConsumablesCost + $totalLabourCost;
+        $profitLoss   = $totalGoldRevenue - $totalCosts;
+
+        return view('reports.accounts', compact(
+            'from', 'to',
+            'productions', 'totalGoldRevenue', 'totalGoldGrams',
+            'consumablesBreakdown', 'totalConsumablesCost',
+            'labourBreakdown', 'totalLabourCost',
+            'totalCosts', 'profitLoss'
+        ));
     }
 
     // ── PDF helpers ────────────────────────────────────────────────
