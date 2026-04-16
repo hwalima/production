@@ -68,12 +68,22 @@ class MaintenanceController extends Controller
     public function purgeAuditLogs(Request $request)
     {
         $days = (int) $request->input('days', 90);
-        $cutoff = Carbon::now()->subDays($days);
-        $deleted = AuditLog::where('created_at', '<', $cutoff)->delete();
 
-        AuditLog::record('deleted', "Purged {$deleted} audit log entries older than {$days} days.");
+        if ($days === 0) {
+            $deleted = AuditLog::count();
+            AuditLog::truncate();
+            $label = 'all';
+        } else {
+            $cutoff = Carbon::now()->subDays($days);
+            $deleted = AuditLog::where('created_at', '<', $cutoff)->delete();
+            $label = "older than {$days} days";
+        }
 
-        return back()->with('success', "Deleted {$deleted} audit log entries older than {$days} days.");
+        if ($deleted > 0) {
+            AuditLog::record('deleted', "Purged {$deleted} audit log entries ({$label}).");
+        }
+
+        return back()->with('success', "Deleted {$deleted} audit log entr" . ($deleted === 1 ? 'y' : 'ies') . " ({$label}).");
     }
 
     /* ── Login logs ── */
@@ -105,11 +115,19 @@ class MaintenanceController extends Controller
     public function purgeLoginLogs(Request $request)
     {
         $days = (int) $request->input('days', 90);
-        $cutoff = Carbon::now()->subDays($days);
-        $deleted = LoginLog::where('created_at', '<', $cutoff)->delete();
 
-        AuditLog::record('deleted', "Purged {$deleted} login log entries older than {$days} days.");
+        if ($days === 0) {
+            $deleted = LoginLog::count();
+            LoginLog::truncate();
+            $label = 'all';
+        } else {
+            $cutoff = Carbon::now()->subDays($days);
+            $deleted = LoginLog::where('created_at', '<', $cutoff)->delete();
+            $label = "older than {$days} days";
+        }
 
-        return back()->with('success', "Deleted {$deleted} login log entries older than {$days} days.");
+        AuditLog::record('deleted', "Purged {$deleted} login log entries ({$label}).");
+
+        return back()->with('success', "Deleted {$deleted} login log entr" . ($deleted === 1 ? 'y' : 'ies') . " ({$label}).");
     }
 }

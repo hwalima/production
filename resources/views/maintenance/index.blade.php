@@ -93,7 +93,8 @@
             @endif
         </div>
         <form method="POST" action="{{ route('maintenance.audit-logs.purge') }}"
-              onsubmit="return confirm('Permanently delete audit logs older than the selected period? This cannot be undone.')">
+              id="purgeAuditForm"
+              onsubmit="var s=this.querySelector('select');var txt=s.options[s.selectedIndex].text;return confirm('Permanently delete audit logs ('+txt+')? This cannot be undone.')">
             @csrf
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div>
@@ -105,6 +106,7 @@
                             <option value="90" selected>90 days</option>
                             <option value="180">180 days</option>
                             <option value="365">1 year</option>
+                            <option value="0">All records</option>
                         </select>
                         <button type="submit" class="btn-add" style="background:#ef4444;border-color:#ef4444;display:inline-flex;align-items:center;gap:6px;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -146,7 +148,8 @@
             @endif
         </div>
         <form method="POST" action="{{ route('maintenance.login-logs.purge') }}"
-              onsubmit="return confirm('Permanently delete login logs older than the selected period? This cannot be undone.')">
+              id="purgeLoginForm"
+              onsubmit="var s=this.querySelector('select');var txt=s.options[s.selectedIndex].text;return confirm('Permanently delete login logs ('+txt+')? This cannot be undone.')">
             @csrf
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div>
@@ -158,6 +161,7 @@
                             <option value="90" selected>90 days</option>
                             <option value="180">180 days</option>
                             <option value="365">1 year</option>
+                            <option value="0">All records</option>
                         </select>
                         <button type="submit" class="btn-add" style="background:#ef4444;border-color:#ef4444;display:inline-flex;align-items:center;gap:6px;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
