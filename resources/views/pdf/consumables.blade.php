@@ -1,113 +1,63 @@
 @extends('pdf.layout')
 
-@section('report-title', 'Consumables Usage Report')
-@section('report-subtitle', \Carbon\Carbon::parse($month . '-01')->format('F Y'))
+@section('report-title', 'Stores Inventory Report')
+@section('report-subtitle', 'Generated ' . now()->format('d F Y'))
 
 @section('content')
 
-{{-- ── Blasting Consumables ─────────────────────────────── --}}
-<div class="section-heading">Blasting Consumables</div>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th class="th-c">Fractures</th>
-            <th class="th-c">Fuse</th>
-            <th class="th-c">Carmes IEDs</th>
-            <th class="th-c">Power Cords</th>
-            <th class="th-c">ANFO</th>
-            <th class="th-c">Oil</th>
-            <th class="th-c">Drill Bits</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($blasting as $b)
-        <tr>
-            <td>{{ $b->date->format('d M Y') }}</td>
-            <td class="td-c">{{ $b->fractures }}</td>
-            <td class="td-c">{{ $b->fuse }}</td>
-            <td class="td-c">{{ $b->carmes_ieds }}</td>
-            <td class="td-c">{{ $b->power_cords }}</td>
-            <td class="td-c">{{ $b->anfo }}</td>
-            <td class="td-c">{{ $b->oil }}</td>
-            <td class="td-c">{{ $b->drill_bits }}</td>
-        </tr>
-        @empty
-        <tr><td colspan="8" style="text-align:center;padding:14px;color:#9ca3af;">No blasting records for this period.</td></tr>
-        @endforelse
-    </tbody>
-    @if($blasting->count())
-    <tfoot>
-        <tr>
-            <td>Totals</td>
-            <td class="td-c">{{ $blasting->sum('fractures') }}</td>
-            <td class="td-c">{{ $blasting->sum('fuse') }}</td>
-            <td class="td-c">{{ $blasting->sum('carmes_ieds') }}</td>
-            <td class="td-c">{{ $blasting->sum('power_cords') }}</td>
-            <td class="td-c">{{ $blasting->sum('anfo') }}</td>
-            <td class="td-c">{{ $blasting->sum('oil') }}</td>
-            <td class="td-c">{{ $blasting->sum('drill_bits') }}</td>
-        </tr>
-    </tfoot>
-    @endif
+{{-- ── Summary tiles ── --}}
+<table class="summary-grid" style="width:75%;">
+    <tr>
+        <td style="width:33.33%;">
+            <div class="tile-label">Total Items</div>
+            <div class="tile-value">{{ $consumables->count() }}</div>
+        </td>
+        <td style="width:33.33%;">
+            <div class="tile-label">Total Stock Value</div>
+            <div class="tile-value gold">{{ $currencySymbol }}{{ number_format($totalValue, 2) }}</div>
+        </td>
+        <td style="width:33.33%;">
+            <div class="tile-label">Low / Out of Stock</div>
+            <div class="tile-value {{ $lowStockCount ? '' : 'green' }}" style="{{ $lowStockCount ? 'color:#b45309;' : '' }}">
+                {{ $lowStockCount }}
+            </div>
+        </td>
+    </tr>
 </table>
 
-{{-- ── Chemicals Usage ──────────────────────────────────── --}}
-<div class="section-heading" style="margin-top:18px;">Chemicals Usage</div>
+{{-- ── Blasting items ── --}}
+@php $blasting = $consumables->where('category','blasting'); @endphp
+@if($blasting->count())
+<div class="section-heading">Blasting</div>
+@include('pdf._stores_table', ['items' => $blasting])
+@endif
 
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th class="th-c">NaCN</th>
-            <th class="th-c">Lime</th>
-            <th class="th-c">Caustic Soda</th>
-            <th class="th-c">Iodised Salt</th>
-            <th class="th-c">Mercury</th>
-            <th class="th-c">Steel Balls</th>
-            <th class="th-c">H&#8322;O&#8322;</th>
-            <th class="th-c">Borax</th>
-            <th class="th-c">HNO&#8323;</th>
-            <th class="th-c">H&#8322;SO&#8324;</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($chemicals as $c)
-        <tr>
-            <td>{{ $c->date->format('d M Y') }}</td>
-            <td class="td-c">{{ $c->sodium_cyanide }}</td>
-            <td class="td-c">{{ $c->lime }}</td>
-            <td class="td-c">{{ $c->caustic_soda }}</td>
-            <td class="td-c">{{ $c->iodised_salt }}</td>
-            <td class="td-c">{{ $c->mercury }}</td>
-            <td class="td-c">{{ $c->steel_balls }}</td>
-            <td class="td-c">{{ $c->hydrogen_peroxide }}</td>
-            <td class="td-c">{{ $c->borax }}</td>
-            <td class="td-c">{{ $c->nitric_acid }}</td>
-            <td class="td-c">{{ $c->sulphuric_acid }}</td>
-        </tr>
-        @empty
-        <tr><td colspan="11" style="text-align:center;padding:14px;color:#9ca3af;">No chemical records for this period.</td></tr>
-        @endforelse
-    </tbody>
-    @if($chemicals->count())
-    <tfoot>
-        <tr>
-            <td>Totals</td>
-            <td class="td-c">{{ $chemicals->sum('sodium_cyanide') }}</td>
-            <td class="td-c">{{ $chemicals->sum('lime') }}</td>
-            <td class="td-c">{{ $chemicals->sum('caustic_soda') }}</td>
-            <td class="td-c">{{ $chemicals->sum('iodised_salt') }}</td>
-            <td class="td-c">{{ $chemicals->sum('mercury') }}</td>
-            <td class="td-c">{{ $chemicals->sum('steel_balls') }}</td>
-            <td class="td-c">{{ $chemicals->sum('hydrogen_peroxide') }}</td>
-            <td class="td-c">{{ $chemicals->sum('borax') }}</td>
-            <td class="td-c">{{ $chemicals->sum('nitric_acid') }}</td>
-            <td class="td-c">{{ $chemicals->sum('sulphuric_acid') }}</td>
-        </tr>
-    </tfoot>
-    @endif
-</table>
+{{-- ── Chemicals ── --}}
+@php $chemicals = $consumables->where('category','chemicals'); @endphp
+@if($chemicals->count())
+<div class="section-heading">Chemicals</div>
+@include('pdf._stores_table', ['items' => $chemicals])
+@endif
+
+{{-- ── Mechanical ── --}}
+@php $mechanical = $consumables->where('category','mechanical'); @endphp
+@if($mechanical->count())
+<div class="section-heading">Mechanical</div>
+@include('pdf._stores_table', ['items' => $mechanical])
+@endif
+
+{{-- ── PPE ── --}}
+@php $ppe = $consumables->where('category','ppe'); @endphp
+@if($ppe->count())
+<div class="section-heading">PPE</div>
+@include('pdf._stores_table', ['items' => $ppe])
+@endif
+
+{{-- ── General / other categories ── --}}
+@php $other = $consumables->whereNotIn('category',['blasting','chemicals','mechanical','ppe']); @endphp
+@if($other->count())
+<div class="section-heading">General / Other</div>
+@include('pdf._stores_table', ['items' => $other])
+@endif
 
 @endsection

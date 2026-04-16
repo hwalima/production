@@ -6,17 +6,17 @@
 @section('content')
 
 {{-- ── Summary tiles ──────────────────────────────────────── --}}
-<table class="summary-grid">
+<table class="summary-grid" style="width:75%;">
     <tr>
-        <td>
+        <td style="width:33.33%;">
             <div class="tile-label">Total Ore Milled (t)</div>
             <div class="tile-value">{{ number_format($totalOre, 2) }}</div>
         </td>
-        <td>
+        <td style="width:33.33%;">
             <div class="tile-label">Total Gold Smelted (kg)</div>
             <div class="tile-value gold">{{ number_format($totalGold, 3) }}</div>
         </td>
-        <td>
+        <td style="width:33.33%;">
             <div class="tile-label">Avg Purity (%)</div>
             <div class="tile-value">{{ number_format($avgPurity, 2) }}</div>
         </td>
