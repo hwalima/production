@@ -94,7 +94,7 @@
         </div>
         <form method="POST" action="{{ route('maintenance.audit-logs.purge') }}"
               id="purgeAuditForm"
-              onsubmit="var s=this.querySelector('select');var txt=s.options[s.selectedIndex].text;return confirm('Permanently delete audit logs ('+txt+')? This cannot be undone.')">
+              onsubmit="event.preventDefault();var s=this.querySelector('select');confirmDelete('Permanently delete audit logs ('+s.options[s.selectedIndex].text+')? This cannot be undone.',this)">
             @csrf
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div>
@@ -149,7 +149,7 @@
         </div>
         <form method="POST" action="{{ route('maintenance.login-logs.purge') }}"
               id="purgeLoginForm"
-              onsubmit="var s=this.querySelector('select');var txt=s.options[s.selectedIndex].text;return confirm('Permanently delete login logs ('+txt+')? This cannot be undone.')">
+              onsubmit="event.preventDefault();var s=this.querySelector('select');confirmDelete('Permanently delete login logs ('+s.options[s.selectedIndex].text+')? This cannot be undone.',this)">
             @csrf
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div>
