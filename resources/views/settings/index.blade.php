@@ -253,6 +253,26 @@
             @endif
         </div>
 
+        {{-- ══════════════ MINING DEPARTMENTS ══════════════ --}}
+        <div class="rounded-xl shadow p-6 space-y-3" style="background:var(--card);">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #fcb913;padding-bottom:8px;">
+                <h2 class="text-base font-semibold">Mining Departments</h2>
+                <a href="{{ route('mining-departments.index') }}" class="btn-add" style="padding:6px 14px;font-size:.78rem;">Manage &rarr;</a>
+            </div>
+            @php $depts = \App\Models\MiningDepartment::orderBy('name')->get(); @endphp
+            @if($depts->isEmpty())
+            <p style="font-size:.8rem;color:#9ca3af;">No departments configured yet.</p>
+            @else
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+                @foreach($depts as $dept)
+                <span style="background:{{ $dept->is_active ? 'rgba(252,185,19,.15)' : 'rgba(156,163,175,.1)' }};color:{{ $dept->is_active ? '#fcb913' : '#9ca3af' }};border:1px solid {{ $dept->is_active ? '#fcb913' : '#6b7280' }};border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:600;">
+                    {{ $dept->name }}
+                </span>
+                @endforeach
+            </div>
+            @endif
+        </div>
+
         {{-- ══════════════ EMAIL / SMTP ══════════════ --}}
         <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
             <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">

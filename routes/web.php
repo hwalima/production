@@ -17,6 +17,7 @@ use App\Http\Controllers\MiningSiteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ConsumableController;
+use App\Http\Controllers\MiningDepartmentController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -80,6 +81,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Mining Sites
         Route::resource('settings/mining-sites', MiningSiteController::class)->names('mining-sites')->parameter('mining-sites', 'miningSite')->except(['show', 'create']);
         Route::patch('settings/mining-sites/{miningSite}/toggle', [MiningSiteController::class, 'toggle'])->name('mining-sites.toggle');
+
+        // Mining Departments
+        Route::resource('settings/mining-departments', MiningDepartmentController::class)->names('mining-departments')->parameter('mining-departments', 'miningDepartment')->except(['show', 'create']);
+        Route::patch('settings/mining-departments/{miningDepartment}/toggle', [MiningDepartmentController::class, 'toggle'])->name('mining-departments.toggle');
     });
 
     // ── Super admin only ──────────────────────────────────────────────────
