@@ -39,13 +39,16 @@ class AppServiceProvider extends ServiceProvider
 
                 View::share('currencySymbol', $s->get('currency_symbol') ?: '$');
                 View::share('currencyCode',   $s->get('currency_code')   ?: 'USD');
+                View::share('sharedAppSettings', $s);
             } else {
                 View::share('currencySymbol', '$');
                 View::share('currencyCode',   'USD');
+                View::share('sharedAppSettings', collect());
             }
         } catch (\Throwable $e) {
             View::share('currencySymbol', '$');
             View::share('currencyCode',   'USD');
+            View::share('sharedAppSettings', collect());
         }
     }
 }

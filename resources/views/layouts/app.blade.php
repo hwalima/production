@@ -334,7 +334,7 @@
                         <a href="{{ route('machines.index') }}" class="sub {{ request()->routeIs('machines.*') ? 'active' : '' }}" title="Machines"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Machines</span></a>
                         <a href="{{ route('assay.index') }}" class="sub {{ request()->routeIs('assay.*') ? 'active' : '' }}" title="Assay Results"><span class="nav-icon">&#128300;</span><span class="nav-text">&nbsp;Assay Results</span></a>
                         <a href="{{ route('she.index') }}" class="sub {{ request()->routeIs('she.*') ? 'active' : '' }}" title="SHE"><span class="nav-icon">&#9888;</span><span class="nav-text">&nbsp;SHE</span></a>
-                        @php $aiOverdue = \App\Models\ActionItem::overdueCount(); @endphp
+                        @php $aiOverdue = \Illuminate\Support\Facades\Cache::remember('ai_overdue_count', 300, fn() => \App\Models\ActionItem::overdueCount()); @endphp
                         <a href="{{ route('action-items.index') }}" class="sub {{ request()->routeIs('action-items.*') ? 'active' : '' }}" title="Action Items" style="position:relative;">
                             <span class="nav-icon">&#128204;</span>
                             <span class="nav-text">&nbsp;Action Items</span>

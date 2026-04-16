@@ -5,6 +5,7 @@ use App\Models\ActionItem;
 use App\Models\MiningDepartment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -61,6 +62,8 @@ class ActionItemController extends Controller
             'status', 'due_date', 'reported_date',
         ]));
 
+        Cache::forget('ai_overdue_count');
+
         return redirect()->route('action-items.index')
             ->with('success', 'Action item added.');
     }
@@ -89,6 +92,8 @@ class ActionItemController extends Controller
             'status', 'due_date', 'reported_date',
         ]));
 
+        Cache::forget('ai_overdue_count');
+
         return redirect()->route('action-items.index')
             ->with('success', 'Action item updated.');
     }
@@ -96,6 +101,7 @@ class ActionItemController extends Controller
     public function destroy(ActionItem $actionItem)
     {
         $actionItem->delete();
+        Cache::forget('ai_overdue_count');
         return redirect()->route('action-items.index')
             ->with('success', 'Action item deleted.');
     }
