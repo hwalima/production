@@ -192,10 +192,6 @@ class SheController extends Controller
 }
 
 
-class SheController extends Controller
-{
-    const DEPARTMENTS = ['mining', 'plant_processing', 'engineering', 'admin'];
-
     const DEPT_LABELS = [
         'mining'           => 'Mining',
         'plant_processing' => 'Plant & Processing',
