@@ -93,34 +93,23 @@
     </tbody>
     @if($productions->count())
     <tfoot>
-        @php
-            $totHoisted     = $productions->sum('ore_hoisted');
-            $totHoistTgt    = $productions->whereNotNull('ore_hoisted_target')->sum('ore_hoisted_target');
-            $totHoistVar    = $productions->whereNotNull('ore_hoisted_target')->count() ? $totHoistTgt - $totHoisted : null;
-            $totWaste       = $productions->sum('waste_hoisted');
-            $totCrushed     = $productions->sum('ore_crushed');
-            $totMilled      = $productions->sum('ore_milled');
-            $totMillTgt     = $productions->whereNotNull('ore_milled_target')->sum('ore_milled_target');
-            $totMillVar     = $productions->whereNotNull('ore_milled_target')->count() ? $totMillTgt - $totMilled : null;
-            $totGold        = $productions->sum('gold_smelted');
-        @endphp
         <tr>
             <td colspan="3" style="font-weight:700;">TOTALS</td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totHoisted, 2) }}</td>
-            <td class="td-r">{{ $totHoistTgt ? number_format($totHoistTgt, 2) : '—' }}</td>
-            <td class="td-r" style="font-weight:700;color:{{ $totHoistVar === null ? '#94a3b8' : ($totHoistVar > 0 ? '#fca5a5' : '#86efac') }}">
-                {{ $totHoistVar === null ? '—' : (($totHoistVar > 0 ? '+' : '').number_format($totHoistVar, 2)) }}
+            <td class="td-r">{{ $totHoistTgt ? number_format($totHoistTgt, 2) : '&mdash;' }}</td>
+            <td class="td-r" style="font-weight:700;color:{{ $totHoistVar === null ? '#94a3b8' : ($totHoistVar > 0 ? '#fca5a5' : '#86efac') }};">
+                {{ $totHoistVar === null ? '&mdash;' : (($totHoistVar > 0 ? '+' : '').number_format($totHoistVar, 2)) }}
             </td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totWaste, 2) }}</td>
-            <td class="td-r">—</td>
+            <td class="td-r">&mdash;</td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totCrushed, 2) }}</td>
-            <td class="td-r">—</td>
-            <td class="td-r" style="font-weight:700;">{{ number_format($totMilled, 2) }}</td>
-            <td class="td-r">{{ $totMillTgt ? number_format($totMillTgt, 2) : '—' }}</td>
-            <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#94a3b8' : ($totMillVar > 0 ? '#fca5a5' : '#86efac') }}">
-                {{ $totMillVar === null ? '—' : (($totMillVar > 0 ? '+' : '').number_format($totMillVar, 2)) }}
+            <td class="td-r">&mdash;</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($totalOre, 2) }}</td>
+            <td class="td-r">{{ $totMillTgt ? number_format($totMillTgt, 2) : '&mdash;' }}</td>
+            <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#94a3b8' : ($totMillVar > 0 ? '#fca5a5' : '#86efac') }};">
+                {{ $totMillVar === null ? '&mdash;' : (($totMillVar > 0 ? '+' : '').number_format($totMillVar, 2)) }}
             </td>
-            <td class="td-r" style="font-weight:700;color:#fcd34d;">{{ number_format($totGold, 2) }} g</td>
+            <td class="td-r" style="font-weight:700;color:#fcd34d;">{{ number_format($totalGold, 2) }} g</td>
             <td class="td-r">{{ number_format($avgPurity, 2) }}%</td>
         </tr>
     </tfoot>

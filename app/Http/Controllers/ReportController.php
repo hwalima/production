@@ -71,15 +71,27 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        $totalOre  = $productions->sum('ore_milled');
-        $totalGold = $productions->sum('gold_smelted');
-        $avgPurity = $productions->avg('purity_percentage');
+        $totalOre      = $productions->sum('ore_milled');
+        $totalGold     = $productions->sum('gold_smelted');
+        $avgPurity     = $productions->avg('purity_percentage') ?? 0;
 
-        $filterFrom = $start->format('d M Y');
-        $filterTo   = $end->format('d M Y');
+        $totHoisted    = $productions->sum('ore_hoisted');
+        $totWaste      = $productions->sum('waste_hoisted');
+        $totCrushed    = $productions->sum('ore_crushed');
+        $totHoistTgt   = $productions->whereNotNull('ore_hoisted_target')->sum('ore_hoisted_target');
+        $totMillTgt    = $productions->whereNotNull('ore_milled_target')->sum('ore_milled_target');
+        $totHoistVar   = $productions->whereNotNull('ore_hoisted_target')->count()
+                            ? round($totHoistTgt - $totHoisted, 2) : null;
+        $totMillVar    = $productions->whereNotNull('ore_milled_target')->count()
+                            ? round($totMillTgt - $totalOre, 2) : null;
+
+        $filterFrom    = $start->format('d M Y');
+        $filterTo      = $end->format('d M Y');
 
         $data = array_merge($this->pdfSettings(), compact(
             'productions', 'month', 'totalOre', 'totalGold', 'avgPurity',
+            'totHoisted', 'totWaste', 'totCrushed',
+            'totHoistTgt', 'totHoistVar', 'totMillTgt', 'totMillVar',
             'filterFrom', 'filterTo'
         ));
 
