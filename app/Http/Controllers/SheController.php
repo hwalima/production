@@ -191,8 +191,6 @@ class SheController extends Controller
     }
 }
 
-
-    const DEPT_LABELS = [
         'mining'           => 'Mining',
         'plant_processing' => 'Plant & Processing',
         'engineering'      => 'Engineering',
