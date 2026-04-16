@@ -5,8 +5,6 @@
 
 <div class="page-header">
     <h1 class="page-title">Assay Results</h1>
-    @can('create', App\Models\AssayResult::class)
-    @endcan
     @if(auth()->user()->canWrite())
     <a href="{{ route('assay.create') }}" class="btn-add">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -17,9 +15,9 @@
 
 @php
 $tabs = [
-    'fire'   => ['label' => 'Fire Assay',       'records' => $fire,   'color' => '#ef4444'],
-    'goc'    => ['label' => 'Gold on Carbon',    'records' => $goc,    'color' => '#fcb913'],
-    'bottle' => ['label' => 'Bottle Roll',       'records' => $bottle, 'color' => '#3b82f6'],
+    'fire'   => ['label' => 'Fire Assay',     'records' => $fire,   'color' => '#ef4444'],
+    'goc'    => ['label' => 'Gold on Carbon',  'records' => $goc,    'color' => '#fcb913'],
+    'bottle' => ['label' => 'Bottle Roll',     'records' => $bottle, 'color' => '#3b82f6'],
 ];
 $activeTab = request('tab', 'fire');
 if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
@@ -41,25 +39,52 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
 
 @foreach($tabs as $key => $tab)
 @if($activeTab === $key)
+
+{{-- Certificate metadata bar --}}
+<div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;padding:8px 14px;
+            background:rgba(255,255,255,.04);border-radius:8px;border-left:3px solid {{ $tab['color'] }};
+            font-size:.78rem;color:#9ca3af;flex-wrap:wrap;">
+    <span>
+        <span style="text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;">Analysis</span>
+        <span style="color:#e5e7eb;font-weight:600;margin-left:6px;">{{ $tab['label'] }}</span>
+    </span>
+    <span>
+        <span style="text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;">Element</span>
+        <span style="color:#e5e7eb;font-weight:600;margin-left:6px;">Gold (Au)</span>
+    </span>
+    <span>
+        <span style="text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;">Detection Limit</span>
+        <span style="color:#e5e7eb;font-weight:600;margin-left:6px;">0.01 g/t</span>
+    </span>
+    <span>
+        <span style="text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;">Total Records</span>
+        <span style="color:{{ $tab['color'] }};font-weight:700;margin-left:6px;">{{ $tab['records']->total() }}</span>
+    </span>
+</div>
+
 <div class="data-card">
     <div class="tbl-scroll">
     <table class="data-table">
         <thead>
             <tr>
-                <th>Date</th>
+                <th style="width:130px;">Date</th>
                 <th>Description</th>
-                <th class="th-r" style="background:rgba(0,0,0,.18);">Assay Value (g/t)</th>
-                <th class="th-c">Actions</th>
+                <th class="th-r" style="background:rgba(0,0,0,.18);white-space:nowrap;">Assay Value Au g/t</th>
+                <th class="th-c" style="width:100px;">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($tab['records'] as $rec)
+            @php
+                $v = (float) $rec->assay_value;
+                $assayFmt = $v == floor($v) ? number_format($v, 0) : number_format($v, 2);
+            @endphp
             <tr>
-                <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
-                <td style="color:#9ca3af;font-size:.82rem;">{{ $rec->description ?: '—' }}</td>
+                <td data-sort="{{ $rec->date->format('Y-m-d') }}">{{ $rec->date->format('d/m/y') }}</td>
+                <td style="font-weight:600;">{{ $rec->description ?: '—' }}</td>
                 <td class="td-r">
-                    <span style="font-weight:700;color:{{ $tab['color'] }};">
-                        {{ number_format($rec->assay_value, 4) }}
+                    <span style="font-weight:700;color:{{ $tab['color'] }};font-size:.95rem;">
+                        {{ $assayFmt }}
                     </span>
                 </td>
                 <td class="td-c">
@@ -89,7 +114,9 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
     </div>
 </div>
 <div class="mt-4">{{ $tab['records']->appends(['tab' => $key])->links() }}</div>
+
 @endif
 @endforeach
 
 @endsection
+

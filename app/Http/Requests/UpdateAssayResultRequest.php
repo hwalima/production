@@ -14,8 +14,9 @@ class UpdateAssayResultRequest extends FormRequest
         return [
             'type' => 'required|in:fire_assay,gold_on_carbon,bottle_roll',
             'date' => 'required|date',
-            'description' => 'nullable|string|max:255',
+            'description' => 'required|string|max:255',
             'assay_value' => 'required|numeric|min:0',
+            'detection_limit' => 'nullable|numeric|min:0',
             'daily_production_id' => 'nullable|exists:daily_productions,id',
         ];
     }

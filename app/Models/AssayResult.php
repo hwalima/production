@@ -13,12 +13,14 @@ class AssayResult extends Model
         'date',
         'description',
         'assay_value',
+        'detection_limit',
         'daily_production_id',
     ];
 
     protected $casts = [
         'date' => 'date',
         'assay_value' => 'decimal:4',
+        'detection_limit' => 'decimal:4',
     ];
 
     public function dailyProduction()

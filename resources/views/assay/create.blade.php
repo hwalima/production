@@ -25,14 +25,21 @@
                 @error('date')<p class="fc-error">{{ $message }}</p>@enderror
             </div>
             <div style="margin-bottom:14px;">
-                <label class="fc-label">Assay Value (g/t) <span style="color:#ef4444;">*</span></label>
-                <input type="number" name="assay_value" step="0.0001" min="0" class="fc-input" value="{{ old('assay_value') }}" required placeholder="e.g. 12.5000">
+                <label class="fc-label">Sample Description <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="description" class="fc-input" value="{{ old('description') }}"
+                    required placeholder="e.g. M/Feed, 7 Level Shaft, T1, Feed CIL">
+                <p style="margin:4px 0 0;font-size:.72rem;color:#6b7280;">Sample location or name as on the certificate</p>
+                @error('description')<p class="fc-error">{{ $message }}</p>@enderror
+            </div>
+            <div style="margin-bottom:14px;">
+                <label class="fc-label">Assay Value Au g/t <span style="color:#ef4444;">*</span></label>
+                <input type="number" name="assay_value" step="0.01" min="0" class="fc-input" value="{{ old('assay_value') }}" required placeholder="e.g. 12.40">
                 @error('assay_value')<p class="fc-error">{{ $message }}</p>@enderror
             </div>
             <div style="margin-bottom:14px;">
-                <label class="fc-label">Description</label>
-                <input type="text" name="description" class="fc-input" value="{{ old('description') }}" placeholder="Optional notes">
-                @error('description')<p class="fc-error">{{ $message }}</p>@enderror
+                <label class="fc-label">Detection Limit (g/t)</label>
+                <input type="number" name="detection_limit" step="0.0001" min="0" class="fc-input" value="{{ old('detection_limit', '0.01') }}" placeholder="0.01">
+                @error('detection_limit')<p class="fc-error">{{ $message }}</p>@enderror
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Save Result</button>
