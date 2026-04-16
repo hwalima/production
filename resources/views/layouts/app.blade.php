@@ -24,22 +24,24 @@
             body { background-color:var(--bg); color:var(--text); transition:background .2s,color .2s; }
 
             /* ── Sidebar ── */
-            .sidebar { background-color:#001a4d; color:#fff; width:224px; transition:width .26s ease; overflow:hidden; z-index:10; }
+            .sidebar { background:linear-gradient(170deg,#001f5c 0%,#000f30 100%); color:#fff; width:240px; transition:width .26s ease; overflow:hidden; z-index:10; border-right:1px solid rgba(255,255,255,.06); }
             .sidebar.collapsed { width:64px; }
-            .sidebar a { display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:6px; color:#ccc; text-decoration:none; font-size:0.875rem; transition:background .15s,color .15s; overflow:hidden; }
-            .sidebar.collapsed a { padding:10px 0; justify-content:center; gap:0; }
-            .sidebar a:hover { background-color:#fcb913; color:#001a4d; }
-            .sidebar a.active { background-color:#fcb913; color:#001a4d; font-weight:600; }
-            .sidebar hr { border-color:#202e65; margin:8px 0; }
+            .sidebar a { display:flex; align-items:center; gap:10px; padding:8px 10px; margin:1px 8px; border-radius:8px; color:rgba(255,255,255,.62); text-decoration:none; font-size:.84rem; transition:background .15s,color .15s,border-color .15s; overflow:hidden; position:relative; border-left:3px solid transparent; }
+            .sidebar.collapsed a { padding:10px 0; justify-content:center; gap:0; margin:1px 4px; border-left:none; }
+            .sidebar a:hover { background:rgba(255,255,255,.07); color:rgba(255,255,255,.95); border-left-color:rgba(252,185,19,.35); }
+            .sidebar a.active { background:rgba(252,185,19,.13); color:#fcb913; font-weight:600; border-left-color:#fcb913; box-shadow:inset 0 0 0 1px rgba(252,185,19,.18); }
+            .sidebar.collapsed a.active { border-left:none; box-shadow:none; background:rgba(252,185,19,.22); }
+            .sidebar hr { border-color:rgba(255,255,255,.06); margin:4px 8px; }
             .sidebar .nav-icon { width:20px; text-align:center; flex-shrink:0; font-size:1rem; }
-            /* ── Nav groups ── */
-            .nav-group-btn { display:flex; align-items:center; gap:9px; width:100%; padding:7px 12px; border:none; background:none; cursor:default; border-radius:6px; color:#9ca3af; font-size:.7rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; overflow:hidden; }
-            .nav-group-btn .ng-label { flex:1; text-align:left; white-space:nowrap; overflow:hidden; max-width:120px; opacity:1; transition:max-width .22s,opacity .15s; }
-            .sidebar.collapsed .nav-group-btn .ng-label { max-width:0; opacity:0; }
-            .sidebar.collapsed .nav-group-btn { padding:10px 0; justify-content:center; }
+            /* ── Section labels ── */
+            .nav-section-label { display:flex; align-items:center; gap:8px; padding:16px 14px 5px; overflow:hidden; }
+            .nav-section-label .nsl-text { font-size:.58rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:rgba(252,185,19,.65); white-space:nowrap; flex-shrink:0; max-width:120px; overflow:hidden; opacity:1; transition:max-width .22s,opacity .15s; }
+            .nav-section-label .nsl-line { flex:1; height:1px; background:linear-gradient(to right,rgba(252,185,19,.28),transparent); min-width:0; opacity:1; transition:opacity .15s; }
+            .sidebar.collapsed .nav-section-label .nsl-text { max-width:0; opacity:0; }
+            .sidebar.collapsed .nav-section-label .nsl-line { opacity:0; }
+            .sidebar.collapsed .nav-section-label { padding:10px 0; justify-content:center; }
             .nav-group-items { overflow:visible; }
-            .sidebar.collapsed .nav-group-items { overflow:visible; }
-            .sidebar a.sub { padding-left:20px; }
+            .sidebar a.sub { }
             .nav-text { overflow:hidden; white-space:nowrap; max-width:160px; opacity:1; transition:max-width .22s ease,opacity .15s; }
             .sidebar.collapsed .nav-text { max-width:0; opacity:0; }
             .brand-text { overflow:hidden; white-space:nowrap; max-width:130px; opacity:1; transition:max-width .22s ease,opacity .15s; }
@@ -52,17 +54,17 @@
             .sb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:30; }
             .sb-overlay.visible { display:block; }
             @media(max-width:1023px){
-                .sidebar { transform:translateX(-100%); width:224px !important; z-index:40;
+                .sidebar { transform:translateX(-100%); width:240px !important; z-index:40;
                            transition:transform .28s ease; }
                 /* prevent the collapsed (64px) class from taking effect on small screens */
-                .sidebar.collapsed { width:224px !important; transform:translateX(-100%); }
+                .sidebar.collapsed { width:240px !important; transform:translateX(-100%); }
                 .sidebar.mobile-open { transform:translateX(0) !important; }
                 .topbar { left:0 !important; }
                 .main-area { margin-left:0 !important; }
             }
 
             /* ── Topbar ── */
-            .topbar { background-color:var(--topbar); border-bottom:1px solid var(--topbar-border); height:60px; position:fixed; top:0; left:224px; right:0; z-index:20; display:flex; align-items:center; padding:0 20px; gap:10px; transition:background .2s,left .26s ease; }
+            .topbar { background-color:var(--topbar); border-bottom:1px solid var(--topbar-border); height:60px; position:fixed; top:0; left:240px; right:0; z-index:20; display:flex; align-items:center; padding:0 20px; gap:10px; transition:background .2s,left .26s ease; }
             .topbar-logo { display:flex; align-items:center; gap:8px; text-decoration:none; flex-shrink:0; overflow:hidden; }
             .topbar-logo .tl-icon { width:28px; height:28px; border-radius:8px; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fcb913; color:#001a4d; font-size:.9rem; }
             .topbar-logo .tl-icon img { width:100%; height:100%; object-fit:contain; }
@@ -314,10 +316,7 @@
                     <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
 
                     {{-- ── Operations group ── --}}
-                    <div class="nav-group-btn">
-                        <span class="nav-icon" style="font-size:.8rem;">&#9881;</span>
-                        <span class="ng-label">Operations</span>
-                    </div>
+                    <div class="nav-section-label"><span class="nsl-text">Operations</span><span class="nsl-line"></span></div>
                     <div class="nav-group-items" id="ng-ops">
                         <a href="{{ route('production.index') }}" class="sub {{ request()->routeIs('production.*') ? 'active' : '' }}" title="Daily Production"><span class="nav-icon">&#129760;</span><span class="nav-text">&nbsp;Daily Production</span></a>
                         <a href="{{ route('drilling.index') }}" class="sub {{ request()->routeIs('drilling.*') ? 'active' : '' }}" title="Drilling"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Drilling</span></a>
@@ -339,10 +338,7 @@
                     </div>
 
                     {{-- ── Reports group ── --}}
-                    <div class="nav-group-btn">
-                        <span class="nav-icon" style="font-size:.8rem;">&#128202;</span>
-                        <span class="ng-label">Reports</span>
-                    </div>
+                    <div class="nav-section-label"><span class="nsl-text">Reports</span><span class="nsl-line"></span></div>
                     <div class="nav-group-items" id="ng-reports">
                         <a href="{{ route('reports.production') }}" class="sub {{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
                         <a href="{{ route('reports.consumables') }}" class="sub {{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>
@@ -351,10 +347,7 @@
 
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
-                    <div class="nav-group-btn">
-                        <span class="nav-icon" style="font-size:.8rem;">&#128737;</span>
-                        <span class="ng-label">Admin</span>
-                    </div>
+                    <div class="nav-section-label"><span class="nsl-text">Admin</span><span class="nsl-line"></span></div>
                     <div class="nav-group-items" id="ng-admin">
                         <a href="{{ route('users.index') }}" class="sub {{ request()->routeIs('users.*') ? 'active' : '' }}" title="User Management"><span class="nav-icon">&#128100;</span><span class="nav-text">&nbsp;Users</span></a>
                         <a href="{{ route('settings.index') }}" class="sub {{ request()->routeIs('settings.*') && !request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
@@ -366,7 +359,7 @@
                     </div>
                     @endif
                 </nav>
-                <div class="sb-footer mt-4 pt-3 px-2 text-xs" style="border-top:1px solid #374151; color:#6b7280;">
+                <div class="sb-footer mt-4 pt-3 px-2 text-xs" style="border-top:1px solid rgba(255,255,255,.07); color:rgba(255,255,255,.3);">
                     {{ $companyName }} &copy; {{ date('Y') }}
                 </div>
             </aside>
@@ -475,7 +468,7 @@
             </header>
 
             <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
-            <main class="flex-1 min-h-screen main-area" id="mainContent" style="margin-left:224px; margin-top:60px; padding:20px 16px; transition:margin-left .26s ease;">
+            <main class="flex-1 min-h-screen main-area" id="mainContent" style="margin-left:240px; margin-top:60px; padding:20px 16px; transition:margin-left .26s ease;">
                 <style>
                     @media(min-width:640px){ #mainContent { padding:24px 24px !important; } }
                     @media(min-width:1024px){ #mainContent { padding:28px 32px !important; } }
@@ -941,7 +934,7 @@
             var topbar    = document.getElementById('topbar');
             var mainEl    = document.getElementById('mainContent');
             var overlay   = document.getElementById('sbOverlay');
-            var WIDE = 224, SLIM = 64;
+            var WIDE = 240, SLIM = 64;
 
             function isMobile(){ return window.innerWidth < 1024; }
 
