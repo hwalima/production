@@ -83,7 +83,13 @@ foreach ($commands as $cmd) {
     $log    .= $line;
 }
 
-// 5. Write to log file
+// 5. Reset OPcache via HTTP (CLI opcache_reset() doesn't affect web-server OPcache)
+$resetUrl = 'http://127.0.0.1/opcache-reset.php?token=' . DEPLOY_SECRET;
+$resetOut = @file_get_contents($resetUrl) ?: shell_exec('curl -s "' . $resetUrl . '"');
+$output  .= "$ OPcache reset\n" . ($resetOut ?: '(no response)') . "\n";
+$log     .= "$ OPcache reset\n" . ($resetOut ?: '(no response)') . "\n";
+
+// 6. Write to log file
 file_put_contents(LOG_FILE, $log, FILE_APPEND);
 
 http_response_code(200);
