@@ -24,6 +24,12 @@ $statusLabel   = ['not_started'=>'Not Started','in_progress'=>'In Progress','pen
             Add Item
         </a>
         @endif
+        <a href="{{ route('action-items.pdf', ['from'=>$filterFrom,'to'=>$filterTo]) }}"
+           target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#1e3a5f;color:#fff;
+                  border-radius:8px;font-size:.78rem;font-weight:600;text-decoration:none;">
+            &#128196; Export PDF
+        </a>
     </div>
 </div>
 

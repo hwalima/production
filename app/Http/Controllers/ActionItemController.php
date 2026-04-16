@@ -3,7 +3,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ActionItem;
 use App\Models\MiningDepartment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 class ActionItemController extends Controller
@@ -95,5 +98,52 @@ class ActionItemController extends Controller
         $actionItem->delete();
         return redirect()->route('action-items.index')
             ->with('success', 'Action item deleted.');
+    }
+
+    public function pdf(Request $request)
+    {
+        $now        = Carbon::now();
+        $filterFrom = $request->filled('from') ? $request->input('from') : $now->copy()->startOfMonth()->toDateString();
+        $filterTo   = $request->filled('to')   ? $request->input('to')   : $now->copy()->endOfMonth()->toDateString();
+        if ($filterFrom > $filterTo) $filterFrom = $now->copy()->startOfMonth()->toDateString();
+
+        $departments = MiningDepartment::active()->orderBy('name')->get();
+
+        $items = ActionItem::with('department')
+            ->whereBetween('reported_date', [$filterFrom, $filterTo])
+            ->orderBy('mining_department_id')
+            ->orderByRaw("FIELD(priority,'high','medium','low')")
+            ->get()
+            ->groupBy('mining_department_id');
+
+        // Build logo/company data (same helper pattern as ReportController)
+        $settings   = Setting::all()->pluck('value', 'key');
+        $logoPath   = $settings['logo_path'] ?? null;
+        $logoBase64 = null;
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            $absPath    = storage_path('app/public/' . $logoPath);
+            $mime       = mime_content_type($absPath);
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(
+                Storage::disk('public')->get($logoPath)
+            );
+        }
+
+        $data = [
+            'logoBase64'      => $logoBase64,
+            'companyName'     => $settings['company_name']     ?? config('app.name'),
+            'companyLocation' => $settings['company_location'] ?? ($settings['company_address'] ?? ''),
+            'companyPhone'    => $settings['company_phone']    ?? '',
+            'companyEmail'    => $settings['company_email']    ?? '',
+            'departments'     => $departments,
+            'items'           => $items,
+            'filterFrom'      => $filterFrom,
+            'filterTo'        => $filterTo,
+        ];
+
+        $filename = 'action-items-' . $filterFrom . '--' . $filterTo . '.pdf';
+
+        return Pdf::loadView('pdf.action-items', $data)
+            ->setPaper('a4', 'portrait')
+            ->download($filename);
     }
 }
