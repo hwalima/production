@@ -15,11 +15,13 @@ class MachineRuntime extends Model
         'end_time',
         'service_after_hours',
         'next_service_date',
+        'service_alert_sent_at',
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'next_service_date' => 'date',
+        'start_time'           => 'datetime',
+        'end_time'             => 'datetime',
+        'next_service_date'    => 'date',
+        'service_alert_sent_at'=> 'datetime',
     ];
 }
