@@ -631,15 +631,25 @@
             function getFootData(table) {
                 var skip = actionsColIdx(table);
                 return Array.from(table.querySelectorAll('tfoot tr')).map(function (row) {
-                    return Array.from(row.cells)
-                        .filter(function (_, i) { return i !== skip; })
-                        .map(function (td) {
-                            if (td.classList.contains('no-export')) return null;
-                            if (td.hasAttribute('data-export')) return td.getAttribute('data-export');
+                    var result = [];
+                    var colPos = 0;
+                    Array.from(row.cells).forEach(function (td) {
+                        var span = td.colSpan || 1;
+                        if (colPos === skip) { colPos += span; return; }
+                        if (td.classList.contains('no-export')) { colPos += span; return; }
+                        var val;
+                        if (td.hasAttribute('data-export')) {
+                            val = td.getAttribute('data-export');
+                        } else {
                             var clone = td.cloneNode(true);
                             clone.querySelectorAll('.no-export').forEach(function (el) { el.remove(); });
-                            return clone.textContent.trim();
-                        }).filter(function (v) { return v !== null; });
+                            val = clone.textContent.trim();
+                        }
+                        result.push(val);
+                        for (var c = 1; c < span; c++) result.push('');
+                        colPos += span;
+                    });
+                    return result;
                 });
             }
 
