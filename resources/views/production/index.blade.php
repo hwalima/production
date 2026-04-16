@@ -4,12 +4,18 @@
 
 <div class="page-header">
     <h1 class="page-title">Daily Production Records</h1>
-    @if(auth()->user()->canWrite())
-    <a href="{{ route('production.create') }}" class="btn-add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Record
-    </a>
-    @endif
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <a href="{{ route('production.calendar') }}" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:.8rem;font-weight:700;border-radius:10px;border:1px solid var(--topbar-border);background:var(--card);color:var(--text);text-decoration:none;transition:background .15s,color .15s,border-color .15s;" onmouseover="this.style.background='#fcb913';this.style.color='#001a4d';this.style.borderColor='#fcb913'" onmouseout="this.style.background='';this.style.color='';this.style.borderColor=''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendar
+        </a>
+        @if(auth()->user()->canWrite())
+        <a href="{{ route('production.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Record
+        </a>
+        @endif
+    </div>
 </div>
 
 @include('partials.date-filter', ['routeName' => 'production.index'])

@@ -7,6 +7,7 @@ use App\Models\MiningSite;
 use App\Http\Requests\StoreDailyProductionRequest;
 use App\Http\Requests\UpdateDailyProductionRequest;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ProductionController extends Controller
 {
@@ -106,6 +107,55 @@ class ProductionController extends Controller
         $this->recalculateFrom($date);
 
         return redirect()->route('production.index')->with('success', 'Production record deleted.');
+    }
+
+    /* ── calendar heat-map ─────────────────────────────── */
+
+    public function calendar(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            $month = Carbon::now()->format('Y-m');
+        }
+
+        $start = Carbon::parse($month . '-01')->startOfMonth();
+        $end   = $start->copy()->endOfMonth();
+
+        $records = DailyProduction::whereBetween('date', [$start, $end])
+            ->orderBy('date')->orderBy('id')
+            ->get(['id', 'date', 'gold_smelted', 'ore_milled']);
+
+        // Group by date — sum values per day (multiple shifts)
+        $byDate = [];
+        foreach ($records as $r) {
+            $key = $r->date->format('Y-m-d');
+            if (!isset($byDate[$key])) {
+                $byDate[$key] = ['gold' => 0.0, 'ore' => 0.0, 'count' => 0, 'ids' => []];
+            }
+            $byDate[$key]['gold']  += (float) $r->gold_smelted;
+            $byDate[$key]['ore']   += (float) $r->ore_milled;
+            $byDate[$key]['count'] += 1;
+            $byDate[$key]['ids'][]  = $r->id;
+        }
+
+        $maxGold    = $byDate ? max(array_column($byDate, 'gold')) : 1.0;
+        if ($maxGold <= 0) $maxGold = 1.0;
+        $totalGold  = array_sum(array_column($byDate, 'gold'));
+        $activeDays = count($byDate);
+
+        $bestDayKey = null;
+        $bestGold   = 0.0;
+        foreach ($byDate as $key => $d) {
+            if ($d['gold'] > $bestGold) {
+                $bestGold   = $d['gold'];
+                $bestDayKey = $key;
+            }
+        }
+
+        return view('production.calendar', compact(
+            'byDate', 'maxGold', 'month', 'start', 'end',
+            'totalGold', 'activeDays', 'bestDayKey', 'bestGold'
+        ));
     }
 
     /* ── recalculate cumulative stockpiles from a date ── */

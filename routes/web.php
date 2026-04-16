@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ── Read-only (all roles) — registered AFTER explicit paths ───────────
+    Route::get('/production/calendar', [ProductionController::class, 'calendar'])->name('production.calendar');
     Route::resource('production',    ProductionController::class)->only(['index', 'show']);
     Route::resource('drilling',      DrillingController::class)->only(['index', 'show']);
     Route::resource('blasting',      BlastingController::class)->only(['index', 'show']);
