@@ -66,7 +66,23 @@
                     @error('waste_hoisted')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
             </div>
+
+            {{-- Crushing & Milling --}}
             <div class="fc-grid" style="margin-bottom:14px;">
+                <div>
+                    <label class="fc-label">Ore Crushed (t)</label>
+                    <input type="number" name="ore_crushed" id="ore_crushed" step="0.01" class="fc-input"
+                           value="{{ old('ore_crushed', $production->ore_crushed) }}" required>
+                    @error('ore_crushed')<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+            </div>
+            <div class="fc-grid" style="margin-bottom:14px;">
+                <div>
+                    <label class="fc-label">Ore Milled (t)</label>
+                    <input type="number" name="ore_milled" id="ore_milled" step="0.01" class="fc-input"
+                           value="{{ old('ore_milled', $production->ore_milled) }}" required>
+                    @error('ore_milled')<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
                 <div>
                     <label class="fc-label">Ore Milled Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
                     <input type="number" name="ore_milled_target" id="ore_milled_target" step="0.01" class="fc-input"
