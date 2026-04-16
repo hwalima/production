@@ -36,7 +36,7 @@
             .sidebar.collapsed .nav-text { max-width:0; opacity:0; }
             .brand-text { overflow:hidden; white-space:nowrap; max-width:130px; opacity:1; transition:max-width .22s ease,opacity .15s; }
             .sidebar.collapsed .brand-text { max-width:0; opacity:0; }
-            .sb-footer { transition:opacity .2s; overflow:hidden; white-space:nowrap; }
+            .sb-footer { transition:opacity .2s; overflow:hidden; white-space:normal; word-break:break-word; }
             .sidebar.collapsed .sb-footer { opacity:0; pointer-events:none; }
             .sb-toggle { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:transparent; border:none; cursor:pointer; color:#9ca3af; font-size:1rem; transition:background .15s,color .15s; flex-shrink:0; padding:0; line-height:1; }
             .sb-toggle:hover { background:#202e65; color:#fcb913; }
