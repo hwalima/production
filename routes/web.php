@@ -81,7 +81,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ── SHE — read-only for all roles ────────────────────────────────────
-    Route::get('/she', [SheController::class, 'index'])->name('she.index');
+    Route::get('/she',     [SheController::class, 'index'])->name('she.index');
+    Route::get('/she/pdf', [SheController::class, 'pdf'])->name('she.pdf')->middleware('throttle:10,1');
 
     // ── SHE — write access ───────────────────────────────────────────────
     Route::middleware('role:super_admin,admin,manager')->group(function () {

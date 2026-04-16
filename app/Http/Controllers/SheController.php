@@ -5,8 +5,11 @@ use App\Models\MiningDepartment;
 use App\Models\SheIndicator;
 use App\Models\SheRequirementItem;
 use App\Models\SheRequirementEntry;
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 class SheController extends Controller
@@ -198,5 +201,83 @@ class SheController extends Controller
     {
         $item->delete();
         return redirect()->back()->with('success', 'Item deleted.');
+    }
+
+    // ── PDF Export ────────────────────────────────────────────────────────
+
+    public function pdf(Request $request)
+    {
+        $now  = Carbon::now();
+        $from = $request->filled('from')
+            ? Carbon::parse($request->input('from'))->startOfDay()
+            : $now->copy()->startOfMonth();
+        $to   = $request->filled('to')
+            ? Carbon::parse($request->input('to'))->endOfDay()
+            : $now->copy()->endOfMonth();
+
+        $records = SheIndicator::with('department')
+            ->whereBetween('date', [$from, $to])
+            ->orderByDesc('date')
+            ->orderBy('mining_department_id')
+            ->get();
+
+        $fields = array_keys(self::INDICATORS);
+
+        $totals = [];
+        foreach ($fields as $field) {
+            $totals[$field] = $records->sum($field);
+        }
+
+        $totalIncidents   = $totals['medical_injury_case'] + $totals['fatal_incident']
+                          + $totals['lti'] + $totals['nlti'];
+        $totalAbsenteeism = $totals['leave'] + $totals['offdays']
+                          + $totals['sick'] + $totals['awol'];
+
+        $deptSummary = $records
+            ->groupBy(fn ($r) => $r->department?->name ?? 'Unknown')
+            ->map(function ($rows) use ($fields) {
+                $sum = [];
+                foreach ($fields as $field) {
+                    $sum[$field] = $rows->sum($field);
+                }
+                return $sum;
+            });
+
+        $filterFrom = $from->format('d M Y');
+        $filterTo   = $to->format('d M Y');
+
+        $data = array_merge($this->pdfSettings(), compact(
+            'records', 'totals', 'totalIncidents', 'totalAbsenteeism',
+            'deptSummary', 'filterFrom', 'filterTo'
+        ));
+
+        $filename = 'she-report-' . $from->format('Y-m-d') . '-to-' . $to->format('Y-m-d') . '.pdf';
+
+        return Pdf::loadView('pdf.she', $data)
+            ->setPaper('a4', 'landscape')
+            ->download($filename);
+    }
+
+    private function pdfSettings(): array
+    {
+        $settings   = Setting::all()->pluck('value', 'key');
+        $logoPath   = $settings['logo_path'] ?? null;
+        $logoBase64 = null;
+
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            $absPath    = storage_path('app/public/' . $logoPath);
+            $mime       = mime_content_type($absPath);
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(
+                Storage::disk('public')->get($logoPath)
+            );
+        }
+
+        return [
+            'logoBase64'      => $logoBase64,
+            'companyName'     => $settings['company_name']     ?? config('app.name'),
+            'companyLocation' => $settings['company_location'] ?? ($settings['company_address'] ?? ''),
+            'companyPhone'    => $settings['company_phone']    ?? '',
+            'companyEmail'    => $settings['company_email']    ?? '',
+        ];
     }
 }
