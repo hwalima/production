@@ -1,7 +1,7 @@
 @extends('pdf.layout')
 
 @section('report-title', 'Action Items Report')
-@section('report-subtitle', 'Period: {{ \Carbon\Carbon::parse($filterFrom)->format("d M Y") }} – {{ \Carbon\Carbon::parse($filterTo)->format("d M Y") }}')
+@section('report-subtitle', 'Period: ' . \Carbon\Carbon::parse($filterFrom)->format('d M Y') . ' – ' . \Carbon\Carbon::parse($filterTo)->format('d M Y'))
 
 @section('content')
 
