@@ -50,6 +50,16 @@
             .sidebar.collapsed .sb-footer { opacity:0; pointer-events:none; }
             .sb-toggle { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:transparent; border:none; cursor:pointer; color:#9ca3af; font-size:1rem; transition:background .15s,color .15s; flex-shrink:0; padding:0; line-height:1; }
             .sb-toggle:hover { background:#202e65; color:#fcb913; }
+            /* ── Custom thin scrollbars (Webkit + Firefox) ── */
+            ::-webkit-scrollbar { width:5px; height:5px; }
+            ::-webkit-scrollbar-track { background:transparent; }
+            ::-webkit-scrollbar-thumb { background:rgba(156,163,175,.35); border-radius:99px; }
+            ::-webkit-scrollbar-thumb:hover { background:rgba(252,185,19,.55); }
+            /* sidebar scrollbar — lighter on dark bg */
+            #sidebarNav::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15); }
+            #sidebarNav::-webkit-scrollbar-thumb:hover { background:rgba(252,185,19,.5); }
+            * { scrollbar-width:thin; scrollbar-color:rgba(156,163,175,.35) transparent; }
+            #sidebarNav { scrollbar-color:rgba(255,255,255,.15) transparent; }
             /* Mobile sidebar overlay */
             .sb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:30; }
             .sb-overlay.visible { display:block; }
