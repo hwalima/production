@@ -62,7 +62,8 @@ $php = findPhpBin();
 $dir = APP_DIR;
 
 $commands = [
-    "cd {$dir} && git pull origin " . BRANCH,
+    "cd {$dir} && git fetch origin " . BRANCH,
+    "cd {$dir} && git reset --hard origin/" . BRANCH,
     "{$php} {$dir}/artisan config:clear",
     "{$php} {$dir}/artisan view:clear",
     "{$php} {$dir}/artisan route:clear",
