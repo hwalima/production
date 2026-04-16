@@ -313,6 +313,14 @@
                     <a href="{{ route('machines.index') }}" class="{{ request()->routeIs('machines.*') ? 'active' : '' }}" title="Machines"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Machines</span></a>
                     <a href="{{ route('assay.index') }}" class="{{ request()->routeIs('assay.*') ? 'active' : '' }}" title="Assay Results"><span class="nav-icon">&#128300;</span><span class="nav-text">&nbsp;Assay Results</span></a>
                     <a href="{{ route('she.index') }}" class="{{ request()->routeIs('she.*') ? 'active' : '' }}" title="SHE"><span class="nav-icon">&#9888;</span><span class="nav-text">&nbsp;SHE</span></a>
+                    @php $aiOverdue = \App\Models\ActionItem::overdueCount(); @endphp
+                    <a href="{{ route('action-items.index') }}" class="{{ request()->routeIs('action-items.*') ? 'active' : '' }}" title="Action Items" style="position:relative;">
+                        <span class="nav-icon">&#128204;</span>
+                        <span class="nav-text">&nbsp;Action Items</span>
+                        @if($aiOverdue > 0)
+                        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:#ef4444;color:#fff;font-size:.58rem;font-weight:800;padding:1px 6px;border-radius:99px;line-height:1.6;">{{ $aiOverdue }}</span>
+                        @endif
+                    </a>
                     <hr>
                     <a href="{{ route('reports.production') }}" class="{{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
                     <a href="{{ route('reports.consumables') }}" class="{{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>

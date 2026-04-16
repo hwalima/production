@@ -19,6 +19,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ConsumableController;
 use App\Http\Controllers\MiningDepartmentController;
 use App\Http\Controllers\SheController;
+use App\Http\Controllers\ActionItemController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -64,6 +65,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports/consumables', [ReportController::class, 'consumables'])->name('reports.consumables');
     Route::get('/reports/production/pdf',  [ReportController::class, 'productionPdf'])->name('reports.production.pdf')->middleware('throttle:10,1');
     Route::get('/reports/consumables/pdf', [ReportController::class, 'consumablesPdf'])->name('reports.consumables.pdf')->middleware('throttle:10,1');
+
+    // ── Action Items — all roles can view, managers+ can write ─────────────
+    Route::get('/action-items', [ActionItemController::class, 'index'])->name('action-items.index');
+    Route::middleware('role:super_admin,admin,manager')->group(function () {
+        Route::get('/action-items/create',           [ActionItemController::class, 'create'])->name('action-items.create');
+        Route::post('/action-items',                 [ActionItemController::class, 'store'])->name('action-items.store');
+        Route::get('/action-items/{actionItem}/edit',[ActionItemController::class, 'edit'])->name('action-items.edit');
+        Route::put('/action-items/{actionItem}',     [ActionItemController::class, 'update'])->name('action-items.update');
+        Route::delete('/action-items/{actionItem}',  [ActionItemController::class, 'destroy'])->name('action-items.destroy');
+    });
 
     // ── SHE — read-only for all roles ────────────────────────────────────
     Route::get('/she', [SheController::class, 'index'])->name('she.index');

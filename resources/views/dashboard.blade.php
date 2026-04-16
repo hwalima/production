@@ -360,6 +360,25 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <p class="plabel">{{ $millingEfficiency }}% efficiency</p>
         </div>
 
+        {{-- Action Items --}}
+        @php $aiOverdue = \App\Models\ActionItem::overdueCount(); @endphp
+        <a href="{{ route('action-items.index') }}" style="text-decoration:none;">
+        <div class="gc kpi" style="cursor:pointer;">
+            <div class="orb {{ $aiOverdue > 0 ? 'ob-red' : 'ob-green' }}"></div>
+            <div class="ib {{ $aiOverdue > 0 ? 'ib-red' : 'ib-green' }}">&#128204;</div>
+            <p class="kt">Action Items</p>
+            <p class="kv" style="{{ $aiOverdue > 0 ? 'color:#f87171' : 'color:#34d399' }}">
+                {{ $aiOverdue }}
+            </p>
+            <p class="ks">{{ $aiOverdue === 1 ? 'item' : 'items' }} overdue</p>
+            @if($aiOverdue > 0)
+            <span class="pill p-red">&#9888; Needs Attention</span>
+            @else
+            <span class="pill p-green">&#10003; All Clear</span>
+            @endif
+        </div>
+        </a>
+
         {{-- Stripping Ratio --}}
         @php
             [$srGv, $srOb, $srIb, $srPillCls, $srLabel] = $strippingRatio <= 0.5
@@ -458,6 +477,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <a href="{{ route('drilling.create') }}"   class="qabtn qa-sky">🔩 Drilling</a>
             <a href="{{ route('blasting.create') }}"   class="qabtn qa-red">💥 Blasting</a>
             <a href="{{ route('chemicals.create') }}"  class="qabtn qa-purple">🧪 Chemicals</a>
+            <a href="{{ route('action-items.create') }}" class="qabtn qa-red">📌 Action Item</a>
         </div>
     </div>
 
