@@ -1,48 +1,24 @@
 @extends('layouts.app')
-@section('title', 'SHE Report — ' . $periodDate->format('F Y'))
 @section('page-title', 'SHE')
 @section('content')
 
-@php
-$rowTotals  = [];
-$colTotals  = [];
-$grandTotal = 0.0;
-
-foreach ($departments as $dept) {
-    $colTotals[$dept->id] = 0.0;
-}
-
-foreach (array_keys($indicatorLabels) as $field) {
-    $rowTotal = 0.0;
-    foreach ($departments as $dept) {
-        $val = (float)($indicators[$dept->id]?->{$field} ?? 0);
-        $rowTotal               += $val;
-        $colTotals[$dept->id]   += $val;
-    }
-    $rowTotals[$field] = $rowTotal;
-    $grandTotal        += $rowTotal;
-}
-@endphp
-
 <div class="page-header">
-    <h1 class="page-title">SHE Report</h1>
+    <h1 class="page-title">SHE Indicators</h1>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <form method="GET" action="{{ route('she.index') }}" style="display:flex;gap:6px;align-items:center;">
-            <input type="month" name="period" value="{{ $period }}" class="fc-input" style="width:160px;padding:6px 10px;">
-            <button type="submit" class="btn-add" style="padding:7px 14px;font-size:.8rem;">View</button>
-        </form>
         @if(auth()->user()->canWrite())
-        <a href="{{ route('she.indicators.edit', ['period' => $period]) }}"
-           style="padding:7px 14px;font-size:.8rem;background:rgba(252,185,19,.12);color:#fcb913;border:1px solid rgba(252,185,19,.4);border-radius:8px;text-decoration:none;font-weight:600;">
-            ✎ Edit Indicators
-        </a>
-        <a href="{{ route('she.requirements.edit', ['period' => $period]) }}"
-           style="padding:7px 14px;font-size:.8rem;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.4);border-radius:8px;text-decoration:none;font-weight:600;">
-            ✎ Edit Requirements
+        <a href="{{ route('she.indicators.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Record
         </a>
         @endif
+        <a href="{{ route('she.requirements.edit') }}"
+           style="padding:7px 14px;font-size:.8rem;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.4);border-radius:8px;text-decoration:none;font-weight:600;">
+            Requirements
+        </a>
     </div>
 </div>
+
+@include('partials.date-filter', ['routeName' => 'she.index'])
 
 @if(session('success'))
 <div style="background:rgba(34,197,94,.1);border:1px solid #22c55e;color:#22c55e;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:.82rem;">
@@ -50,131 +26,75 @@ foreach (array_keys($indicatorLabels) as $field) {
 </div>
 @endif
 
-<p style="font-size:.78rem;color:#9ca3af;margin-bottom:20px;">
-    Period: <strong style="color:#fcb913;">{{ $periodDate->format('F Y') }}</strong>
-</p>
-
-@if($departments->isEmpty())
-<div style="padding:32px;text-align:center;color:#6b7280;font-size:.85rem;background:var(--card);border-radius:12px;margin-bottom:24px;">
-    No active departments found. Add departments in
-    <a href="{{ route('mining-departments.index') }}" style="color:#fcb913;">Settings → Departments</a>.
-</div>
-@else
-
-{{-- ══════════════════ SHE INDICATORS ══════════════════ --}}
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <div style="width:3px;height:18px;background:#fcb913;border-radius:2px;"></div>
-    <h2 style="font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fcb913;margin:0;">SHE INDICATORS</h2>
-</div>
-
-<div class="data-card" style="margin-bottom:28px;">
-    <div class="tbl-scroll">
-    <table class="data-table" style="min-width:480px;">
-        <thead>
-            <tr>
-                <th style="min-width:160px;"></th>
-                @foreach($departments as $dept)
-                <th class="th-c" style="white-space:nowrap;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;">
-                    {{ $dept->name }}
-                </th>
-                @endforeach
-                <th class="th-r" style="background:rgba(252,185,19,.08);color:#fcb913;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;">
-                    TOTALS
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($indicatorLabels as $field => $label)
-            @php $rowTotal = $rowTotals[$field]; @endphp
-            <tr>
-                <td style="font-size:.82rem;font-weight:600;">{{ $label }}</td>
-                @foreach($departments as $dept)
-                @php $val = (float)($indicators[$dept->id]?->{$field} ?? 0); @endphp
-                <td class="td-c" style="{{ $val > 0 ? 'color:#fcb913;font-weight:700;' : 'color:#374151;' }}">
-                    {{ $val > 0 ? number_format($val, 2) : '-' }}
-                </td>
-                @endforeach
-                <td class="td-r" style="font-weight:700;{{ $rowTotal > 0 ? 'color:#fcb913;background:rgba(252,185,19,.04);' : 'color:#374151;' }}">
-                    {{ $rowTotal > 0 ? number_format($rowTotal, 2) : '-' }}
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
-            <tr style="background:rgba(252,185,19,.06);border-top:2px solid rgba(252,185,19,.3);">
-                <td style="font-weight:700;font-size:.78rem;color:#9ca3af;"></td>
-                @foreach($departments as $dept)
-                <td class="td-c" style="font-weight:700;font-size:.9rem;color:var(--text);">
-                    {{ ($colTotals[$dept->id] ?? 0) > 0 ? number_format($colTotals[$dept->id], 2) : '' }}
-                </td>
-                @endforeach
-                <td class="td-r" style="font-weight:800;font-size:1rem;color:#fcb913;">
-                    {{ $grandTotal > 0 ? number_format($grandTotal, 2) : '-' }}
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    </div>
-</div>
-
-@endif
-
-{{-- ══════════════════ REQUIREMENTS ══════════════════ --}}
-@php
-$catColors = [
-    'she'         => '#22c55e',
-    'mining'      => '#ef4444',
-    'engineering' => '#3b82f6',
-    'plant'       => '#a855f7',
-];
-@endphp
-
-@foreach($catLabels as $cat => $catLabel)
-@if(isset($requirementItems[$cat]) && $requirementItems[$cat]->count())
-
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <div style="width:3px;height:18px;background:{{ $catColors[$cat] ?? '#9ca3af' }};border-radius:2px;"></div>
-    <h2 style="font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:{{ $catColors[$cat] ?? '#9ca3af' }};margin:0;">{{ strtoupper($catLabel) }}</h2>
-</div>
-
-<div class="data-card" style="margin-bottom:24px;">
+<div class="data-card">
     <div class="tbl-scroll">
     <table class="data-table">
         <thead>
             <tr>
-                <th>Item Name</th>
-                <th style="width:180px;">Unit of Measure</th>
-                <th class="th-r" style="width:100px;">Unit</th>
-                <th>Notes</th>
+                <th>Date</th>
+                <th>Department</th>
+                <th class="th-r">Med. Injury</th>
+                <th class="th-r">Fatal</th>
+                <th class="th-r">LTI</th>
+                <th class="th-r">NLTI</th>
+                <th class="th-r">Leave</th>
+                <th class="th-r">Offdays</th>
+                <th class="th-r">Sick</th>
+                <th class="th-r">IOD</th>
+                <th class="th-r">AWOL</th>
+                <th class="th-r">Terminations</th>
+                @if(auth()->user()->canWrite())
+                <th class="th-c">Actions</th>
+                @endif
             </tr>
         </thead>
         <tbody>
-            @foreach($requirementItems[$cat] as $item)
-            @php $entry = $entries[$item->id] ?? null; @endphp
+            @forelse($records as $rec)
             <tr>
-                <td style="font-weight:600;font-size:.82rem;">{{ $item->name }}</td>
-                <td style="color:#9ca3af;font-size:.78rem;">{{ $item->unit_of_measure ?: '—' }}</td>
-                <td class="td-r" style="{{ $entry && $entry->unit_value !== null ? 'color:'.($catColors[$cat] ?? '#fcb913').';font-weight:700;' : 'color:#374151;' }}">
-                    {{ $entry && $entry->unit_value !== null ? number_format($entry->unit_value, 2) : '-' }}
+                <td data-sort="{{ $rec->date->format('Y-m-d') }}">
+                    <span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span>
                 </td>
-                <td style="color:#9ca3af;font-size:.78rem;">{{ $entry?->notes ?: '' }}</td>
+                <td>{{ $rec->department?->name ?? '—' }}</td>
+                <td class="td-r">{{ $rec->medical_injury_case > 0 ? number_format($rec->medical_injury_case, 0) : '-' }}</td>
+                <td class="td-r" style="{{ $rec->fatal_incident > 0 ? 'color:#ef4444;font-weight:700;' : '' }}">
+                    {{ $rec->fatal_incident > 0 ? number_format($rec->fatal_incident, 0) : '-' }}
+                </td>
+                <td class="td-r" style="{{ $rec->lti > 0 ? 'color:#fcb913;font-weight:700;' : '' }}">
+                    {{ $rec->lti > 0 ? number_format($rec->lti, 0) : '-' }}
+                </td>
+                <td class="td-r">{{ $rec->nlti > 0 ? number_format($rec->nlti, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->leave > 0 ? number_format($rec->leave, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->offdays > 0 ? number_format($rec->offdays, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->sick > 0 ? number_format($rec->sick, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->iod > 0 ? number_format($rec->iod, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->awol > 0 ? number_format($rec->awol, 0) : '-' }}</td>
+                <td class="td-r">{{ $rec->terminations > 0 ? number_format($rec->terminations, 0) : '-' }}</td>
+                @if(auth()->user()->canWrite())
+                <td class="td-c">
+                    <div class="act-group">
+                        <a href="{{ route('she.indicators.edit', $rec) }}" class="act-btn act-edit" title="Edit record">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                        <form method="POST" action="{{ route('she.indicators.destroy', $rec) }}" style="display:contents"
+                              onsubmit="event.preventDefault();confirmDelete('Delete this SHE record? This cannot be undone.',this)">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="act-btn act-delete" title="Delete record">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+                @endif
             </tr>
-            @endforeach
+            @empty
+            <tr class="empty-row">
+                <td colspan="{{ auth()->user()->canWrite() ? 13 : 12 }}">No SHE indicator records for this period.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
     </div>
 </div>
 
-@endif
-@endforeach
-
-@if($requirementItems->isEmpty())
-<div style="padding:32px;text-align:center;color:#6b7280;font-size:.85rem;background:var(--card);border-radius:12px;margin-top:8px;">
-    No requirement items configured yet.
-    @if(auth()->user()->canWrite())
-    <a href="{{ route('she.requirements.edit', ['period' => $period]) }}" style="color:#22c55e;margin-left:4px;">Add items →</a>
-    @endif
-</div>
-@endif
-
+<div class="mt-4">{{ $records->links() }}</div>
 @endsection

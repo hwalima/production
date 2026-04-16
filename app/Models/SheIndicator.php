@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 class SheIndicator extends Model
 {
     protected $fillable = [
-        'period', 'mining_department_id',
+        'date', 'mining_department_id',
         'medical_injury_case', 'fatal_incident', 'lti', 'nlti',
         'leave', 'offdays', 'sick', 'iod', 'awol', 'terminations',
     ];
 
-    protected $casts = ['period' => 'date'];
+    protected $casts = ['date' => 'date'];
 
     public function department()
     {

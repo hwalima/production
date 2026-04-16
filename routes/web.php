@@ -70,10 +70,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── SHE — write access ───────────────────────────────────────────────
     Route::middleware('role:super_admin,admin,manager')->group(function () {
-        Route::get('/she/indicators/edit', [SheController::class, 'editIndicators'])->name('she.indicators.edit');
-        Route::post('/she/indicators',     [SheController::class, 'storeIndicators'])->name('she.indicators.store');
-        Route::get('/she/requirements/edit', [SheController::class, 'editRequirements'])->name('she.requirements.edit');
-        Route::post('/she/requirements',     [SheController::class, 'storeRequirements'])->name('she.requirements.store');
+        Route::get('/she/indicators/create',              [SheController::class, 'create'])->name('she.indicators.create');
+        Route::post('/she/indicators',                    [SheController::class, 'store'])->name('she.indicators.store');
+        Route::get('/she/indicators/{indicator}/edit',    [SheController::class, 'edit'])->name('she.indicators.edit');
+        Route::put('/she/indicators/{indicator}',         [SheController::class, 'update'])->name('she.indicators.update');
+        Route::delete('/she/indicators/{indicator}',      [SheController::class, 'destroy'])->name('she.indicators.destroy');
+        Route::get('/she/requirements/edit',              [SheController::class, 'editRequirements'])->name('she.requirements.edit');
+        Route::post('/she/requirements',                  [SheController::class, 'storeRequirements'])->name('she.requirements.store');
     });
 
     // ── SHE items management — admin+ only ───────────────────────────────
