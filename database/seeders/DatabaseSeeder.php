@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ChemicalsSeeder::class,
             LabourEnergySeeder::class,
             MachineRuntimeSeeder::class,
+            ConsumableSeeder::class,
         ]);
     }
 }
