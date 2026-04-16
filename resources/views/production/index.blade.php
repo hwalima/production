@@ -84,6 +84,42 @@
             <tr class="empty-row"><td colspan="12">No production records yet.</td></tr>
             @endforelse
         </tbody>
+        @if($totals && ($totals->ore_hoisted || $totals->ore_milled || $totals->gold_smelted))
+        @php
+            $tHoistedVar = ($totals->ore_hoisted_target && $totals->ore_hoisted)
+                ? round($totals->ore_hoisted_target - $totals->ore_hoisted, 2) : null;
+            $tMilledVar = ($totals->ore_milled_target && $totals->ore_milled)
+                ? round($totals->ore_milled_target - $totals->ore_milled, 2) : null;
+        @endphp
+        <tfoot>
+            <tr>
+                <td colspan="3" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 10px;">TOTALS</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;"
+                    data-export="{{ number_format($totals->ore_hoisted ?? 0, 1) }} t">{{ number_format($totals->ore_hoisted ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#93c5fd;padding:7px 6px;"
+                    data-export="{{ $totals->ore_hoisted_target ? number_format($totals->ore_hoisted_target, 1).' t' : '—' }}">{{ $totals->ore_hoisted_target ? number_format($totals->ore_hoisted_target, 1).' t' : '—' }}</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;padding:7px 6px;color:{{ $tHoistedVar === null ? '#6b7280' : ($tHoistedVar > 0 ? '#fca5a5' : '#86efac') }};"
+                    data-export="{{ $tHoistedVar === null ? '—' : (($tHoistedVar > 0 ? '+' : '').number_format($tHoistedVar, 1).' t') }}">{{ $tHoistedVar === null ? '—' : (($tHoistedVar > 0 ? '+' : '').number_format($tHoistedVar, 1).' t') }}</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;"
+                    data-export="{{ number_format($totals->waste_hoisted ?? 0, 1) }} t">{{ number_format($totals->waste_hoisted ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#6b7280;padding:7px 6px;" data-export="—">—</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;"
+                    data-export="{{ number_format($totals->ore_crushed ?? 0, 1) }} t">{{ number_format($totals->ore_crushed ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#6b7280;padding:7px 6px;" data-export="—">—</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;"
+                    data-export="{{ number_format($totals->ore_milled ?? 0, 1) }} t">{{ number_format($totals->ore_milled ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#93c5fd;padding:7px 6px;"
+                    data-export="{{ $totals->ore_milled_target ? number_format($totals->ore_milled_target, 1).' t' : '—' }}">{{ $totals->ore_milled_target ? number_format($totals->ore_milled_target, 1).' t' : '—' }}</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;padding:7px 6px;color:{{ $tMilledVar === null ? '#6b7280' : ($tMilledVar > 0 ? '#fca5a5' : '#86efac') }};"
+                    data-export="{{ $tMilledVar === null ? '—' : (($tMilledVar > 0 ? '+' : '').number_format($tMilledVar, 1).' t') }}">{{ $tMilledVar === null ? '—' : (($tMilledVar > 0 ? '+' : '').number_format($tMilledVar, 1).' t') }}</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fcd34d;padding:7px 6px;"
+                    data-export="{{ number_format($totals->gold_smelted ?? 0, 2) }} g">{{ number_format($totals->gold_smelted ?? 0, 2) }} g</td>
+                <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#d1d5db;padding:7px 6px;"
+                    data-export="{{ number_format($totals->avg_purity ?? 0, 2) }}%">{{ number_format($totals->avg_purity ?? 0, 2) }}%</td>
+                <td style="background:#001a4d;" class="no-export"></td>
+            </tr>
+        </tfoot>
+        @endif
     </table>
     </div>
 </div>

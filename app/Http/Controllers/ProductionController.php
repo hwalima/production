@@ -22,10 +22,22 @@ class ProductionController extends Controller
         $productions = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
             ->orderByDesc('date')->paginate(30)->withQueryString();
 
+        $totals = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
+            ->selectRaw('
+                SUM(ore_hoisted)        as ore_hoisted,
+                SUM(ore_hoisted_target) as ore_hoisted_target,
+                SUM(waste_hoisted)      as waste_hoisted,
+                SUM(ore_crushed)        as ore_crushed,
+                SUM(ore_milled)         as ore_milled,
+                SUM(ore_milled_target)  as ore_milled_target,
+                SUM(gold_smelted)       as gold_smelted,
+                AVG(purity_percentage)  as avg_purity
+            ')->first();
+
         $isDefaultRange = $filterFrom === $now->copy()->startOfMonth()->toDateString()
                        && $filterTo   === $now->copy()->endOfMonth()->toDateString();
 
-        return view('production.index', compact('productions', 'filterFrom', 'filterTo', 'isDefaultRange'));
+        return view('production.index', compact('productions', 'filterFrom', 'filterTo', 'isDefaultRange', 'totals'));
     }
 
     /* ── create / store ──────────────────────────────── */

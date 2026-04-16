@@ -628,6 +628,21 @@
                 });
             }
 
+            function getFootData(table) {
+                var skip = actionsColIdx(table);
+                return Array.from(table.querySelectorAll('tfoot tr')).map(function (row) {
+                    return Array.from(row.cells)
+                        .filter(function (_, i) { return i !== skip; })
+                        .map(function (td) {
+                            if (td.classList.contains('no-export')) return null;
+                            if (td.hasAttribute('data-export')) return td.getAttribute('data-export');
+                            var clone = td.cloneNode(true);
+                            clone.querySelectorAll('.no-export').forEach(function (el) { el.remove(); });
+                            return clone.textContent.trim();
+                        }).filter(function (v) { return v !== null; });
+                });
+            }
+
             function getRowData(table) {
                 var skip = actionsColIdx(table);
                 return visibleRows(table).map(function (row) {
@@ -723,12 +738,16 @@
                 doc.text(title, 14, HDR + 10);
 
                 /* Table */
+                var footRows = getFootData(table);
                 doc.autoTable({
                     head: [getHeaders(table)],
                     body: rows,
+                    foot: footRows,
+                    showFoot: 'lastPage',
                     startY: HDR + 15,
                     styles: { fontSize: 8, cellPadding: 3, overflow: 'linebreak', textColor: [30, 30, 30] },
                     headStyles: { fillColor: [252, 193, 4], textColor: [26, 26, 26], fontStyle: 'bold' },
+                    footStyles: { fillColor: [0, 26, 77], textColor: [255, 255, 255], fontStyle: 'bold' },
                     alternateRowStyles: { fillColor: [249, 250, 251] },
                     tableLineColor: [229, 231, 235], tableLineWidth: 0.1,
                     margin: { left: 14, right: 14 },
