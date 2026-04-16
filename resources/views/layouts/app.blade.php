@@ -33,17 +33,12 @@
             .sidebar hr { border-color:#202e65; margin:8px 0; }
             .sidebar .nav-icon { width:20px; text-align:center; flex-shrink:0; font-size:1rem; }
             /* ── Nav groups ── */
-            .nav-group-btn { display:flex; align-items:center; gap:9px; width:100%; padding:7px 12px; border:none; background:none; cursor:pointer; border-radius:6px; color:#9ca3af; font-size:.7rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; transition:background .15s,color .15s; overflow:hidden; }
-            .nav-group-btn:hover { background:#202e65; color:#fcb913; }
+            .nav-group-btn { display:flex; align-items:center; gap:9px; width:100%; padding:7px 12px; border:none; background:none; cursor:default; border-radius:6px; color:#9ca3af; font-size:.7rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; overflow:hidden; }
             .nav-group-btn .ng-label { flex:1; text-align:left; white-space:nowrap; overflow:hidden; max-width:120px; opacity:1; transition:max-width .22s,opacity .15s; }
             .sidebar.collapsed .nav-group-btn .ng-label { max-width:0; opacity:0; }
-            .nav-group-btn .ng-chevron { flex-shrink:0; transition:transform .22s; font-size:.7rem; color:#6b7280; }
-            .nav-group-btn.open .ng-chevron { transform:rotate(180deg); }
             .sidebar.collapsed .nav-group-btn { padding:10px 0; justify-content:center; }
-            .sidebar.collapsed .nav-group-btn .ng-chevron { display:none; }
-            .nav-group-items { overflow:hidden; transition:max-height .28s ease; }
-            .nav-group-items.closed { max-height:0 !important; }
-            .sidebar.collapsed .nav-group-items { max-height:none !important; overflow:visible; }
+            .nav-group-items { overflow:visible; }
+            .sidebar.collapsed .nav-group-items { overflow:visible; }
             .sidebar a.sub { padding-left:20px; }
             .nav-text { overflow:hidden; white-space:nowrap; max-width:160px; opacity:1; transition:max-width .22s ease,opacity .15s; }
             .sidebar.collapsed .nav-text { max-width:0; opacity:0; }
@@ -319,11 +314,10 @@
                     <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
 
                     {{-- ── Operations group ── --}}
-                    <button type="button" class="nav-group-btn {{ request()->routeIs('production.*','drilling.*','blasting.*','chemicals.*','consumables.*','labour-energy.*','machines.*','assay.*','she.*','action-items.*') ? 'open' : 'open' }}" data-group="ops">
+                    <div class="nav-group-btn">
                         <span class="nav-icon" style="font-size:.8rem;">&#9881;</span>
                         <span class="ng-label">Operations</span>
-                        <svg class="ng-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
+                    </div>
                     <div class="nav-group-items" id="ng-ops">
                         <a href="{{ route('production.index') }}" class="sub {{ request()->routeIs('production.*') ? 'active' : '' }}" title="Daily Production"><span class="nav-icon">&#129760;</span><span class="nav-text">&nbsp;Daily Production</span></a>
                         <a href="{{ route('drilling.index') }}" class="sub {{ request()->routeIs('drilling.*') ? 'active' : '' }}" title="Drilling"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Drilling</span></a>
@@ -345,12 +339,11 @@
                     </div>
 
                     {{-- ── Reports group ── --}}
-                    <button type="button" class="nav-group-btn {{ request()->routeIs('reports.*') ? 'open' : '' }}" data-group="reports">
+                    <div class="nav-group-btn">
                         <span class="nav-icon" style="font-size:.8rem;">&#128202;</span>
                         <span class="ng-label">Reports</span>
-                        <svg class="ng-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div class="nav-group-items {{ request()->routeIs('reports.*') ? '' : 'closed' }}" id="ng-reports">
+                    </div>
+                    <div class="nav-group-items" id="ng-reports">
                         <a href="{{ route('reports.production') }}" class="sub {{ request()->routeIs('reports.production') ? 'active' : '' }}" title="Production Report"><span class="nav-icon">&#128202;</span><span class="nav-text">&nbsp;Production Report</span></a>
                         <a href="{{ route('reports.consumables') }}" class="sub {{ request()->routeIs('reports.consumables') ? 'active' : '' }}" title="Consumables Report"><span class="nav-icon">&#128203;</span><span class="nav-text">&nbsp;Consumables Report</span></a>
                         <a href="{{ route('reports.accounts') }}" class="sub {{ request()->routeIs('reports.accounts') ? 'active' : '' }}" title="Accounts Report"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Accounts Report</span></a>
@@ -358,12 +351,11 @@
 
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
-                    <button type="button" class="nav-group-btn {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*','maintenance.*') ? 'open' : '' }}" data-group="admin">
+                    <div class="nav-group-btn">
                         <span class="nav-icon" style="font-size:.8rem;">&#128737;</span>
                         <span class="ng-label">Admin</span>
-                        <svg class="ng-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div class="nav-group-items {{ request()->routeIs('users.*','settings.*','mining-departments.*','roles.*','maintenance.*') ? '' : 'closed' }}" id="ng-admin">
+                    </div>
+                    <div class="nav-group-items" id="ng-admin">
                         <a href="{{ route('users.index') }}" class="sub {{ request()->routeIs('users.*') ? 'active' : '' }}" title="User Management"><span class="nav-icon">&#128100;</span><span class="nav-text">&nbsp;Users</span></a>
                         <a href="{{ route('settings.index') }}" class="sub {{ request()->routeIs('settings.*') && !request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Settings"><span class="nav-icon">&#9881;</span><span class="nav-text">&nbsp;Settings</span></a>
                         <a href="{{ route('mining-departments.index') }}" class="sub {{ request()->routeIs('mining-departments.*') ? 'active' : '' }}" title="Mining Departments"><span class="nav-icon">&#127970;</span><span class="nav-text">&nbsp;Departments</span></a>
@@ -972,38 +964,7 @@
                 mainEl.style.marginLeft = SLIM + 'px';
             }
 
-            // ── Nav group collapsibles ──
-            (function(){
-                var HEIGHTS = {};
-                function initGroup(btn) {
-                    var id   = btn.dataset.group;
-                    var box  = document.getElementById('ng-' + id);
-                    if (!box) return;
-                    // Measure natural height once
-                    box.style.maxHeight = 'none';
-                    HEIGHTS[id] = box.scrollHeight + 'px';
-                    // Restore state from localStorage (default: ops=open, others=check btn class)
-                    var stored = localStorage.getItem('ng-' + id);
-                    var isOpen;
-                    if (stored !== null) {
-                        isOpen = stored === '1';
-                    } else {
-                        isOpen = btn.classList.contains('open');
-                    }
-                    btn.classList.toggle('open', isOpen);
-                    box.classList.toggle('closed', !isOpen);
-                    box.style.maxHeight = isOpen ? HEIGHTS[id] : '0';
-
-                    btn.addEventListener('click', function(){
-                        var open = !btn.classList.contains('open');
-                        btn.classList.toggle('open', open);
-                        box.classList.toggle('closed', !open);
-                        box.style.maxHeight = open ? HEIGHTS[id] : '0';
-                        localStorage.setItem('ng-' + id, open ? '1' : '0');
-                    });
-                }
-                document.querySelectorAll('.nav-group-btn').forEach(initGroup);
-            })();
+            // Nav groups are always expanded — no toggle behaviour needed
 
             // Topbar hamburger (mobile + desktop)
             document.getElementById('sidebarToggleBtn').addEventListener('click', function(e){
