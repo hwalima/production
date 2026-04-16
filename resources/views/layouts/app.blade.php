@@ -622,7 +622,14 @@
                 return visibleRows(table).map(function (row) {
                     return Array.from(row.cells)
                         .filter(function (_, i) { return i !== skip; })
-                        .map(function (td) { return td.textContent.trim(); });
+                        .map(function (td) {
+                            /* Explicit export value wins */
+                            if (td.hasAttribute('data-export')) return td.getAttribute('data-export');
+                            /* Clone, strip .no-export elements, read text */
+                            var clone = td.cloneNode(true);
+                            clone.querySelectorAll('.no-export').forEach(function (el) { el.remove(); });
+                            return clone.textContent.trim();
+                        });
                 });
             }
 

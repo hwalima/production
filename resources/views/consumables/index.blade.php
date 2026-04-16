@@ -86,7 +86,7 @@
                     <div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">{{ Str::limit($item->description, 55) }}</div>
                     @endif
                 </td>
-                <td>
+                <td data-export="{{ ucfirst($item->category) }}">
                     <span style="background:{{ \App\Models\Consumable::categoryBg($item->category) }};
                                  color:{{ \App\Models\Consumable::categoryColor($item->category) }};
                                  border:1px solid {{ \App\Models\Consumable::categoryColor($item->category) }};
@@ -110,7 +110,7 @@
                     </span>
                     <span style="font-size:.72rem;color:#9ca3af;"> {{ $item->use_unit }}</span>
                     @if($item->reorder_level > 0)
-                    <div style="font-size:.65rem;color:#9ca3af;">reorder ≤ {{ number_format($item->reorder_level, 0) }}</div>
+                    <div class="no-export" style="font-size:.65rem;color:#9ca3af;">reorder ≤ {{ number_format($item->reorder_level, 0) }}</div>
                     @endif
                 </td>
                 <td class="td-c">
