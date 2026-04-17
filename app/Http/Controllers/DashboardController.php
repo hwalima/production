@@ -96,6 +96,29 @@ class DashboardController extends Controller
         $trendOreMilled    = $trend->pluck('ore_milled')->map(fn($v) => (float) $v)->toArray();
         $trendGoldSmelted  = $trend->pluck('gold_smelted')->map(fn($v) => (float) $v)->toArray();
 
+        // ── Cumulative gold + cumulative target pace ───────────────────────
+        // Group by date so multi-shift days sum correctly
+        $goldByDate  = $trend->groupBy(fn($r) => $r->date->format('Y-m-d'))
+                             ->map(fn($rows) => $rows->sum('gold_smelted'))
+                             ->sortKeys();
+
+        $dailyPace   = $daysInMonth > 0 ? $goldTarget / $daysInMonth : 0;
+        $rangeStart  = Carbon::parse($filterFromStr);
+        $cumGoldLabels  = [];
+        $cumGoldData    = [];
+        $cumTargetData  = [];
+        $runningGold    = 0.0;
+        $dayNum         = 0;
+        foreach ($goldByDate as $dateStr => $dayGold) {
+            $dayNum++;
+            $runningGold        += (float) $dayGold;
+            // How many calendar days from range start to this date (for target pace)
+            $calDay              = $rangeStart->diffInDays(Carbon::parse($dateStr)) + 1;
+            $cumGoldLabels[]     = Carbon::parse($dateStr)->format('M d');
+            $cumGoldData[]       = round($runningGold, 2);
+            $cumTargetData[]     = round($dailyPace * $calDay, 2);
+        }
+
         $mineLocation  = $dashSettings->get('company_location') ?? 'Filabusi, Zimbabwe';
         $mineLat       = (float) ($dashSettings->get('mine_latitude') ?: -20.52);
         $mineLon       = (float) ($dashSettings->get('mine_longitude') ?: 29.33);
@@ -135,6 +158,7 @@ class DashboardController extends Controller
             'machinesTotal', 'machinesOverdue', 'machinesDueSoon',
             'trendLabels', 'trendOreHoisted', 'trendWasteHoisted',
             'trendOreCrushed', 'trendOreMilled', 'trendGoldSmelted',
+            'cumGoldLabels', 'cumGoldData', 'cumTargetData', 'dailyPace',
             'shiftLabels', 'shiftGold', 'shiftOreHoisted', 'shiftOreMilled',
             'shiftPurity', 'shiftCounts',
             'mineLocation', 'mineLat', 'mineLon',

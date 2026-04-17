@@ -309,11 +309,30 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
         </div>
     </form>
 
-    {{-- 30-DAY PRODUCTION TREND (before KPI cards) --}}
+    {{-- PRODUCTION TREND + GOAL PROJECTION --}}
     <div class="gc ccrd">
         <p class="cht-ttl">Production Trend — {{ \Carbon\Carbon::parse($filterFromStr)->format('d M') }} to {{ \Carbon\Carbon::parse($filterToStr)->format('d M Y') }}</p>
         <canvas id="trendChart" height="80"></canvas>
     </div>
+
+    {{-- CUMULATIVE GOLD vs TARGET PACE --}}
+    @if(count($cumGoldLabels) > 0)
+    <div class="gc ccrd" style="padding:18px 20px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <p class="cht-ttl" style="margin-bottom:0;">Cumulative Gold vs Target Pace</p>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                <span style="display:flex;align-items:center;gap:5px;font-size:.7rem;color:#34d399;font-weight:700;">
+                    <span style="width:18px;height:2px;background:#34d399;display:inline-block;border-radius:2px;"></span>Actual
+                </span>
+                <span style="display:flex;align-items:center;gap:5px;font-size:.7rem;color:#fcb913;font-weight:700;">
+                    <span style="width:18px;height:2px;background:#fcb913;display:inline-block;border-radius:2px;border-top:2px dashed #fcb913;"></span>Target Pace
+                </span>
+                <span style="font-size:.7rem;color:#9ca3af;">Target: <b style="color:var(--text);">{{ number_format($goldTarget,0) }} g</b> &bull; Daily pace: <b style="color:#fcb913;">{{ number_format($dailyPace,1) }} g/day</b></span>
+            </div>
+        </div>
+        <canvas id="cumGoldChart" height="55"></canvas>
+    </div>
+    @endif
 
     {{-- ROW 1 — KPI CARDS --}}
     <div class="kpi-grid">
@@ -539,6 +558,8 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ── 30-day 5-line trend ── */
     function buildChart() {
         const c = cc();
+        const nPts       = @json($trendLabels).length;
+        const dailyPace  = {{ $dailyPace }};
         return new Chart(document.getElementById('trendChart').getContext('2d'), {
             type: 'line',
             data: {
@@ -548,7 +569,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     { label:'Waste Hoisted (t)', data:@json($trendWasteHoisted), yAxisID:'yT', borderColor:'#f87171', backgroundColor:'transparent', borderWidth:2, borderDash:[5,4], pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Ore Crushed (t)',   data:@json($trendOreCrushed),   yAxisID:'yT', borderColor:'#38bdf8', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Ore Milled (t)',    data:@json($trendOreMilled),    yAxisID:'yT', borderColor:'#a78bfa', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
-                    { label:'Gold Smelted (g)', data:@json($trendGoldSmelted),  yAxisID:'yG', borderColor:'#34d399', backgroundColor:'rgba(52,211,153,.07)', fill:true, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, tension:.4 },
+                    { label:'Gold Smelted (g)',  data:@json($trendGoldSmelted),  yAxisID:'yG', borderColor:'#34d399', backgroundColor:'rgba(52,211,153,.07)', fill:true, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, tension:.4 },
+                    { label:'Daily Target (g)',  data:Array(nPts).fill(dailyPace), yAxisID:'yG', borderColor:'#fcb913', backgroundColor:'transparent', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:0, tension:0, tooltip:{enabled:false} },
                 ]
             },
             options: {
@@ -559,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tooltip: {
                         backgroundColor:c.ttBg, titleColor:c.ttTitle, bodyColor:c.ttBody,
                         borderColor:c.ttBord, borderWidth:1, padding:12, cornerRadius:12,
-                        callbacks: { label: x => '  '+x.dataset.label+': '+x.parsed.y.toFixed(x.dataset.yAxisID==='yG'?1:1)+(x.dataset.yAxisID==='yG'?' g':' t') }
+                        callbacks: { label: x => x.dataset.label==='Daily Target (g)' ? null : ('  '+x.dataset.label+': '+x.parsed.y.toFixed(1)+(x.dataset.yAxisID==='yG'?' g':' t')) }
                     }
                 },
                 scales: {
@@ -568,8 +590,8 @@ document.addEventListener('DOMContentLoaded', function () {
                           title:{display:true,text:'Tonnes',color:c.text,font:{size:10}},
                           ticks:{color:c.text,font:{size:10}}, grid:{color:c.grid}, border:{display:false} },
                     yG: { type:'linear', position:'right', beginAtZero:true,
-                          title:{display:true,text:'kg Gold',color:'#34d399',font:{size:10}},
-                          ticks:{color:'#34d399',font:{size:10},callback:v=>v.toFixed(2)},
+                          title:{display:true,text:'Gold (g)',color:'#34d399',font:{size:10}},
+                          ticks:{color:'#34d399',font:{size:10},callback:v=>v.toFixed(1)},
                           grid:{drawOnChartArea:false}, border:{display:false} }
                 }
             }
@@ -580,6 +602,91 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('darkToggle').addEventListener('click', () => {
         setTimeout(() => { chart.destroy(); chart=buildChart(); }, 55);
     });
+
+    /* ── Cumulative Gold vs Target Pace chart ── */
+    @if(count($cumGoldLabels) > 0)
+    let cumChart = null;
+    function buildCumChart() {
+        const c = cc();
+        if (cumChart) cumChart.destroy();
+        const cumLabels  = @json($cumGoldLabels);
+        const cumActual  = @json($cumGoldData);
+        const cumTarget  = @json($cumTargetData);
+        const totalTarget = {{ $goldTarget }};
+        // Determine on-track status per point
+        const aheadColor = 'rgba(52,211,153,.12)';
+        const behindColor= 'rgba(248,113,113,.10)';
+        const lastActual = cumActual.length ? cumActual[cumActual.length-1] : 0;
+        const lastTarget = cumTarget.length ? cumTarget[cumTarget.length-1] : 0;
+        const onTrack    = lastActual >= lastTarget;
+        cumChart = new Chart(document.getElementById('cumGoldChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: cumLabels,
+                datasets: [
+                    {
+                        label: 'Cumulative Gold (g)',
+                        data: cumActual,
+                        borderColor: '#34d399',
+                        backgroundColor: onTrack ? aheadColor : behindColor,
+                        fill: '+1',
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        tension: .4,
+                        order: 1,
+                    },
+                    {
+                        label: 'Target Pace (g)',
+                        data: cumTarget,
+                        borderColor: '#fcb913',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        tension: .3,
+                        order: 2,
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode:'index', intersect:false },
+                plugins: {
+                    legend: { display:false },
+                    tooltip: {
+                        backgroundColor:c.ttBg, titleColor:c.ttTitle, bodyColor:c.ttBody,
+                        borderColor:c.ttBord, borderWidth:1, padding:10, cornerRadius:10,
+                        callbacks: {
+                            label: x => '  ' + x.dataset.label + ': ' + x.parsed.y.toFixed(1) + ' g',
+                            afterBody: items => {
+                                const a = items.find(i=>i.datasetIndex===0)?.parsed.y ?? 0;
+                                const t = items.find(i=>i.datasetIndex===1)?.parsed.y ?? 0;
+                                const diff = a - t;
+                                return ['  ' + (diff >= 0 ? '▲ +' : '▼ ') + diff.toFixed(1) + ' g vs target'];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks:{color:c.text,font:{size:10},maxTicksLimit:10}, grid:{color:c.grid}, border:{display:false} },
+                    y: {
+                        beginAtZero: true,
+                        ticks:{ color:c.text, font:{size:10}, callback:v=>v.toFixed(0)+' g' },
+                        grid:{ color:c.grid }, border:{display:false},
+                        // Show target line annotation via max hint
+                        max: Math.max(totalTarget, ...cumActual, ...cumTarget) * 1.05,
+                    }
+                }
+            }
+        });
+    }
+    buildCumChart();
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        setTimeout(buildCumChart, 60);
+    });
+    @endif
 
     /* ── Shift Comparison Chart ── */
     @if(count($shiftLabels) > 0)
