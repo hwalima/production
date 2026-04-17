@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'debug' => true, // TEMP: revert after reading the error
+    'debug' => (bool) env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------

@@ -22,7 +22,7 @@ class CheckOverdueActionItems extends Command
             ->whereNotIn('status', ['completed'])
             ->whereNotNull('due_date')
             ->where('due_date', '<', Carbon::today())
-            ->orderByRaw("FIELD(priority,'high','medium','low')")
+            ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END")
             ->get();
 
         if ($overdueItems->isEmpty()) {

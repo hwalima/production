@@ -1,0 +1,1218 @@
+﻿
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+
+   PASS  Tests\Unit\ExampleTest
+  Ô£ô that true is true
+
+   PASS  Tests\Unit\ProductionCalculationTest
+  Ô£ô hoisted stockpile accumulates correctly                              0.13s  
+  Ô£ô crushed stockpile accumulates correctly                              0.01s  
+  Ô£ô stockpile starts at zero with no previous record                     0.01s  
+  Ô£ô crushed stockpile can not go negative logically                      0.01s  
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  Ô£ô login screen can be rendered                                         0.13s  
+  Ô£ô users can authenticate using the login screen                        0.08s  
+  Ô£ô users can not authenticate with invalid password                     0.23s  
+  Ô£ô users can logout                                                     0.02s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  Ô£ô email verification screen can be rendered                            0.02s  
+  Ô£ô email can be verified                                                0.02s  
+  Ô£ô email is not verified with invalid hash                              0.02s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  Ô£ô confirm password screen can be rendered                              0.02s  
+  Ô£ô password can be confirmed                                            0.06s  
+  Ô£ô password is not confirmed with invalid password                      0.22s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  Ô£ô reset password link screen can be rendered                           0.03s  
+  Ô£ô reset password link can be requested                                 0.23s  
+  Ô£ô reset password screen can be rendered                                0.22s  
+  Ô£ô password can be reset with valid token                               0.23s  
+
+   PASS  Tests\Feature\Auth\PasswordUpdateTest
+  Ô£ô password can be updated                                              0.07s  
+  Ô£ô correct password must be provided to update password                 0.06s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  Ô£ô registration screen can be rendered                                  0.02s  
+  Ô£ô new users can register                                               0.02s  
+
+   PASS  Tests\Feature\ExampleTest
+  Ô£ô the application returns a successful response                        0.02s  
+
+   FAIL  Tests\Feature\ProductionTest
+  Ô£ô production index requires auth                                       0.02s  
+  Ô¿» authenticated user can view production index                         0.02s  
+  Ô¿» can create a production record                                       0.02s  
+  Ô¿» uncrushed stockpile is calculated on store                           0.02s  
+  Ô¿» second record stockpile carries over                                 0.02s  
+  Ô¿» can view a production record                                         0.02s  
+  Ô¿» can update a production record                                       0.02s  
+  Ô¿» can delete a production record                                       0.02s  
+  Ô¿» date field is required                                               0.02s  
+
+   FAIL  Tests\Feature\ProfileTest
+  Ô¿» profile page is displayed                                            0.02s  
+  Ô¿» profile information can be updated                                   0.02s  
+  Ô¿» email verification status is unchanged when the email address is unÔÇª 0.01s  
+  Ô¿» user can delete their account                                        0.01s  
+  Ô¿» correct password must be provided to delete account                  0.01s  
+
+   FAIL  Tests\Feature\RoleMiddlewareTest
+  Ô¿» all roles can view production index                                  0.02s  
+  Ô¿» admin can create production record                                   0.01s  
+  Ô¿» manager can create production record                                 0.01s  
+  Ô¿» viewer cannot create production record                               0.01s  
+  Ô¿» viewer cannot access production create form                          0.02s  
+  Ô¿» manager can delete production record                                 0.02s  
+  Ô¿» viewer cannot delete production record                               0.02s  
+  Ô¿» super admin can access settings                                      0.02s  
+  Ô¿» admin can access settings                                            0.01s  
+  Ô¿» manager cannot access settings                                       0.01s  
+  Ô¿» viewer cannot access settings                                        0.02s  
+  Ô¿» super admin can access user management                               0.02s  
+  Ô¿» admin can access user management                                     0.01s  
+  Ô¿» manager cannot access user management                                0.02s  
+  Ô¿» viewer cannot access user management                                 0.02s  
+  Ô¿» super admin can access roles page                                    0.02s  
+  Ô¿» admin cannot access roles page                                       0.02s  
+  Ô£ô user role helper methods work correctly                              0.01s  
+
+   FAIL  Tests\Feature\RolesManagementTest
+  Ô£ô roles page requires auth                                             0.02s  
+  Ô¿» super admin can view roles page                                      0.02s  
+  Ô¿» roles page shows permission matrix                                   0.02s  
+  Ô¿» roles page shows assign roles table                                  0.02s  
+  Ô¿» super admin can assign a role                                        0.02s  
+  Ô£ô super admin cannot change own role                                   0.02s  
+  Ô¿» admin cannot access roles page                                       0.02s  
+  Ô¿» manager cannot access roles page                                     0.02s  
+  Ô¿» viewer cannot access roles page                                      0.02s  
+  Ô¿» assign role requires valid role value                                0.02s  
+
+   FAIL  Tests\Feature\SettingsTest
+  Ô£ô settings page requires authentication                                0.02s  
+  Ô¿» authenticated user can view settings page                            0.02s  
+  Ô¿» settings page shows existing company values                          0.02s  
+  Ô¿» can update company settings                                          0.02s  
+  Ô¿» company name is required                                             0.02s  
+  - logo upload stores file and updates setting ÔåÆ GD extension not instÔÇª 0.02s  
+  Ô¿» invalid logo mime type is rejected                                   0.03s  
+  Ô¿» daily cost fields must be numeric                                    0.02s  
+
+   FAIL  Tests\Feature\UserManagementTest
+  Ô£ô user index requires auth                                             0.03s  
+  Ô¿» admin can view user list                                             0.02s  
+  Ô¿» admin can create a new user                                          0.02s  
+  Ô£ô user email must be unique                                            0.02s  
+  Ô¿» password must meet requirements                                      0.02s  
+  Ô¿» role must be valid                                                   0.02s  
+  Ô¿» admin can update a user                                              0.02s  
+  Ô¿» password is not required on update                                   0.03s  
+  Ô¿» admin can delete another user                                        0.02s  
+  Ô¿» admin cannot delete own account via user management                  0.02s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > authenticated user can view producÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\ProductionTest.php:44
+     40Ôûò     public function authenticated_user_can_view_production_index(): void
+     41Ôûò     {
+     42Ôûò         $this->actingAs($this->adminUser())
+     43Ôûò             ->get(route('production.index'))
+  Ô×£  44Ôûò             ->assertOk();
+     45Ôûò     }
+     46Ôûò 
+     47Ôûò     /** @test */
+     48Ôûò     public function can_create_a_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > can create a production record        
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\ProductionTest.php:52
+     48Ôûò     public function can_create_a_production_record(): void
+     49Ôûò     {
+     50Ôûò         $this->actingAs($this->adminUser())
+     51Ôûò             ->post(route('production.store'), $this->productionPayload())
+  Ô×£  52Ôûò             ->assertRedirect(route('production.index'));
+     53Ôûò 
+     54Ôûò         // SQLite stores dates as datetime strings
+     55Ôûò         $this->assertDatabaseCount('daily_productions', 1);
+     56Ôûò         $this->assertTrue(DailyProduction::whereDate('date', '2026-04-14')->exists());
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > uncrushed stockpilÔÇª  ErrorException   
+  Attempt to read property "uncrushed_stockpile" on null
+
+  at tests\Feature\ProductionTest.php:70
+     66Ôûò             ]));
+     67Ôûò 
+     68Ôûò         // No previous record ÔåÆ 0 + 100 - 80 = 20
+     69Ôûò         $record = DailyProduction::first();
+  Ô×£  70Ôûò         $this->assertEquals(20.0, (float) $record->uncrushed_stockpile);
+     71Ôûò     }
+     72Ôûò 
+     73Ôûò     /** @test */
+     74Ôûò     public function second_record_stockpile_carries_over(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > second record stocÔÇª  ErrorException   
+  Attempt to read property "uncrushed_stockpile" on null
+
+  at tests\Feature\ProductionTest.php:93
+     89Ôûò 
+     90Ôûò         // First record: uncrushed_stockpile = 20
+     91Ôûò         // Second: prev.uncrushed_stockpile (20) + 60 - 50 = 30
+     92Ôûò         $second = DailyProduction::orderByDesc('date')->first();
+  Ô×£  93Ôûò         $this->assertEquals(30.0, (float) $second->uncrushed_stockpile);
+     94Ôûò     }
+     95Ôûò 
+     96Ôûò     /** @test */
+     97Ôûò     public function can_view_a_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > can view a production record          
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\ProductionTest.php:106
+    102Ôûò         ]));
+    103Ôûò 
+    104Ôûò         $this->actingAs($this->adminUser())
+    105Ôûò             ->get(route('production.show', $record))
+  Ô×£ 106Ôûò             ->assertOk()
+    107Ôûò             ->assertSee('14 Apr 2026');
+    108Ôûò     }
+    109Ôûò 
+    110Ôûò     /** @test */
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > can update a production record        
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\ProductionTest.php:122
+    118Ôûò         $this->actingAs($this->adminUser())
+    119Ôûò             ->put(route('production.update', $record), $this->productionPayload([
+    120Ôûò                 'ore_hoisted' => '200.00',
+    121Ôûò             ]))
+  Ô×£ 122Ôûò             ->assertRedirect(route('production.index'));
+    123Ôûò 
+    124Ôûò         $this->assertDatabaseHas('daily_productions', ['ore_hoisted' => '200.00']);
+    125Ôûò     }
+    126Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > can delete a production record        
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\ProductionTest.php:137
+    133Ôûò         ]));
+    134Ôûò 
+    135Ôûò         $this->actingAs($this->adminUser())
+    136Ôûò             ->delete(route('production.destroy', $record))
+  Ô×£ 137Ôûò             ->assertRedirect(route('production.index'));
+    138Ôûò 
+    139Ôûò         $this->assertDatabaseMissing('daily_productions', ['id' => $record->id]);
+    140Ôûò     }
+    141Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProductionTest > date field is required                
+  Session missing error: date
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\ProductionTest.php:147
+    143Ôûò     public function date_field_is_required(): void
+    144Ôûò     {
+    145Ôûò         $this->actingAs($this->adminUser())
+    146Ôûò             ->post(route('production.store'), $this->productionPayload(['date' => '']))
+  Ô×£ 147Ôûò             ->assertSessionHasErrors('date');
+    148Ôûò     }
+    149Ôûò }
+    150Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProfileTest > profile page is displayed                
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\ProfileTest.php:21
+     17Ôûò         $response = $this
+     18Ôûò             ->actingAs($user)
+     19Ôûò             ->get('/profile');
+     20Ôûò 
+  Ô×£  21Ôûò         $response->assertOk();
+     22Ôûò     }
+     23Ôûò 
+     24Ôûò     public function test_profile_information_can_be_updated(): void
+     25Ôûò     {
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProfileTest > profile information can be updated       
+  Session has unexpected errors: 
+
+{
+    "default": [
+        "Your account has been deactivated. Please contact your administrator."
+    ]
+}
+Failed asserting that true is false.
+
+  at tests\Feature\ProfileTest.php:36
+     32Ôûò                 'email' => 'test@example.com',
+     33Ôûò             ]);
+     34Ôûò 
+     35Ôûò         $response
+  Ô×£  36Ôûò             ->assertSessionHasNoErrors()
+     37Ôûò             ->assertRedirect('/profile');
+     38Ôûò 
+     39Ôûò         $user->refresh();
+     40Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProfileTest > email verification status is unchangeÔÇª   
+  Session has unexpected errors: 
+
+{
+    "default": [
+        "Your account has been deactivated. Please contact your administrator."
+    ]
+}
+Failed asserting that true is false.
+
+  at tests\Feature\ProfileTest.php:58
+     54Ôûò                 'email' => $user->email,
+     55Ôûò             ]);
+     56Ôûò 
+     57Ôûò         $response
+  Ô×£  58Ôûò             ->assertSessionHasNoErrors()
+     59Ôûò             ->assertRedirect('/profile');
+     60Ôûò 
+     61Ôûò         $this->assertNotNull($user->refresh()->email_verified_at);
+     62Ôûò     }
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProfileTest > user can delete their account            
+  Session has unexpected errors: 
+
+{
+    "default": [
+        "Your account has been deactivated. Please contact your administrator."
+    ]
+}
+Failed asserting that true is false.
+
+  at tests\Feature\ProfileTest.php:75
+     71Ôûò                 'password' => 'password',
+     72Ôûò             ]);
+     73Ôûò 
+     74Ôûò         $response
+  Ô×£  75Ôûò             ->assertSessionHasNoErrors()
+     76Ôûò             ->assertRedirect('/');
+     77Ôûò 
+     78Ôûò         $this->assertGuest();
+     79Ôûò         $this->assertNull($user->fresh());
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\ProfileTest > correct password must be provided toÔÇª    
+  Session missing error: password
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\ProfileTest.php:94
+     90Ôûò                 'password' => 'wrong-password',
+     91Ôûò             ]);
+     92Ôûò 
+     93Ôûò         $response
+  Ô×£  94Ôûò             ->assertSessionHasErrorsIn('userDeletion', 'password')
+     95Ôûò             ->assertRedirect('/profile');
+     96Ôûò 
+     97Ôûò         $this->assertNotNull($user->fresh());
+     98Ôûò     }
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > all roles can view productionÔÇª    
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:41
+     37Ôûò     /** @test */
+     38Ôûò     public function all_roles_can_view_production_index(): void
+     39Ôûò     {
+     40Ôûò         foreach ([$this->admin(), $this->manager(), $this->viewer()] as $user) {
+  Ô×£  41Ôûò             $this->actingAs($user)->get(route('production.index'))->assertOk();
+     42Ôûò         }
+     43Ôûò     }
+     44Ôûò 
+     45Ôûò     // ÔöÇÔöÇ Write access ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > admin can create production reÔÇª   
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\RoleMiddlewareTest.php:52
+     48Ôûò     public function admin_can_create_production_record(): void
+     49Ôûò     {
+     50Ôûò         $this->actingAs($this->admin())
+     51Ôûò             ->post(route('production.store'), $this->productionPayload())
+  Ô×£  52Ôûò             ->assertRedirect(route('production.index'));
+     53Ôûò     }
+     54Ôûò 
+     55Ôûò     /** @test */
+     56Ôûò     public function manager_can_create_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > manager can create productionÔÇª    
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\RoleMiddlewareTest.php:60
+     56Ôûò     public function manager_can_create_production_record(): void
+     57Ôûò     {
+     58Ôûò         $this->actingAs($this->manager())
+     59Ôûò             ->post(route('production.store'), $this->productionPayload())
+  Ô×£  60Ôûò             ->assertRedirect(route('production.index'));
+     61Ôûò     }
+     62Ôûò 
+     63Ôûò     /** @test */
+     64Ôûò     public function viewer_cannot_create_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > viewer cannot create productioÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:68
+     64Ôûò     public function viewer_cannot_create_production_record(): void
+     65Ôûò     {
+     66Ôûò         $this->actingAs($this->viewer())
+     67Ôûò             ->post(route('production.store'), $this->productionPayload())
+  Ô×£  68Ôûò             ->assertForbidden();
+     69Ôûò     }
+     70Ôûò 
+     71Ôûò     /** @test */
+     72Ôûò     public function viewer_cannot_access_production_create_form(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > viewer cannot access productioÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:76
+     72Ôûò     public function viewer_cannot_access_production_create_form(): void
+     73Ôûò     {
+     74Ôûò         $this->actingAs($this->viewer())
+     75Ôûò             ->get(route('production.create'))
+  Ô×£  76Ôûò             ->assertForbidden();
+     77Ôûò     }
+     78Ôûò 
+     79Ôûò     /** @test */
+     80Ôûò     public function manager_can_delete_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > manager can delete productionÔÇª    
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/production'
++'http://localhost/login'
+
+  at tests\Feature\RoleMiddlewareTest.php:86
+     82Ôûò         $record = DailyProduction::factory()->create();
+     83Ôûò 
+     84Ôûò         $this->actingAs($this->manager())
+     85Ôûò             ->delete(route('production.destroy', $record))
+  Ô×£  86Ôûò             ->assertRedirect(route('production.index'));
+     87Ôûò     }
+     88Ôûò 
+     89Ôûò     /** @test */
+     90Ôûò     public function viewer_cannot_delete_production_record(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > viewer cannot delete productioÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:96
+     92Ôûò         $record = DailyProduction::factory()->create();
+     93Ôûò 
+     94Ôûò         $this->actingAs($this->viewer())
+     95Ôûò             ->delete(route('production.destroy', $record))
+  Ô×£  96Ôûò             ->assertForbidden();
+     97Ôûò     }
+     98Ôûò 
+     99Ôûò     // ÔöÇÔöÇ Settings (admin + super_admin) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    100Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > super admin can access settingÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:106
+    102Ôûò     public function super_admin_can_access_settings(): void
+    103Ôûò     {
+    104Ôûò         $this->actingAs($this->superAdmin())
+    105Ôûò             ->get(route('settings.index'))
+  Ô×£ 106Ôûò             ->assertOk();
+    107Ôûò     }
+    108Ôûò 
+    109Ôûò     /** @test */
+    110Ôûò     public function admin_can_access_settings(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > admin can access settings         
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:114
+    110Ôûò     public function admin_can_access_settings(): void
+    111Ôûò     {
+    112Ôûò         $this->actingAs($this->admin())
+    113Ôûò             ->get(route('settings.index'))
+  Ô×£ 114Ôûò             ->assertOk();
+    115Ôûò     }
+    116Ôûò 
+    117Ôûò     /** @test */
+    118Ôûò     public function manager_cannot_access_settings(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > manager cannot access settings    
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:122
+    118Ôûò     public function manager_cannot_access_settings(): void
+    119Ôûò     {
+    120Ôûò         $this->actingAs($this->manager())
+    121Ôûò             ->get(route('settings.index'))
+  Ô×£ 122Ôûò             ->assertForbidden();
+    123Ôûò     }
+    124Ôûò 
+    125Ôûò     /** @test */
+    126Ôûò     public function viewer_cannot_access_settings(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > viewer cannot access settings     
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:130
+    126Ôûò     public function viewer_cannot_access_settings(): void
+    127Ôûò     {
+    128Ôûò         $this->actingAs($this->viewer())
+    129Ôûò             ->get(route('settings.index'))
+  Ô×£ 130Ôûò             ->assertForbidden();
+    131Ôûò     }
+    132Ôûò 
+    133Ôûò     // ÔöÇÔöÇ User management (admin + super_admin) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    134Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > super admin can access user maÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:140
+    136Ôûò     public function super_admin_can_access_user_management(): void
+    137Ôûò     {
+    138Ôûò         $this->actingAs($this->superAdmin())
+    139Ôûò             ->get(route('users.index'))
+  Ô×£ 140Ôûò             ->assertOk();
+    141Ôûò     }
+    142Ôûò 
+    143Ôûò     /** @test */
+    144Ôûò     public function admin_can_access_user_management(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > admin can access user managemeÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:148
+    144Ôûò     public function admin_can_access_user_management(): void
+    145Ôûò     {
+    146Ôûò         $this->actingAs($this->admin())
+    147Ôûò             ->get(route('users.index'))
+  Ô×£ 148Ôûò             ->assertOk();
+    149Ôûò     }
+    150Ôûò 
+    151Ôûò     /** @test */
+    152Ôûò     public function manager_cannot_access_user_management(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > manager cannot access user manÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:156
+    152Ôûò     public function manager_cannot_access_user_management(): void
+    153Ôûò     {
+    154Ôûò         $this->actingAs($this->manager())
+    155Ôûò             ->get(route('users.index'))
+  Ô×£ 156Ôûò             ->assertForbidden();
+    157Ôûò     }
+    158Ôûò 
+    159Ôûò     /** @test */
+    160Ôûò     public function viewer_cannot_access_user_management(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > viewer cannot access user manaÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:164
+    160Ôûò     public function viewer_cannot_access_user_management(): void
+    161Ôûò     {
+    162Ôûò         $this->actingAs($this->viewer())
+    163Ôûò             ->get(route('users.index'))
+  Ô×£ 164Ôûò             ->assertForbidden();
+    165Ôûò     }
+    166Ôûò 
+    167Ôûò     // ÔöÇÔöÇ Roles page (super_admin only) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    168Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > super admin can access roles pÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:174
+    170Ôûò     public function super_admin_can_access_roles_page(): void
+    171Ôûò     {
+    172Ôûò         $this->actingAs($this->superAdmin())
+    173Ôûò             ->get(route('roles.index'))
+  Ô×£ 174Ôûò             ->assertOk();
+    175Ôûò     }
+    176Ôûò 
+    177Ôûò     /** @test */
+    178Ôûò     public function admin_cannot_access_roles_page(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RoleMiddlewareTest > admin cannot access roles page    
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RoleMiddlewareTest.php:182
+    178Ôûò     public function admin_cannot_access_roles_page(): void
+    179Ôûò     {
+    180Ôûò         $this->actingAs($this->admin())
+    181Ôûò             ->get(route('roles.index'))
+  Ô×£ 182Ôûò             ->assertForbidden();
+    183Ôûò     }
+    184Ôûò 
+    185Ôûò     // ÔöÇÔöÇ User model helpers ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    186Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > super admin can view roles paÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:24
+     20Ôûò     public function super_admin_can_view_roles_page(): void
+     21Ôûò     {
+     22Ôûò         $this->actingAs(User::factory()->superAdmin()->create())
+     23Ôûò             ->get(route('roles.index'))
+  Ô×£  24Ôûò             ->assertOk()
+     25Ôûò             ->assertSee('Super Administrator')
+     26Ôûò             ->assertSee('Administrator')
+     27Ôûò             ->assertSee('Manager')
+     28Ôûò             ->assertSee('Viewer');
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > roles page shows permission mÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:36
+     32Ôûò     public function roles_page_shows_permission_matrix(): void
+     33Ôûò     {
+     34Ôûò         $this->actingAs(User::factory()->superAdmin()->create())
+     35Ôûò             ->get(route('roles.index'))
+  Ô×£  36Ôûò             ->assertOk()
+     37Ôûò             ->assertSee('Permission Matrix')
+     38Ôûò             ->assertSee('View all modules')
+     39Ôûò             ->assertSee('Manage roles');
+     40Ôûò     }
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > roles page shows assign rolesÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:49
+     45Ôûò         $target = User::factory()->viewer()->create(['name' => 'Jane Viewer']);
+     46Ôûò 
+     47Ôûò         $this->actingAs(User::factory()->superAdmin()->create())
+     48Ôûò             ->get(route('roles.index'))
+  Ô×£  49Ôûò             ->assertOk()
+     50Ôûò             ->assertSee('Assign Roles')
+     51Ôûò             ->assertSee('Jane Viewer');
+     52Ôûò     }
+     53Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > super admin can assign a role    
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/roles'
++'http://localhost/login'
+
+  at tests\Feature\RolesManagementTest.php:62
+     58Ôûò         $target = User::factory()->viewer()->create();
+     59Ôûò 
+     60Ôûò         $this->actingAs($sa)
+     61Ôûò             ->patch(route('roles.assign', $target), ['role' => 'manager'])
+  Ô×£  62Ôûò             ->assertRedirect(route('roles.index'));
+     63Ôûò 
+     64Ôûò         $this->assertDatabaseHas('users', ['id' => $target->id, 'role' => 'manager']);
+     65Ôûò     }
+     66Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > admin cannot access roles pagÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:85
+     81Ôûò     public function admin_cannot_access_roles_page(): void
+     82Ôûò     {
+     83Ôûò         $this->actingAs(User::factory()->admin()->create())
+     84Ôûò             ->get(route('roles.index'))
+  Ô×£  85Ôûò             ->assertForbidden();
+     86Ôûò     }
+     87Ôûò 
+     88Ôûò     /** @test */
+     89Ôûò     public function manager_cannot_access_roles_page(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > manager cannot access roles pÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:93
+     89Ôûò     public function manager_cannot_access_roles_page(): void
+     90Ôûò     {
+     91Ôûò         $this->actingAs(User::factory()->manager()->create())
+     92Ôûò             ->get(route('roles.index'))
+  Ô×£  93Ôûò             ->assertForbidden();
+     94Ôûò     }
+     95Ôûò 
+     96Ôûò     /** @test */
+     97Ôûò     public function viewer_cannot_access_roles_page(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > viewer cannot access roles paÔÇª   
+  Expected response status code [403] but received 302.
+Failed asserting that 302 is identical to 403.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:101
+     97Ôûò     public function viewer_cannot_access_roles_page(): void
+     98Ôûò     {
+     99Ôûò         $this->actingAs(User::factory()->viewer()->create())
+    100Ôûò             ->get(route('roles.index'))
+  Ô×£ 101Ôûò             ->assertForbidden();
+    102Ôûò     }
+    103Ôûò 
+    104Ôûò     /** @test */
+    105Ôûò     public function assign_role_requires_valid_role_value(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\RolesManagementTest > assign role requires valid roÔÇª   
+  Session missing error: role
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\RolesManagementTest.php:112
+    108Ôûò         $target = User::factory()->viewer()->create();
+    109Ôûò 
+    110Ôûò         $this->actingAs($sa)
+    111Ôûò             ->patch(route('roles.assign', $target), ['role' => 'god_mode'])
+  Ô×£ 112Ôûò             ->assertSessionHasErrors('role');
+    113Ôûò     }
+    114Ôûò }
+    115Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > authenticated user can view settingsÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\SettingsTest.php:32
+     28Ôûò     public function authenticated_user_can_view_settings_page(): void
+     29Ôûò     {
+     30Ôûò         $this->actingAs($this->adminUser())
+     31Ôûò             ->get(route('settings.index'))
+  Ô×£  32Ôûò             ->assertOk()
+     33Ôûò             ->assertSee('Settings');
+     34Ôûò     }
+     35Ôûò 
+     36Ôûò     /** @test */
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > settings page shows existing companyÔÇª   
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\SettingsTest.php:44
+     40Ôûò         Setting::create(['key' => 'company_location', 'value' => 'Filabusi, Zimbabwe']);
+     41Ôûò 
+     42Ôûò         $this->actingAs($this->adminUser())
+     43Ôûò             ->get(route('settings.index'))
+  Ô×£  44Ôûò             ->assertOk()
+     45Ôûò             ->assertSee('Epoch Mines and Resources')
+     46Ôûò             ->assertSee('Filabusi, Zimbabwe');
+     47Ôûò     }
+     48Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > can update company settings             
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/settings'
++'http://localhost/login'
+
+  at tests\Feature\SettingsTest.php:64
+     60Ôûò                 'zesa_daily'       => '633',
+     61Ôûò                 'diesel_daily'     => '428',
+     62Ôûò                 'labour_daily'     => '0',
+     63Ôûò             ])
+  Ô×£  64Ôûò             ->assertRedirect(route('settings.index'));
+     65Ôûò 
+     66Ôûò         $this->assertDatabaseHas('settings', ['key' => 'company_name', 'value' => 'Epoch Mines and Resources']);
+     67Ôûò         $this->assertDatabaseHas('settings', ['key' => 'company_location', 'value' => 'Filabusi, Zimbabwe']);
+     68Ôûò         $this->assertDatabaseHas('settings', ['key' => 'zesa_daily', 'value' => '633']);
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > company name is required                
+  Session missing error: company_name
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\SettingsTest.php:82
+     78Ôûò                 'diesel_daily'  => '428',
+     79Ôûò                 'labour_daily'  => '0',
+     80Ôûò                 'mining_levels' => 'Shaft',
+     81Ôûò             ])
+  Ô×£  82Ôûò             ->assertSessionHasErrors('company_name');
+     83Ôûò     }
+     84Ôûò 
+     85Ôûò     /** @test */
+     86Ôûò     public function logo_upload_stores_file_and_updates_setting(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > invalid logo mime type is rejected      
+  Session missing error: logo
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\SettingsTest.php:121
+    117Ôûò                 'labour_daily'  => '0',
+    118Ôûò                 'mining_levels' => 'Shaft',
+    119Ôûò                 'logo'          => UploadedFile::fake()->create('malware.exe', 100),
+    120Ôûò             ])
+  Ô×£ 121Ôûò             ->assertSessionHasErrors('logo');
+    122Ôûò     }
+    123Ôûò 
+    124Ôûò     /** @test */
+    125Ôûò     public function daily_cost_fields_must_be_numeric(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SettingsTest > daily cost fields must be numeric       
+  Session missing error: zesa_daily
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\SettingsTest.php:135
+    131Ôûò                 'diesel_daily'  => '428',
+    132Ôûò                 'labour_daily'  => '0',
+    133Ôûò                 'mining_levels' => 'Shaft',
+    134Ôûò             ])
+  Ô×£ 135Ôûò             ->assertSessionHasErrors('zesa_daily');
+    136Ôûò     }
+    137Ôûò }
+    138Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > admin can view user list          
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\UserManagementTest.php:31
+     27Ôûò         User::factory()->manager()->create(['name' => 'Bob Manager']);
+     28Ôûò 
+     29Ôûò         $this->actingAs($admin)
+     30Ôûò             ->get(route('users.index'))
+  Ô×£  31Ôûò             ->assertOk()
+     32Ôûò             ->assertSee('Bob Manager');
+     33Ôûò     }
+     34Ôûò 
+     35Ôûò     // ÔöÇÔöÇ Create ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > admin can create a new user       
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/users'
++'http://localhost/login'
+
+  at tests\Feature\UserManagementTest.php:49
+     45Ôûò                 'job_title' => 'Site Manager',
+     46Ôûò                 'phone'     => '+263 77 111 2222',
+     47Ôûò                 'password'  => 'secret12',
+     48Ôûò             ])
+  Ô×£  49Ôûò             ->assertRedirect(route('users.index'));
+     50Ôûò 
+     51Ôûò         $this->assertDatabaseHas('users', ['email' => 'jane@epoch.co.zw', 'role' => 'manager']);
+     52Ôûò     }
+     53Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > password must meet requirementÔÇª   
+  Session missing error: password
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\UserManagementTest.php:79
+     75Ôûò                 'email'    => 'weak@epoch.co.zw',
+     76Ôûò                 'role'     => 'viewer',
+     77Ôûò                 'password' => '1234',
+     78Ôûò             ])
+  Ô×£  79Ôûò             ->assertSessionHasErrors('password');
+     80Ôûò     }
+     81Ôûò 
+     82Ôûò     /** @test */
+     83Ôûò     public function role_must_be_valid(): void
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > role must be valid                
+  Session missing error: role
+Failed asserting that false is true.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+  at tests\Feature\UserManagementTest.php:92
+     88Ôûò                 'email'    => 'bad@epoch.co.zw',
+     89Ôûò                 'role'     => 'superadmin',
+     90Ôûò                 'password' => 'secret12',
+     91Ôûò             ])
+  Ô×£  92Ôûò             ->assertSessionHasErrors('role');
+     93Ôûò     }
+     94Ôûò 
+     95Ôûò     // ÔöÇÔöÇ Update ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+     96Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > admin can update a user           
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/users'
++'http://localhost/login'
+
+  at tests\Feature\UserManagementTest.php:108
+    104Ôûò                 'name'  => 'Updated Name',
+    105Ôûò                 'email' => $user->email,
+    106Ôûò                 'role'  => 'manager',
+    107Ôûò             ])
+  Ô×£ 108Ôûò             ->assertRedirect(route('users.index'));
+    109Ôûò 
+    110Ôûò         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Updated Name', 'role' => 'manager']);
+    111Ôûò     }
+    112Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > password is not required on upÔÇª   
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/users'
++'http://localhost/login'
+
+  at tests\Feature\UserManagementTest.php:124
+    120Ôûò                 'name'  => $user->name,
+    121Ôûò                 'email' => $user->email,
+    122Ôûò                 'role'  => $user->role,
+    123Ôûò             ])
+  Ô×£ 124Ôûò             ->assertRedirect(route('users.index'));
+    125Ôûò     }
+    126Ôûò 
+    127Ôûò     // ÔöÇÔöÇ Delete ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    128Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > admin can delete another user     
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/users'
++'http://localhost/login'
+
+  at tests\Feature\UserManagementTest.php:137
+    133Ôûò         $target = User::factory()->viewer()->create();
+    134Ôûò 
+    135Ôûò         $this->actingAs($admin)
+    136Ôûò             ->delete(route('users.destroy', $target))
+  Ô×£ 137Ôûò             ->assertRedirect(route('users.index'));
+    138Ôûò 
+    139Ôûò         $this->assertDatabaseMissing('users', ['id' => $target->id]);
+    140Ôûò     }
+    141Ôûò
+
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\UserManagementTest > admin cannot delete own accounÔÇª   
+  Failed asserting that two strings are equal.
+
+The following errors occurred during the last request:
+
+Your account has been deactivated. Please contact your administrator.
+
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/users'
++'http://localhost/login'
+
+  at tests\Feature\UserManagementTest.php:149
+    145Ôûò         $admin = $this->admin();
+    146Ôûò 
+    147Ôûò         $this->actingAs($admin)
+    148Ôûò             ->delete(route('users.destroy', $admin))
+  Ô×£ 149Ôûò             ->assertRedirect(route('users.index'));
+    150Ôûò 
+    151Ôûò         // Account still exists
+    152Ôûò         $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    153Ôûò     }
+
+
+  Tests:    52 failed, 1 skipped, 31 passed (145 assertions)
+  Duration: 3.12s
+

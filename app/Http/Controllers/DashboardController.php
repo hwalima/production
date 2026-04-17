@@ -73,16 +73,14 @@ class DashboardController extends Controller
             : 0;
 
         // ── Machines status ───────────────────────────────────────────────
-        $allMachines     = MachineRuntime::all();
-        $machinesTotal   = $allMachines->count();
-        $machinesOverdue = $allMachines->filter(fn($m) =>
-            $m->next_service_date && Carbon::parse($m->next_service_date)->lt($now)
-        )->count();
-        $machinesDueSoon = $allMachines->filter(fn($m) =>
-            $m->next_service_date &&
-            !Carbon::parse($m->next_service_date)->lt($now) &&
-            Carbon::parse($m->next_service_date)->diffInDays($now) <= 7
-        )->count();
+        $machinesTotal   = MachineRuntime::count();
+        $machinesOverdue = MachineRuntime::whereNotNull('next_service_date')
+            ->where('next_service_date', '<', $now->toDateString())
+            ->count();
+        $machinesDueSoon = MachineRuntime::whereNotNull('next_service_date')
+            ->where('next_service_date', '>=', $now->toDateString())
+            ->where('next_service_date', '<=', $now->copy()->addDays(7)->toDateString())
+            ->count();
 
         // ── Production trend for selected range ───────────────────────────
         $trend = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])

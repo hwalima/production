@@ -67,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/password/change', [\App\Http\Controllers\ForcePasswordChangeController::class, 'update'])->name('password.force-change.update');
 });
 
-Route::middleware(['auth', 'verified', 'force.pw.change'])->group(function () {
+Route::middleware(['auth', 'force.pw.change'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

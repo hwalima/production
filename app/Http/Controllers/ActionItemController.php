@@ -28,7 +28,7 @@ class ActionItemController extends Controller
         $items = ActionItem::with('department')
             ->whereBetween('reported_date', [$filterFrom, $filterTo])
             ->orderBy('mining_department_id')
-            ->orderByRaw("FIELD(priority,'high','medium','low')")
+            ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END")
             ->get()
             ->groupBy('mining_department_id');
 
@@ -118,7 +118,7 @@ class ActionItemController extends Controller
         $items = ActionItem::with('department')
             ->whereBetween('reported_date', [$filterFrom, $filterTo])
             ->orderBy('mining_department_id')
-            ->orderByRaw("FIELD(priority,'high','medium','low')")
+            ->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END")
             ->get()
             ->groupBy('mining_department_id');
 

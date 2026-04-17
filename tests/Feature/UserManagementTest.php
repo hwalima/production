@@ -69,10 +69,12 @@ class UserManagementTest extends TestCase
     /** @test */
     public function password_must_meet_requirements(): void
     {
+        // User creation auto-generates a password; the update route validates a supplied password
+        $user = User::factory()->create();
         $this->actingAs($this->admin())
-            ->post(route('users.store'), [
-                'name'     => 'Weak Pass',
-                'email'    => 'weak@epoch.co.zw',
+            ->put(route('users.update', $user), [
+                'name'     => $user->name,
+                'email'    => $user->email,
                 'role'     => 'viewer',
                 'password' => '1234',
             ])

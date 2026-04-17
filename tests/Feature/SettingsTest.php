@@ -52,14 +52,15 @@ class SettingsTest extends TestCase
         $this->actingAs($this->adminUser())
             ->post(route('settings.update'), [
                 'company_name'     => 'Epoch Mines and Resources',
-                'company_location' => 'Filabusi, Zimbabwe',
-                'company_address'  => 'P.O. Box 1',
-                'company_phone'    => '+263 77 000 0000',
-                'company_email'    => 'info@epoch.co.zw',
-                'company_website'  => 'https://epoch.co.zw',
-                'zesa_daily'       => '633',
-                'diesel_daily'     => '428',
-                'labour_daily'     => '0',
+                'company_location'    => 'Filabusi, Zimbabwe',
+                'company_address'     => 'P.O. Box 1',
+                'company_phone'       => '+263 77 000 0000',
+                'company_email'       => 'info@epoch.co.zw',
+                'company_website'     => 'https://epoch.co.zw',
+                'zesa_daily'          => '633',
+                'diesel_daily'        => '428',
+                'labour_daily'        => '0',
+                'gold_monthly_target' => '30',
             ])
             ->assertRedirect(route('settings.index'));
 

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -43,8 +44,8 @@ class UserController extends Controller
             'phone'     => 'nullable|string|max:30',
         ]);
 
-        // Auto-generate a secure initial password
-        $plainPassword = Str::random(6) . rand(10, 99);  // e.g. "aXkQpz74"
+        // Auto-generate a cryptographically secure initial password
+        $plainPassword = Str::random(10) . chr(random_int(48, 57)) . chr(random_int(65, 90));
 
         User::create([
             'name'                  => $data['name'],
