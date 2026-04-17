@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AccountDeleted;
+use App\Mail\RoleChanged;
 use App\Mail\WelcomeNewUser;
 use App\Models\Setting;
 use App\Models\User;
@@ -60,29 +62,9 @@ class UserController extends Controller
             $settings    = Setting::all()->pluck('value', 'key');
             $companyName = $settings['company_name'] ?? config('app.name');
             $appUrl      = rtrim(config('app.url'), '/');
-            $logoPath    = $settings['logo_path'] ?? '';
-            $logoUrl     = null;
-            if ($logoPath) {
-                $absPath = storage_path('app/public/' . $logoPath);
-                if (file_exists($absPath)) {
-                    $mime    = mime_content_type($absPath) ?: 'image/png';
-                    $logoUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absPath));
-                }
-            }
+            $logoUrl     = $this->resolveLogoUrl($settings);
 
-            // Apply DB mail settings if configured
-            if (!empty($settings['mail_host'])) {
-                config([
-                    'mail.default'                 => 'smtp',
-                    'mail.mailers.smtp.host'       => $settings['mail_host']         ?? '',
-                    'mail.mailers.smtp.port'       => (int) ($settings['mail_port']  ?? 587),
-                    'mail.mailers.smtp.username'   => $settings['mail_username']     ?? '',
-                    'mail.mailers.smtp.password'   => $settings['mail_password']     ?? '',
-                    'mail.mailers.smtp.encryption' => $settings['mail_encryption']   ?: null,
-                    'mail.from.address'            => $settings['mail_from_address'] ?? config('mail.from.address'),
-                    'mail.from.name'               => $companyName,
-                ]);
-            }
+            $this->applyMailSettings($settings);
 
             Mail::to($data['email'])->send(new WelcomeNewUser(
                 userName:      $data['name'],
@@ -139,9 +121,62 @@ class UserController extends Controller
             $update['password'] = Hash::make($data['password']);
         }
 
+        $oldRole = $user->role;
         $user->update($update);
 
+        // ── Notify user if their role changed ─────────────────────────────
+        if (($data['role'] ?? $oldRole) !== $oldRole) {
+            try {
+                $settings    = Setting::all()->pluck('value', 'key');
+                $companyName = $settings['company_name'] ?? config('app.name');
+                $appUrl      = rtrim(config('app.url'), '/');
+                $logoUrl     = $this->resolveLogoUrl($settings);
+
+                $this->applyMailSettings($settings);
+
+                Mail::to($user->email)->send(new RoleChanged(
+                    userName:    $user->name,
+                    userEmail:   $user->email,
+                    oldRole:     $oldRole,
+                    newRole:     $data['role'],
+                    companyName: $companyName,
+                    appUrl:      $appUrl,
+                    logoUrl:     $logoUrl,
+                ));
+            } catch (\Exception) {
+                // Don't fail the update if mail delivery fails
+            }
+        }
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    }
+
+    // ── Mail helpers ──────────────────────────────────────────────────────
+
+    private function resolveLogoUrl(\Illuminate\Support\Collection $settings): ?string
+    {
+        $logoPath = $settings['logo_path'] ?? '';
+        if (!$logoPath) return null;
+        $absPath = storage_path('app/public/' . $logoPath);
+        if (!file_exists($absPath)) return null;
+        $mime = mime_content_type($absPath) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absPath));
+    }
+
+    private function applyMailSettings(\Illuminate\Support\Collection $settings): void
+    {
+        if (empty($settings['mail_host'])) return;
+        $companyName = $settings['company_name'] ?? config('app.name');
+        config([
+            'mail.default'                 => 'smtp',
+            'mail.mailers.smtp.host'       => $settings['mail_host']         ?? '',
+            'mail.mailers.smtp.port'       => (int) ($settings['mail_port']  ?? 587),
+            'mail.mailers.smtp.username'   => $settings['mail_username']     ?? '',
+            'mail.mailers.smtp.password'   => $settings['mail_password']     ?? '',
+            'mail.mailers.smtp.encryption' => $settings['mail_encryption']   ?: null,
+            'mail.from.address'            => $settings['mail_from_address'] ?? config('mail.from.address'),
+            'mail.from.name'               => $companyName,
+        ]);
     }
 
     public function destroy(User $user)
@@ -154,6 +189,26 @@ class UserController extends Controller
         $actor = auth()->user();
         if ($user->isSuperAdmin() && !$actor->isSuperAdmin()) {
             return redirect()->route('users.index')->with('error', 'Only a Super Administrator can delete another Super Administrator.');
+        }
+
+        // ── Notify the user their account has been removed ────────────────
+        try {
+            $settings    = Setting::all()->pluck('value', 'key');
+            $companyName = $settings['company_name'] ?? config('app.name');
+            $appUrl      = rtrim(config('app.url'), '/');
+            $logoUrl     = $this->resolveLogoUrl($settings);
+
+            $this->applyMailSettings($settings);
+
+            Mail::to($user->email)->send(new AccountDeleted(
+                userName:    $user->name,
+                userEmail:   $user->email,
+                companyName: $companyName,
+                appUrl:      $appUrl,
+                logoUrl:     $logoUrl,
+            ));
+        } catch (\Exception) {
+            // Don't fail the deletion if mail delivery fails
         }
 
         $user->delete();

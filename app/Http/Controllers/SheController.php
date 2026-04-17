@@ -1,12 +1,15 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Mail\SafetyIncidentAlert;
 use App\Models\MiningDepartment;
+use App\Models\Setting;
 use App\Models\SheIndicator;
 use App\Models\SheRequirementItem;
 use App\Models\SheRequirementEntry;
-use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -83,6 +86,42 @@ class SheController extends Controller
         }
 
         SheIndicator::create($row);
+
+        // ── Alert admins if a fatal or LTI incident was recorded ──────────
+        $criticalCols = ['fatal_incident', 'lti'];
+        $hasCritical  = collect($criticalCols)->contains(fn($col) => ($row[$col] ?? 0) > 0);
+        if ($hasCritical) {
+            try {
+                $settings    = Setting::all()->pluck('value', 'key');
+                $companyName = $settings['company_name'] ?? config('app.name');
+                $appUrl      = rtrim(config('app.url'), '/');
+                $logoUrl     = $this->resolveLogoUrl($settings);
+                $this->applyMailSettings($settings);
+
+                $department = MiningDepartment::find($deptId);
+                $indicators = [];
+                foreach (self::INDICATORS as $key => $label) {
+                    if (($row[$key] ?? 0) > 0) {
+                        $indicators[$label] = (int) $row[$key];
+                    }
+                }
+
+                $admins = User::whereIn('role', ['super_admin', 'admin'])->get();
+                foreach ($admins as $admin) {
+                    Mail::to($admin->email)->send(new SafetyIncidentAlert(
+                        incidentDate:   $row['date'],
+                        departmentName: $department?->name ?? "Dept #{$deptId}",
+                        indicators:     $indicators,
+                        companyName:    $companyName,
+                        appUrl:         $appUrl,
+                        logoUrl:        $logoUrl,
+                    ));
+                }
+            } catch (\Exception) {
+                // Don't fail record creation if mail delivery fails
+            }
+        }
+
         return redirect()->route('she.index')->with('success', 'SHE indicator record added.');
     }
 
@@ -279,5 +318,33 @@ class SheController extends Controller
             'companyPhone'    => $settings['company_phone']    ?? '',
             'companyEmail'    => $settings['company_email']    ?? '',
         ];
+    }
+
+    // ── Mail helpers ──────────────────────────────────────────────────────
+
+    private function resolveLogoUrl(\Illuminate\Support\Collection $settings): ?string
+    {
+        $logoPath = $settings['logo_path'] ?? '';
+        if (!$logoPath) return null;
+        $absPath = storage_path('app/public/' . $logoPath);
+        if (!file_exists($absPath)) return null;
+        $mime = mime_content_type($absPath) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absPath));
+    }
+
+    private function applyMailSettings(\Illuminate\Support\Collection $settings): void
+    {
+        if (empty($settings['mail_host'])) return;
+        $companyName = $settings['company_name'] ?? config('app.name');
+        config([
+            'mail.default'                 => 'smtp',
+            'mail.mailers.smtp.host'       => $settings['mail_host']         ?? '',
+            'mail.mailers.smtp.port'       => (int) ($settings['mail_port']  ?? 587),
+            'mail.mailers.smtp.username'   => $settings['mail_username']     ?? '',
+            'mail.mailers.smtp.password'   => $settings['mail_password']     ?? '',
+            'mail.mailers.smtp.encryption' => $settings['mail_encryption']   ?: null,
+            'mail.from.address'            => $settings['mail_from_address'] ?? config('mail.from.address'),
+            'mail.from.name'               => $companyName,
+        ]);
     }
 }

@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
 
         // Check for low-stock consumables every morning at 07:30
         $schedule->command('consumables:check-low-stock')->dailyAt('07:30');
+
+        // Overdue action items digest every morning at 08:00
+        $schedule->command('action-items:check-overdue')->dailyAt('08:00');
     }
 
     /**
