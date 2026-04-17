@@ -96,7 +96,7 @@ $dir = APP_DIR;
 $commands = [
     "cd {$dir} && git fetch origin " . BRANCH,
     "cd {$dir} && git reset --hard origin/" . BRANCH,
-    "{$composer} install --no-dev --optimize-autoloader --working-dir={$dir}",
+    "HOME=/tmp COMPOSER_HOME=/tmp/composer-home {$composer} install --no-dev --optimize-autoloader --working-dir={$dir}",
     "{$php} {$dir}/artisan config:clear",
     "{$php} {$dir}/artisan view:clear",
     "{$php} {$dir}/artisan route:clear",
