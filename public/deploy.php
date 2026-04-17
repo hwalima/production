@@ -29,6 +29,19 @@ function findPhpBin(): string {
     }
     return 'php'; // fallback
 }
+
+// Detect the correct Composer binary
+function findComposerBin(): string {
+    $candidates = [
+        '/usr/local/bin/composer',
+        '/usr/bin/composer',
+        '/opt/cpanel/ea-php82/root/usr/bin/composer',
+    ];
+    foreach ($candidates as $c) {
+        if (file_exists($c) && is_executable($c)) return $c;
+    }
+    return 'composer'; // fallback
+}
 // ─────────────────────────────────────────────────────────────
 
 header('Content-Type: text/plain');
@@ -58,12 +71,14 @@ if ($ref !== 'refs/heads/' . BRANCH) {
 }
 
 // 4. Run deploy commands
-$php = findPhpBin();
+$php      = findPhpBin();
+$composer = findComposerBin();
 $dir = APP_DIR;
 
 $commands = [
     "cd {$dir} && git fetch origin " . BRANCH,
     "cd {$dir} && git reset --hard origin/" . BRANCH,
+    "{$composer} install --no-dev --optimize-autoloader --working-dir={$dir}",
     "{$php} {$dir}/artisan config:clear",
     "{$php} {$dir}/artisan view:clear",
     "{$php} {$dir}/artisan route:clear",
