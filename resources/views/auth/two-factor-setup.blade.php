@@ -12,7 +12,7 @@
 
 /* QR container */
 .qr-box { display:flex; justify-content:center; margin-bottom:20px; }
-.qr-box canvas, .qr-box img { border-radius:12px; padding:12px; background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+.qr-box canvas, .qr-box img, .qr-box svg { border-radius:12px; padding:12px; background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.12); }
 
 /* Manual secret */
 .secret-box {
@@ -103,9 +103,9 @@
             or any TOTP-compatible app. Tap the + icon to add a new account, then scan the QR code below.
         </div>
 
-        {{-- QR Code --}}
+        {{-- QR Code (server-side SVG) --}}
         <div class="qr-box">
-            <canvas id="qrCanvas"></canvas>
+            {!! $qrSvg !!}
         </div>
 
         {{-- Manual entry fallback --}}
@@ -164,20 +164,8 @@
         </form>
     </div>
 
-    {{-- QR Code JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    {{-- Copy secret helper --}}
     <script>
-    QRCode.toCanvas(
-        document.getElementById('qrCanvas'),
-        @json($qrCodeUri),
-        { width: 220, margin: 2, color: { dark: '#000000', light: '#ffffff' } },
-        function(err) {
-            if (err) {
-                document.getElementById('qrCanvas').style.display = 'none';
-            }
-        }
-    );
-
     function copySecret(el) {
         const raw = el.textContent.replace(/\s/g, '');
         navigator.clipboard.writeText(raw).then(() => {

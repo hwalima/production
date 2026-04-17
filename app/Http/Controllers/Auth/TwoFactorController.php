@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use PragmaRX\Google2FA\Google2FA;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TwoFactorController extends Controller
 {
@@ -95,11 +96,12 @@ class TwoFactorController extends Controller
         $companyName = $settings['company_name'] ?? config('app.name');
 
         $qrCodeUri = $google2fa->getQRCodeUrl($companyName, $user->email, $secret);
+        $qrSvg     = QrCode::size(220)->margin(1)->style('square')->generate($qrCodeUri);
 
         return view('auth.two-factor-setup', [
-            'secret'    => $secret,
-            'qrCodeUri' => $qrCodeUri,
-            'step'      => 'scan',
+            'secret' => $secret,
+            'qrSvg'  => $qrSvg,
+            'step'   => 'scan',
         ]);
     }
 
