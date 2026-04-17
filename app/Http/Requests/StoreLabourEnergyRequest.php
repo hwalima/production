@@ -13,10 +13,11 @@ class StoreLabourEnergyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'zesa_cost'   => 'required|numeric|min:0',
-            'diesel_cost' => 'required|numeric|min:0',
-            'labour_cost' => 'required|numeric|min:0',
-            'date'        => ['required', 'date', Rule::unique('labour_energy', 'date')],
+            'zesa_cost'    => 'required|numeric|min:0',
+            'diesel_cost'  => 'required|numeric|min:0',
+            'date'         => ['required', 'date', Rule::unique('labour_energy', 'date')],
+            'dept_costs'   => 'nullable|array',
+            'dept_costs.*' => 'nullable|numeric|min:0',
         ];
     }
     public function messages(): array

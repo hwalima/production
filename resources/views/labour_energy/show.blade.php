@@ -11,7 +11,32 @@
         <div class="detail-row"><span class="dr-label">Date</span><span class="dr-value">{{ $labour_energy->date->format('d M Y') }}</span></div>
         <div class="detail-row"><span class="dr-label">ZESA Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->zesa_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Diesel Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->diesel_cost, 2) }}</span></div>
-        <div class="detail-row"><span class="dr-label">Labour Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->labour_cost, 2) }}</span></div>
+        <div class="detail-row" style="align-items:flex-start;">
+            <span class="dr-label" style="padding-top:2px;">Labour Cost</span>
+            <span class="dr-value">
+                <span style="font-weight:600;">{{ $currencySymbol }}{{ number_format($labour_energy->labour_cost, 2) }} total</span>
+                @if($labour_energy->deptCosts->isNotEmpty())
+                <table style="margin-top:8px;width:100%;border-collapse:collapse;font-size:0.85rem;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #e5e7eb;">
+                            <th style="text-align:left;padding:4px 8px;color:#6b7280;font-weight:500;">Department</th>
+                            <th style="text-align:right;padding:4px 8px;color:#6b7280;font-weight:500;">Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($labour_energy->deptCosts as $dc)
+                        <tr style="{{ !$loop->last ? 'border-bottom:1px solid #f3f4f6;' : '' }}">
+                            <td style="padding:5px 8px;color:#374151;">{{ $dc->department->name ?? '—' }}</td>
+                            <td style="padding:5px 8px;text-align:right;color:#374151;">{{ $currencySymbol }}{{ number_format($dc->labour_cost, 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @else
+                <span style="display:block;color:#9ca3af;font-size:0.8rem;margin-top:4px;">No department breakdown recorded.</span>
+                @endif
+            </span>
+        </div>
     </div>
 </div>
 @endsection

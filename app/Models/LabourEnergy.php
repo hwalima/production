@@ -23,4 +23,18 @@ class LabourEnergy extends Model
         'diesel_cost' => 'decimal:2',
         'labour_cost' => 'decimal:2',
     ];
+
+    public function deptCosts()
+    {
+        return $this->hasMany(LabourDeptCost::class, 'labour_energy_id');
+    }
+
+    /**
+     * Recalculate the cached labour_cost total from dept costs and persist it.
+     */
+    public function syncLabourTotal(): void
+    {
+        $total = $this->deptCosts()->sum('labour_cost');
+        $this->update(['labour_cost' => $total]);
+    }
 }

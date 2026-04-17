@@ -32,7 +32,15 @@
                 <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->zesa_cost, 2) }}</td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->diesel_cost, 2) }}</td>
-                <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->labour_cost, 2) }}</td>
+                <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->labour_cost, 2) }}
+                    @if($rec->deptCosts->isNotEmpty())
+                    <div style="margin-top:4px;font-size:0.72rem;color:#9ca3af;line-height:1.5;">
+                        @foreach($rec->deptCosts as $dc)
+                        <span style="display:block;">{{ $dc->department->name ?? '—' }}: {{ $currencySymbol }}{{ number_format($dc->labour_cost, 2) }}</span>
+                        @endforeach
+                    </div>
+                    @endif
+                </td>
                 <td class="td-r" style="font-weight:600;color:#fcc104;">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                 <td class="td-c">
                     <div class="act-group">
