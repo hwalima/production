@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeNewUser;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
@@ -48,6 +51,47 @@ class UserController extends Controller
             'password'  => Hash::make($data['password']),
             'email_verified_at' => now(),
         ]);
+
+        // ── Send welcome email with login credentials ──────────────────────
+        try {
+            $settings    = Setting::all()->pluck('value', 'key');
+            $companyName = $settings['company_name'] ?? config('app.name');
+            $appUrl      = rtrim(config('app.url'), '/');
+            $logoPath    = $settings['logo_path'] ?? '';
+            $logoUrl     = null;
+            if ($logoPath) {
+                $absPath = storage_path('app/public/' . $logoPath);
+                if (file_exists($absPath)) {
+                    $mime    = mime_content_type($absPath) ?: 'image/png';
+                    $logoUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absPath));
+                }
+            }
+
+            // Apply DB mail settings if configured
+            if (!empty($settings['mail_host'])) {
+                config([
+                    'mail.default'                 => 'smtp',
+                    'mail.mailers.smtp.host'       => $settings['mail_host']         ?? '',
+                    'mail.mailers.smtp.port'       => (int) ($settings['mail_port']  ?? 587),
+                    'mail.mailers.smtp.username'   => $settings['mail_username']     ?? '',
+                    'mail.mailers.smtp.password'   => $settings['mail_password']     ?? '',
+                    'mail.mailers.smtp.encryption' => $settings['mail_encryption']   ?: null,
+                    'mail.from.address'            => $settings['mail_from_address'] ?? config('mail.from.address'),
+                    'mail.from.name'               => $companyName,
+                ]);
+            }
+
+            Mail::to($data['email'])->send(new WelcomeNewUser(
+                userName:      $data['name'],
+                userEmail:     $data['email'],
+                plainPassword: $data['password'],
+                companyName:   $companyName,
+                appUrl:        $appUrl,
+                logoUrl:       $logoUrl,
+            ));
+        } catch (\Exception) {
+            // Don't fail user creation if mail delivery fails
+        }
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
