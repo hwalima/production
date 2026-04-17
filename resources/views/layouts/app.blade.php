@@ -337,7 +337,8 @@
                     {{-- ── Operations group ── --}}
                     <div class="nav-section-label"><span class="nsl-text">Operations</span><span class="nsl-line"></span></div>
                     <div class="nav-group-items" id="ng-ops">
-                        <a href="{{ route('production.index') }}" class="sub {{ request()->routeIs('production.*') ? 'active' : '' }}" title="Daily Production"><span class="nav-icon">&#129760;</span><span class="nav-text">&nbsp;Daily Production</span></a>
+                        <a href="{{ route('production.index') }}" class="sub {{ request()->routeIs('production.*') && !request()->routeIs('production.targets') ? 'active' : '' }}" title="Daily Production"><span class="nav-icon">&#129760;</span><span class="nav-text">&nbsp;Daily Production</span></a>
+                        <a href="{{ route('production.targets') }}" class="sub {{ request()->routeIs('production.targets') ? 'active' : '' }}" title="Targets vs Actuals"><span class="nav-icon">&#127919;</span><span class="nav-text">&nbsp;Targets vs Actuals</span></a>
                         <a href="{{ route('drilling.index') }}" class="sub {{ request()->routeIs('drilling.*') ? 'active' : '' }}" title="Drilling"><span class="nav-icon">&#128296;</span><span class="nav-text">&nbsp;Drilling</span></a>
                         <a href="{{ route('blasting.index') }}" class="sub {{ request()->routeIs('blasting.*') ? 'active' : '' }}" title="Blasting"><span class="nav-icon">&#128165;</span><span class="nav-text">&nbsp;Blasting</span></a>
                         <a href="{{ route('chemicals.index') }}" class="sub {{ request()->routeIs('chemicals.*') ? 'active' : '' }}" title="Chemicals"><span class="nav-icon">&#9879;</span><span class="nav-text">&nbsp;Chemicals</span></a>

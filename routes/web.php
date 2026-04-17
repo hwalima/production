@@ -110,6 +110,7 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
 
     // ── Read-only (all roles) — registered AFTER explicit paths ───────────
     Route::get('/production/calendar', [ProductionController::class, 'calendar'])->name('production.calendar');
+    Route::get('/production/targets',  [ProductionController::class, 'targets'])->name('production.targets');
     Route::get('/assay/trends',        [AssayController::class,      'trends'])->name('assay.trends');
     Route::resource('production',    ProductionController::class)->only(['index', 'show']);
     Route::resource('drilling',      DrillingController::class)->only(['index', 'show']);
