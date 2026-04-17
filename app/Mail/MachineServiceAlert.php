@@ -13,9 +13,10 @@ class MachineServiceAlert extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public array  $overdueList,   // array of MachineRuntime models
-        public string $companyName,
-        public string $appUrl,
+        public array   $overdueList,
+        public string  $companyName,
+        public string  $appUrl,
+        public ?string $logoUrl = null,
     ) {}
 
     public function envelope(): Envelope

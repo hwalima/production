@@ -78,6 +78,8 @@ class CheckConsumableLowStock extends Command
         $settings    = Setting::all()->pluck('value', 'key');
         $companyName = $settings['company_name'] ?? config('app.name');
         $appUrl      = rtrim(config('app.url'), '/');
+        $logoPath    = $settings['logo_path'] ?? '';
+        $logoUrl     = $logoPath ? $appUrl . '/storage/' . $logoPath : null;
 
         // ── Send consolidated email to every user ──────────────────────────
         $sent = 0;
@@ -85,7 +87,7 @@ class CheckConsumableLowStock extends Command
         foreach ($users as $user) {
             try {
                 Mail::to($user->email)
-                    ->send(new ConsumableLowStockAlert($lowItems, $companyName, $appUrl));
+                    ->send(new ConsumableLowStockAlert($lowItems, $companyName, $appUrl, $logoUrl));
                 $sent++;
                 $this->line("  ✓ Sent to {$user->email}");
             } catch (\Exception $e) {

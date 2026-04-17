@@ -42,7 +42,13 @@
 
     {{-- Header --}}
     <div class="header">
+        @if(!empty($logoUrl))
+        <div style="margin-bottom:16px;">
+            <img src="{{ $logoUrl }}" alt="{{ $companyName }}" style="max-height:60px;max-width:200px;object-fit:contain;">
+        </div>
+        @else
         <div class="icon">📦</div>
+        @endif
         <h1>Low Stock Alert</h1>
         <p>{{ $companyName }}</p>
     </div>

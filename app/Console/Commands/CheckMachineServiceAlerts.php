@@ -56,6 +56,8 @@ class CheckMachineServiceAlerts extends Command
         $settings    = Setting::all()->pluck('value', 'key');
         $companyName = $settings['company_name'] ?? config('app.name');
         $appUrl      = rtrim(config('app.url'), '/');
+        $logoPath    = $settings['logo_path'] ?? '';
+        $logoUrl     = $logoPath ? $appUrl . '/storage/' . $logoPath : null;
 
         // ── Send one consolidated email to each admin ──────────────────────
         $overdueList = $newlyOverdue->all();
@@ -64,7 +66,7 @@ class CheckMachineServiceAlerts extends Command
         foreach ($admins as $admin) {
             try {
                 Mail::to($admin->email)
-                    ->send(new MachineServiceAlert($overdueList, $companyName, $appUrl));
+                    ->send(new MachineServiceAlert($overdueList, $companyName, $appUrl, $logoUrl));
                 $sent++;
                 $this->line("  ✓ Sent to {$admin->email}");
             } catch (\Exception $e) {

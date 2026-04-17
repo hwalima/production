@@ -13,9 +13,10 @@ class ConsumableLowStockAlert extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public array  $lowItems,     // array of ['name','category','use_unit','current_stock','reorder_level','deficit']
-        public string $companyName,
-        public string $appUrl,
+        public array   $lowItems,
+        public string  $companyName,
+        public string  $appUrl,
+        public ?string $logoUrl = null,
     ) {}
 
     public function envelope(): Envelope
