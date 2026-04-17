@@ -455,7 +455,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
 
     </div>
 
-    {{-- ROW 3 — WEATHER | TREND --}}
+    {{-- ROW 3 — WEATHER | SHIFT COMPARISON --}}
     <div class="two-col">
 
         {{-- Weather --}}
@@ -465,6 +465,43 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
                     style="margin-left:8px;background:none;border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:1px 8px;font-size:.65rem;color:rgba(255,255,255,.6);cursor:pointer;vertical-align:middle;">📍 My location</button>
             </p>
             <div id="weatherBody" class="wldg">Locating &amp; loading weather…</div>
+        </div>
+
+        {{-- Shift Comparison Chart --}}
+        <div class="gc" style="padding:20px 22px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+                <p class="cht-ttl" style="margin-bottom:0;">Shift Performance Comparison</p>
+                <div id="shiftMetricBtns" style="display:flex;gap:5px;flex-wrap:wrap;">
+                    <button class="smet-btn active" data-metric="gold"   style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid #fcb913;background:rgba(252,185,19,.15);color:#fcb913;cursor:pointer;">Gold (g)</button>
+                    <button class="smet-btn"        data-metric="hoisted" style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Ore Hoisted</button>
+                    <button class="smet-btn"        data-metric="milled"  style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Ore Milled</button>
+                    <button class="smet-btn"        data-metric="purity"  style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Purity %</button>
+                </div>
+            </div>
+
+            @if(count($shiftLabels) > 0)
+            <canvas id="shiftChart" height="120"></canvas>
+
+            {{-- Per-shift summary rows --}}
+            <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
+                @foreach($shiftLabels as $i => $sLabel)
+                @php
+                    $colors = ['#fcb913','#38bdf8','#a78bfa','#34d399','#f87171'];
+                    $col    = $colors[$i % count($colors)];
+                @endphp
+                <div style="background:var(--input-bg);border-radius:10px;padding:10px 12px;border-left:3px solid {{ $col }};">
+                    <div style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:{{ $col }};margin-bottom:4px;">{{ $sLabel }}</div>
+                    <div style="font-size:1rem;font-weight:800;color:var(--text);">{{ number_format($shiftGold[$i], 1) }} <span style="font-size:.6rem;font-weight:500;color:#9ca3af;">g</span></div>
+                    <div style="font-size:.65rem;color:#9ca3af;margin-top:2px;">{{ $shiftCounts[$i] }} record{{ $shiftCounts[$i] != 1 ? 's' : '' }}</div>
+                </div>
+                @endforeach
+            </div>
+
+            @else
+            <div style="text-align:center;padding:40px 0;color:#9ca3af;font-size:.85rem;">
+                No shift data for this period.
+            </div>
+            @endif
         </div>
 
     </div>
@@ -543,6 +580,87 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('darkToggle').addEventListener('click', () => {
         setTimeout(() => { chart.destroy(); chart=buildChart(); }, 55);
     });
+
+    /* ── Shift Comparison Chart ── */
+    @if(count($shiftLabels) > 0)
+    const shiftLabels  = @json($shiftLabels);
+    const shiftData    = {
+        gold:    @json($shiftGold),
+        hoisted: @json($shiftOreHoisted),
+        milled:  @json($shiftOreMilled),
+        purity:  @json($shiftPurity),
+    };
+    const shiftUnits   = { gold:'g', hoisted:'t', milled:'t', purity:'%' };
+    const shiftColors  = ['#fcb913','#38bdf8','#a78bfa','#34d399','#f87171'];
+    const shiftAlphas  = ['rgba(252,185,19,.75)','rgba(56,189,248,.75)','rgba(167,139,250,.75)','rgba(52,211,153,.75)','rgba(248,113,113,.75)'];
+
+    let shiftMetric = 'gold';
+    let shiftChart  = null;
+
+    function buildShiftChart() {
+        const c = cc();
+        if (shiftChart) shiftChart.destroy();
+        shiftChart = new Chart(document.getElementById('shiftChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: shiftLabels,
+                datasets: shiftLabels.map((lbl, i) => ({
+                    label: lbl,
+                    data: [shiftData[shiftMetric][i]],
+                    backgroundColor: shiftAlphas[i % shiftAlphas.length],
+                    borderColor:     shiftColors[i % shiftColors.length],
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }))
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: shiftLabels.length > 1, position:'top', labels:{ color:c.text, boxWidth:12, boxHeight:2, padding:14, font:{size:11} } },
+                    tooltip: {
+                        backgroundColor:c.ttBg, titleColor:c.ttTitle, bodyColor:c.ttBody,
+                        borderColor:c.ttBord, borderWidth:1, padding:10, cornerRadius:10,
+                        callbacks: { label: x => '  ' + x.dataset.label + ': ' + x.parsed.x.toFixed(shiftMetric==='gold'||shiftMetric==='purity'?2:1) + ' ' + shiftUnits[shiftMetric] }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks:{ color:c.text, font:{size:10} },
+                        grid:{ color:c.grid }, border:{display:false},
+                        title:{ display:true, text: shiftMetric==='gold'?'Gold (g)': shiftMetric==='purity'?'Avg Purity (%)':'Tonnes', color:c.text, font:{size:10} }
+                    },
+                    y: { ticks:{ color:c.text, font:{size:11,weight:'bold'} }, grid:{display:false}, border:{display:false} }
+                }
+            }
+        });
+    }
+
+    buildShiftChart();
+
+    document.querySelectorAll('.smet-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            shiftMetric = this.dataset.metric;
+            document.querySelectorAll('.smet-btn').forEach(b => {
+                b.style.background   = 'transparent';
+                b.style.borderColor  = 'var(--topbar-border)';
+                b.style.color        = '#9ca3af';
+                b.classList.remove('active');
+            });
+            this.style.background  = 'rgba(252,185,19,.15)';
+            this.style.borderColor = '#fcb913';
+            this.style.color       = '#fcb913';
+            this.classList.add('active');
+            buildShiftChart();
+        });
+    });
+
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        setTimeout(buildShiftChart, 60);
+    });
+    @endif
 
     /* ── Weather init ── */
     loadWeather(MINE_LAT, MINE_LON, MINE_NAME);

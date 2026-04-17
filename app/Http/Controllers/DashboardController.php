@@ -100,6 +100,27 @@ class DashboardController extends Controller
         $mineLat       = (float) ($dashSettings->get('mine_latitude') ?: -20.52);
         $mineLon       = (float) ($dashSettings->get('mine_longitude') ?: 29.33);
 
+        // ── Shift comparison data ─────────────────────────────────────────
+        $shiftRows = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])
+            ->whereNotNull('shift')
+            ->where('shift', '!=', '')
+            ->get(['shift', 'gold_smelted', 'ore_hoisted', 'ore_milled', 'purity_percentage']);
+
+        $shiftGroups = $shiftRows->groupBy('shift')->map(fn($rows) => [
+            'gold'   => round($rows->sum('gold_smelted'), 2),
+            'hoisted'=> round($rows->sum('ore_hoisted'), 2),
+            'milled' => round($rows->sum('ore_milled'), 2),
+            'purity' => round($rows->avg('purity_percentage'), 2),
+            'count'  => $rows->count(),
+        ])->sortKeys();
+
+        $shiftLabels      = $shiftGroups->keys()->values()->toArray();
+        $shiftGold        = $shiftGroups->pluck('gold')->values()->toArray();
+        $shiftOreHoisted  = $shiftGroups->pluck('hoisted')->values()->toArray();
+        $shiftOreMilled   = $shiftGroups->pluck('milled')->values()->toArray();
+        $shiftPurity      = $shiftGroups->pluck('purity')->values()->toArray();
+        $shiftCounts      = $shiftGroups->pluck('count')->values()->toArray();
+
         // ── Quick-access preset ranges ────────────────────────────────────
         $isDefaultRange = $filterFromStr === $now->copy()->startOfMonth()->toDateString()
                        && $filterToStr   === $now->copy()->endOfMonth()->toDateString();
@@ -114,6 +135,8 @@ class DashboardController extends Controller
             'machinesTotal', 'machinesOverdue', 'machinesDueSoon',
             'trendLabels', 'trendOreHoisted', 'trendWasteHoisted',
             'trendOreCrushed', 'trendOreMilled', 'trendGoldSmelted',
+            'shiftLabels', 'shiftGold', 'shiftOreHoisted', 'shiftOreMilled',
+            'shiftPurity', 'shiftCounts',
             'mineLocation', 'mineLat', 'mineLon',
             'filterFromStr', 'filterToStr', 'isDefaultRange'
         ));
