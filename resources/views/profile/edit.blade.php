@@ -266,6 +266,103 @@
             </form>
         </div>
 
+        {{-- ══ Two-Factor Authentication ══ --}}
+        @if(auth()->user()->isAdminOrAbove())
+        <div class="profile-card">
+            <div class="section-title">Two-Factor Authentication (2FA)</div>
+
+            @if(auth()->user()->hasTwoFactorEnabled())
+
+                {{-- Enabled state --}}
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:700;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        ENABLED
+                    </span>
+                    <span style="font-size:.8rem;color:#9ca3af;">
+                        Active since {{ auth()->user()->two_factor_confirmed_at->format('d M Y') }}
+                    </span>
+                </div>
+
+                {{-- Status messages --}}
+                @if(session('status') === '2fa-disabled')
+                    <div class="profile-toast" style="margin-bottom:14px;">2FA has been disabled.</div>
+                @endif
+                @if(session('status') === '2fa-recovery-regenerated')
+                    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:.82rem;color:#713f12;margin-bottom:16px;">
+                        <strong>New recovery codes generated. Save them now — they won't be shown again.</strong>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;">
+                            @foreach(session('new_recovery_codes', []) as $code)
+                                <code style="background:rgba(0,0,0,.05);border-radius:6px;padding:5px 10px;font-size:.82rem;letter-spacing:.05em;">{{ $code }}</code>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Disable form --}}
+                <details style="margin-bottom:16px;">
+                    <summary style="font-size:.82rem;font-weight:600;color:#dc2626;cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        Disable 2FA
+                    </summary>
+                    <form method="POST" action="{{ route('two-factor.disable') }}" style="padding-left:2px;">
+                        @csrf @method('DELETE')
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label style="font-size:.78rem;">Confirm with your password</label>
+                            <input type="password" name="password" placeholder="Enter your password"
+                                   style="background:var(--input-bg);border:1.5px solid var(--topbar-border);color:var(--text);border-radius:10px;padding:9px 13px;font-size:.875rem;outline:none;width:100%;">
+                            @error('password') <span class="field-error">{{ $message }}</span> @enderror
+                        </div>
+                        <button type="submit" class="btn-danger" style="font-size:.82rem;padding:8px 18px;">
+                            Yes, disable 2FA
+                        </button>
+                    </form>
+                </details>
+
+                {{-- Regenerate recovery codes --}}
+                <details>
+                    <summary style="font-size:.82rem;font-weight:600;color:var(--text);cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Regenerate Recovery Codes
+                    </summary>
+                    <form method="POST" action="{{ route('two-factor.recovery-codes.regenerate') }}" style="padding-left:2px;">
+                        @csrf
+                        <p style="font-size:.78rem;color:#9ca3af;margin-bottom:10px;">
+                            This will invalidate all existing recovery codes and generate 8 new ones.
+                        </p>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label style="font-size:.78rem;">Confirm with your password</label>
+                            <input type="password" name="password" placeholder="Enter your password"
+                                   style="background:var(--input-bg);border:1.5px solid var(--topbar-border);color:var(--text);border-radius:10px;padding:9px 13px;font-size:.875rem;outline:none;width:100%;">
+                        </div>
+                        <button type="submit" class="btn-save" style="font-size:.82rem;padding:8px 18px;">
+                            Regenerate codes
+                        </button>
+                    </form>
+                </details>
+
+            @else
+
+                {{-- Not enabled --}}
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                    <span style="display:inline-flex;align-items:center;gap:6px;background:#fee2e2;color:#dc2626;border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:700;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                        NOT ENABLED
+                    </span>
+                </div>
+                <p style="font-size:.85rem;color:#9ca3af;margin-bottom:20px;line-height:1.55;">
+                    Add an extra layer of security to your account. Once enabled, you will be prompted for a
+                    time-based code from your authenticator app on every sign-in.
+                </p>
+                <a href="{{ route('two-factor.setup') }}" class="btn-save">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Set Up 2FA
+                </a>
+
+            @endif
+        </div>
+        @endif
+
     </div>
 </div>
 

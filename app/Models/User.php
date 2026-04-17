@@ -27,6 +27,9 @@ class User extends Authenticatable
         'avatar_path',
         'force_password_change',
         'is_active',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -37,6 +40,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -45,9 +50,12 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at'      => 'datetime',
-        'force_password_change'  => 'boolean',
-        'is_active'              => 'boolean',
+        'email_verified_at'         => 'datetime',
+        'force_password_change'     => 'boolean',
+        'is_active'                 => 'boolean',
+        'two_factor_confirmed_at'   => 'datetime',
+        'two_factor_secret'         => 'encrypted',
+        'two_factor_recovery_codes' => 'encrypted:array',
     ];
 
     /* ── Role helpers ─────────────────────────────────── */
@@ -68,4 +76,12 @@ class User extends Authenticatable
 
     /** Viewers can only read; managers and above can write. */
     public function canWrite(): bool { return $this->hasAnyRole('super_admin', 'admin', 'manager'); }
+
+    /* ── Two-Factor Authentication ─────────────────────────────────────── */
+
+    /** True when 2FA setup has been confirmed. */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_confirmed_at !== null;
+    }
 }

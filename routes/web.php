@@ -22,6 +22,7 @@ use App\Http\Controllers\SheController;
 use App\Http\Controllers\ActionItemController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -65,9 +66,13 @@ Route::get('/manifest.json', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/password/change',  [\App\Http\Controllers\ForcePasswordChangeController::class, 'show'])->name('password.force-change');
     Route::post('/password/change', [\App\Http\Controllers\ForcePasswordChangeController::class, 'update'])->name('password.force-change.update');
+
+    // ── 2FA challenge — outside the force.pw.change and require.2fa guards ────
+    Route::get('/two-factor/challenge',  [TwoFactorController::class, 'challenge'])->name('two-factor.challenge');
+    Route::post('/two-factor/challenge', [TwoFactorController::class, 'verifyChallenge'])->name('two-factor.challenge.verify');
 });
 
-Route::middleware(['auth', 'force.pw.change'])->group(function () {
+Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -75,6 +80,12 @@ Route::middleware(['auth', 'force.pw.change'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ── 2FA management (inside full auth + pw.change + 2fa guard) ─────────────
+    Route::get('/two-factor/setup',             [TwoFactorController::class, 'setup'])->name('two-factor.setup');
+    Route::post('/two-factor/confirm',          [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::delete('/two-factor/disable',        [TwoFactorController::class, 'disable'])->name('two-factor.disable');
+    Route::post('/two-factor/recovery-codes',   [TwoFactorController::class, 'regenerateRecoveryCodes'])->name('two-factor.recovery-codes.regenerate');
 
     // ── Write access (super_admin + admin + manager) ──────────────────────
     Route::middleware('role:super_admin,admin,manager')->group(function () {

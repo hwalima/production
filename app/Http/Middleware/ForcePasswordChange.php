@@ -13,6 +13,8 @@ class ForcePasswordChange
     private const ALLOWED_ROUTES = [
         'password.force-change',
         'password.force-change.update',
+        'two-factor.challenge',
+        'two-factor.challenge.verify',
         'logout',
     ];
 
