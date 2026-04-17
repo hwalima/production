@@ -30,10 +30,10 @@
             @if($departments->isNotEmpty())
             <div style="margin-bottom:14px;">
                 <label class="fc-label" style="margin-bottom:8px;display:block;">Labour Cost by Department ({{ $currencySymbol }})</label>
-                <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                <div style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
                     @foreach($departments as $dept)
-                    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;{{ !$loop->last ? 'border-bottom:1px solid #f3f4f6;' : '' }}">
-                        <span style="flex:1;font-size:0.875rem;color:#374151;">{{ $dept->name }}</span>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;{{ !$loop->last ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '' }}">
+                        <span style="flex:1;font-size:0.875rem;color:var(--text);">{{ $dept->name }}</span>
                         <input type="number"
                                name="dept_costs[{{ $dept->id }}]"
                                step="0.01" min="0"

@@ -18,16 +18,16 @@
                 @if($labour_energy->deptCosts->isNotEmpty())
                 <table style="margin-top:8px;width:100%;border-collapse:collapse;font-size:0.85rem;">
                     <thead>
-                        <tr style="border-bottom:1px solid #e5e7eb;">
-                            <th style="text-align:left;padding:4px 8px;color:#6b7280;font-weight:500;">Department</th>
-                            <th style="text-align:right;padding:4px 8px;color:#6b7280;font-weight:500;">Cost</th>
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                            <th style="text-align:left;padding:4px 8px;color:var(--text-muted, #9ca3af);font-weight:500;">Department</th>
+                            <th style="text-align:right;padding:4px 8px;color:var(--text-muted, #9ca3af);font-weight:500;">Cost</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($labour_energy->deptCosts as $dc)
-                        <tr style="{{ !$loop->last ? 'border-bottom:1px solid #f3f4f6;' : '' }}">
-                            <td style="padding:5px 8px;color:#374151;">{{ $dc->department->name ?? '—' }}</td>
-                            <td style="padding:5px 8px;text-align:right;color:#374151;">{{ $currencySymbol }}{{ number_format($dc->labour_cost, 2) }}</td>
+                        <tr style="{{ !$loop->last ? 'border-bottom:1px solid rgba(255,255,255,0.06);' : '' }}">
+                            <td style="padding:5px 8px;color:var(--text);">{{ $dc->department->name ?? '—' }}</td>
+                            <td style="padding:5px 8px;text-align:right;color:var(--text);">{{ $currencySymbol }}{{ number_format($dc->labour_cost, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
