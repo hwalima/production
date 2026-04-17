@@ -13,6 +13,15 @@
         @endphp
         <title>@yield('title', $companyName) — {{ $companyName }}</title>
         <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}">
+        {{-- ── PWA ── --}}
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#fcb913">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="{{ $companyName }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -394,6 +403,13 @@
                 </div>
 
                 <div class="flex items-center gap-2 ml-auto">
+
+                    <!-- PWA Install button (hidden until browser fires beforeinstallprompt) -->
+                    <button id="pwa-install-btn" class="icon-btn" onclick="window.triggerPwaInstall()"
+                            title="Install app on this device"
+                            style="display:none;background:rgba(252,185,19,.15);color:#fcb913;border:1px solid rgba(252,185,19,.4);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 3v12"/></svg>
+                    </button>
 
                     <!-- Dark mode toggle -->
                     <button class="icon-btn" id="darkToggle" title="Toggle dark mode">
@@ -1143,5 +1159,48 @@
         })();
         </script>
         @endauth
+
+        {{-- ── PWA: Service Worker + Install Prompt ─────────────────────── --}}
+        <script>
+        (function () {
+            'use strict';
+
+            // ── Register Service Worker ──────────────────────────────────────
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                        .catch(function (err) { console.warn('[SW] Registration failed:', err); });
+                });
+            }
+
+            // ── Install Prompt ───────────────────────────────────────────────
+            // Capture the beforeinstallprompt event; show custom button in topbar
+            let deferredPrompt = null;
+
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferredPrompt = e;
+                var btn = document.getElementById('pwa-install-btn');
+                if (btn) btn.style.display = 'flex';
+            });
+
+            window.addEventListener('appinstalled', function () {
+                deferredPrompt = null;
+                var btn = document.getElementById('pwa-install-btn');
+                if (btn) btn.style.display = 'none';
+            });
+
+            // Expose trigger so the button's onclick can call it
+            window.triggerPwaInstall = function () {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function (choice) {
+                    deferredPrompt = null;
+                    var btn = document.getElementById('pwa-install-btn');
+                    if (btn) btn.style.display = 'none';
+                });
+            };
+        })();
+        </script>
     </body>
 </html>

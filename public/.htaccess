@@ -19,3 +19,15 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ── PWA: Service worker must be served from root scope with no-cache headers ──
+<IfModule mod_headers.c>
+    <FilesMatch "^sw\.js$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Service-Worker-Allowed "/"
+    </FilesMatch>
+    <FilesMatch "^manifest\.json$">
+        Header set Cache-Control "max-age=86400"
+        Header set Content-Type "application/manifest+json; charset=utf-8"
+    </FilesMatch>
+</IfModule>

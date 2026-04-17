@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fcb913">
+    <title>You're Offline — My Mine</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100dvh;
+            background: #001a4d;
+            color: #f3f4f6;
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: #fcb913;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2.4rem;
+        }
+        h1 { font-size: 1.6rem; font-weight: 700; color: #fcb913; margin-bottom: 10px; }
+        p  { font-size: .95rem; color: rgba(255,255,255,.65); max-width: 340px; line-height: 1.6; }
+        .divider { width: 48px; height: 2px; background: rgba(252,185,19,.4); margin: 28px auto; border-radius: 2px; }
+        .cached-section { width: 100%; max-width: 400px; }
+        .cached-section h2 { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 12px; }
+        #cached-pages { list-style: none; }
+        #cached-pages li { margin-bottom: 6px; }
+        #cached-pages a {
+            display: block;
+            padding: 10px 16px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 10px;
+            color: #f3f4f6;
+            text-decoration: none;
+            font-size: .88rem;
+            transition: background .15s, border-color .15s;
+        }
+        #cached-pages a:hover { background: rgba(252,185,19,.15); border-color: rgba(252,185,19,.4); }
+        #cached-pages .empty { color: rgba(255,255,255,.35); font-size: .85rem; font-style: italic; }
+        .btn-retry {
+            margin-top: 28px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fcb913;
+            color: #001a4d;
+            font-weight: 700;
+            font-size: .9rem;
+            padding: 12px 28px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity .15s;
+        }
+        .btn-retry:hover { opacity: .88; }
+    </style>
+</head>
+<body>
+    <div class="icon">⛏️</div>
+    <h1>You're Offline</h1>
+    <p>No internet connection detected. Previously visited pages are available below.</p>
+
+    <div class="divider"></div>
+
+    <div class="cached-section">
+        <h2>Cached Pages</h2>
+        <ul id="cached-pages">
+            <li><span class="empty">Checking cache…</span></li>
+        </ul>
+    </div>
+
+    <a href="/dashboard" class="btn-retry" onclick="window.location.reload(); return false;">
+        ↻ Try Again
+    </a>
+
+    <script>
+        // Show which navigation pages are cached
+        const PAGE_LABELS = {
+            '/dashboard':            '📊 Dashboard',
+            '/production':           '⚒️ Daily Production',
+            '/mining/gold':          '🥇 Gold Smelting',
+            '/consumables':          '📦 Consumables',
+            '/employees':            '👷 Employees',
+            '/machinery':            '⚙️ Machinery',
+            '/explosives':           '💥 Explosives',
+            '/safety/incidents':     '🦺 Safety Incidents',
+            '/production/calendar':  '📅 Production Calendar',
+        };
+
+        const list = document.getElementById('cached-pages');
+
+        async function loadCachedPages() {
+            if (!('caches' in window)) {
+                list.innerHTML = '<li><span class="empty">Cache not available in this browser.</span></li>';
+                return;
+            }
+            try {
+                const keys   = await caches.keys();
+                const found  = [];
+                for (const key of keys) {
+                    const cache   = await caches.open(key);
+                    const reqs    = await cache.keys();
+                    for (const req of reqs) {
+                        const url  = new URL(req.url);
+                        const path = url.pathname;
+                        if (PAGE_LABELS[path]) found.push(path);
+                    }
+                }
+                if (found.length === 0) {
+                    list.innerHTML = '<li><span class="empty">No cached pages found. Visit pages while online to cache them.</span></li>';
+                } else {
+                    const unique = [...new Set(found)];
+                    list.innerHTML = unique.map(p =>
+                        `<li><a href="${p}">${PAGE_LABELS[p] || p}</a></li>`
+                    ).join('');
+                }
+            } catch (e) {
+                list.innerHTML = '<li><span class="empty">Could not read cache.</span></li>';
+            }
+        }
+
+        loadCachedPages();
+    </script>
+</body>
+</html>
