@@ -835,23 +835,43 @@ function switchToMyLocation() {
     btn.disabled = true;
     navigator.geolocation.getCurrentPosition(
         pos => {
-            const {latitude:lat, longitude:lon} = pos.coords;
+            const {latitude:lat, longitude:lon, accuracy} = pos.coords;
+            // accuracy is in metres — IP-based fallback (common on VPN/desktop) gives 10 000–100 000 m
+            const isLowAccuracy = accuracy > 50000;
+
+            const finishLoad = (city, cc) => {
+                const locLabel = city + (cc ? ', ' + cc : '');
+                loadWeather(lat, lon, locLabel);
+
+                // Warn if accuracy suggests IP-based / VPN location
+                if (isLowAccuracy) {
+                    const body = document.getElementById('weatherBody');
+                    const accKm = Math.round(accuracy / 1000);
+                    const warn = document.createElement('div');
+                    warn.className = 'walt';
+                    warn.style.marginBottom = '10px';
+                    warn.innerHTML = `<span>⚠️ Location accuracy is low (±${accKm} km) — your browser used IP-based detection, which may be affected by a <strong>VPN</strong>. The weather shown may not match your real location. Use <strong>⛏ Mine site</strong> for the mine.</span>`;
+                    body.prepend(warn);
+                }
+
+                btn.textContent = '⛏ Mine site';
+                btn.disabled = false;
+                btn.onclick = () => {
+                    loadWeather(MINE_LAT, MINE_LON, MINE_NAME);
+                    btn.textContent = '📍 My location';
+                    btn.onclick = switchToMyLocation;
+                };
+            };
+
             fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {headers:{'Accept-Language':'en'}})
                 .then(r=>r.json())
                 .then(g=>{
                     const a=g.address||{};
                     const city=a.city||a.town||a.village||a.municipality||a.county||'Your Location';
                     const cc=(a.country_code||'').toUpperCase();
-                    loadWeather(lat, lon, city+(cc?', '+cc:''));
-                    btn.textContent = '⛏ Mine site';
-                    btn.disabled = false;
-                    btn.onclick = () => {
-                        loadWeather(MINE_LAT, MINE_LON, MINE_NAME);
-                        btn.textContent = '📍 My location';
-                        btn.onclick = switchToMyLocation;
-                    };
+                    finishLoad(city, cc);
                 })
-                .catch(()=>{ loadWeather(lat, lon, 'Your Location'); btn.textContent='⛏ Mine site'; btn.disabled=false; });
+                .catch(()=>finishLoad('Your Location', ''));
         },
         () => {
             btn.textContent = '📍 My location';
