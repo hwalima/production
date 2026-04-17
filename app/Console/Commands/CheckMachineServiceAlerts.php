@@ -57,7 +57,14 @@ class CheckMachineServiceAlerts extends Command
         $companyName = $settings['company_name'] ?? config('app.name');
         $appUrl      = rtrim(config('app.url'), '/');
         $logoPath    = $settings['logo_path'] ?? '';
-        $logoUrl     = $logoPath ? $appUrl . '/storage/' . $logoPath : null;
+        $logoUrl     = null;
+        if ($logoPath) {
+            $absPath = storage_path('app/public/' . $logoPath);
+            if (file_exists($absPath)) {
+                $mime    = mime_content_type($absPath) ?: 'image/png';
+                $logoUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absPath));
+            }
+        }
 
         // ── Send one consolidated email to each admin ──────────────────────
         $overdueList = $newlyOverdue->all();
