@@ -6,6 +6,7 @@ use App\Mail\MachineServiceAlert;
 use App\Models\MachineRuntime;
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\AppNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -86,6 +87,18 @@ class CheckMachineServiceAlerts extends Command
             MachineRuntime::whereIn('id', $newlyOverdue->pluck('id'))
                 ->update(['service_alert_sent_at' => now()]);
             $this->info("Marked {$newlyOverdue->count()} record(s) as notified.");
+
+            // ── Also push a database notification for each admin ───────────
+            foreach ($admins as $admin) {
+                try {
+                    $admin->notify(new AppNotification(
+                        title: 'Machine Service Alert',
+                        body:  $newlyOverdue->count() . ' machine(s) overdue for service',
+                        type:  'warning',
+                        url:   '/machines',
+                    ));
+                } catch (\Exception) {}
+            }
         }
 
         return self::SUCCESS;

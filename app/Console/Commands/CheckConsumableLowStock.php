@@ -6,6 +6,7 @@ use App\Mail\ConsumableLowStockAlert;
 use App\Models\Consumable;
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\AppNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -103,6 +104,18 @@ class CheckConsumableLowStock extends Command
         }
 
         $this->info("Alert sent to {$sent} user(s).");
+
+        // ── Also push a database notification for every user ───────────────
+        foreach ($users as $user) {
+            try {
+                $user->notify(new AppNotification(
+                    title: 'Low Stock Alert',
+                    body:  count($lowItems) . ' consumable(s) below reorder level',
+                    type:  'warning',
+                    url:   '/consumables',
+                ));
+            } catch (\Exception) {}
+        }
 
         return self::SUCCESS;
     }

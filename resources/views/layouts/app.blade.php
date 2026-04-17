@@ -418,26 +418,48 @@
                     </button>
 
                     <!-- Notifications -->
+                    @php
+                        $userNotifs   = auth()->user()->notifications()->latest()->take(15)->get();
+                        $unreadCount  = $userNotifs->whereNull('read_at')->count();
+                    @endphp
                     <div class="dropdown">
                         <button class="icon-btn" id="notifBtn" title="Notifications">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V5a1 1 0 0 0-2 0v.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/></svg>
-                            <span class="badge"></span>
+                            <span class="badge" id="notifBadge" style="{{ $unreadCount ? '' : 'display:none;' }}">{{ $unreadCount ?: '' }}</span>
                         </button>
                         <div class="dropdown-menu notif-panel" id="notifMenu">
-                            <div style="padding:10px 14px 6px;font-weight:600;font-size:.85rem;color:var(--text);">Notifications</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;">
+                                <span style="font-weight:600;font-size:.85rem;color:var(--text);">Notifications</span>
+                                @if($unreadCount)
+                                    <button id="markAllReadBtn" onclick="notifMarkAll(event)" style="background:none;border:none;font-size:.75rem;color:#fcb913;cursor:pointer;padding:0;">Mark all read</button>
+                                @endif
+                            </div>
                             <hr style="border-color:var(--topbar-border);margin:4px 0 6px;">
-                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
-                                <span class="notif-dot" style="margin-top:5px;"></span>
-                                <div><strong>Machine service due</strong><br><span style="color:#9ca3af;">Compressor #2 overdue by 3 days</span></div>
-                            </div>
-                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
-                                <span class="notif-dot" style="margin-top:5px;"></span>
-                                <div><strong>New assay result</strong><br><span style="color:#9ca3af;">Fire assay batch ready for review</span></div>
-                            </div>
-                            <div class="notif-item" style="display:flex;gap:10px;align-items:flex-start;">
-                                <span class="notif-dot" style="background:#6b7280;margin-top:5px;"></span>
-                                <div><strong>Monthly report generated</strong><br><span style="color:#9ca3af;">March 2026 production summary</span></div>
-                            </div>
+                            @forelse($userNotifs as $notif)
+                                @php
+                                    $nd   = $notif->data;
+                                    $read = $notif->read_at !== null;
+                                    $dotColor = match($nd['type'] ?? 'info') {
+                                        'warning' => '#fcb913',
+                                        'danger'  => '#ef4444',
+                                        'success' => '#34d399',
+                                        default   => '#3b82f6',
+                                    };
+                                    if ($read) $dotColor = '#6b7280';
+                                @endphp
+                                <div class="notif-item {{ $read ? 'notif-read' : '' }}"
+                                     data-notif-id="{{ $notif->id }}"
+                                     style="display:flex;gap:10px;align-items:flex-start;cursor:{{ $nd['url'] ?? '' ? 'pointer' : ($read ? 'default' : 'pointer') }};"
+                                     onclick="notifClick(event, this, '{{ $notif->id }}', {{ json_encode($nd['url'] ?? null) }})">
+                                    <span class="notif-dot" id="dot-{{ $notif->id }}" style="background:{{ $dotColor }};margin-top:5px;flex-shrink:0;"></span>
+                                    <div>
+                                        <strong style="{{ $read ? 'opacity:.65;' : '' }}">{{ $nd['title'] ?? 'Notification' }}</strong><br>
+                                        <span style="color:#9ca3af;font-size:.8rem;">{{ $nd['body'] ?? '' }}</span>
+                                    </div>
+                                </div>
+                            @empty
+                                <div style="padding:18px 14px;text-align:center;color:#9ca3af;font-size:.82rem;">No notifications</div>
+                            @endforelse
                             <hr style="border-color:var(--topbar-border);margin:6px 0 4px;">
                             <a href="{{ route('reports.production') }}" style="text-align:center;justify-content:center;font-size:.8rem;color:#fcb913;">View all reports →</a>
                         </div>
@@ -1056,6 +1078,64 @@
         document.getElementById('notifBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleDropdown('notifMenu','notifBtn'); });
         document.getElementById('profileBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleDropdown('profileMenu','profileBtn'); });
         document.addEventListener('click',function(){ document.querySelectorAll('.dropdown-menu.open').forEach(m=>m.classList.remove('open')); });
+
+        // ── Notification mark-as-read ──
+        const _csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+        function notifAjax(url, cb) {
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfToken }
+            }).then(r => r.json()).then(cb).catch(() => {});
+        }
+
+        function _decrementBadge(by) {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) return;
+            const cur = parseInt(badge.textContent) || 0;
+            const next = Math.max(0, cur - by);
+            if (next === 0) { badge.style.display = 'none'; badge.textContent = ''; }
+            else { badge.textContent = next; }
+        }
+
+        function _dotToRead(id) {
+            const dot = document.getElementById('dot-' + id);
+            if (dot) dot.style.background = '#6b7280';
+            const item = document.querySelector('[data-notif-id="' + id + '"]');
+            if (item) { item.classList.add('notif-read'); item.style.cursor = 'default'; }
+        }
+
+        function notifClick(e, el, id, url) {
+            e.stopPropagation();
+            const wasUnread = !el.classList.contains('notif-read');
+            if (wasUnread) {
+                notifAjax('{{ route("notifications.read", ":id") }}'.replace(':id', id), function() {
+                    _dotToRead(id);
+                    _decrementBadge(1);
+                    const allUnread = document.querySelectorAll('.notif-item:not(.notif-read)').length;
+                    if (allUnread === 0) {
+                        const btn = document.getElementById('markAllReadBtn');
+                        if (btn) btn.style.display = 'none';
+                    }
+                });
+            }
+            if (url) { window.location.href = url; }
+        }
+
+        function notifMarkAll(e) {
+            e.stopPropagation();
+            notifAjax('{{ route("notifications.read-all") }}', function() {
+                document.querySelectorAll('.notif-item').forEach(function(el) {
+                    const id = el.dataset.notifId;
+                    _dotToRead(id);
+                    el.style.cursor = 'default';
+                });
+                const badge = document.getElementById('notifBadge');
+                if (badge) { badge.style.display = 'none'; badge.textContent = ''; }
+                const btn = document.getElementById('markAllReadBtn');
+                if (btn) btn.style.display = 'none';
+            });
+        }
 
         // ── Search (client-side navigation hint) ──
         document.getElementById('topSearch').addEventListener('keydown',function(e){

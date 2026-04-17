@@ -21,6 +21,7 @@ use App\Http\Controllers\MiningDepartmentController;
 use App\Http\Controllers\SheController;
 use App\Http\Controllers\ActionItemController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -85,6 +86,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('machines',      MachineController::class)->except(['index', 'show']);
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
     });
+
+    // ── Notifications ─────────────────────────────────────────────────────
+    Route::post('/notifications/read-all',  [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     // ── Read-only (all roles) — registered AFTER explicit paths ───────────
     Route::get('/production/calendar', [ProductionController::class, 'calendar'])->name('production.calendar');
