@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
     {
         // Check for overdue machines every morning at 07:00
         $schedule->command('machines:check-service-alerts')->dailyAt('07:00');
+
+        // Check for low-stock consumables every morning at 07:30
+        $schedule->command('consumables:check-low-stock')->dailyAt('07:30');
     }
 
     /**
