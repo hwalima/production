@@ -61,7 +61,13 @@ Route::get('/manifest.json', function () {
     ], 200, ['Content-Type' => 'application/manifest+json; charset=utf-8']);
 })->name('pwa.manifest');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// ── Forced password change (auth only — no force.pw.change loop) ─────────────
+Route::middleware(['auth'])->group(function () {
+    Route::get('/password/change',  [\App\Http\Controllers\ForcePasswordChangeController::class, 'show'])->name('password.force-change');
+    Route::post('/password/change', [\App\Http\Controllers\ForcePasswordChangeController::class, 'update'])->name('password.force-change.update');
+});
+
+Route::middleware(['auth', 'verified', 'force.pw.change'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

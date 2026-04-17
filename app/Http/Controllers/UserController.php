@@ -8,8 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -39,17 +39,20 @@ class UserController extends Controller
             'role'      => ['required', Rule::in($allowedRoles)],
             'job_title' => 'nullable|string|max:100',
             'phone'     => 'nullable|string|max:30',
-            'password'  => ['required', Password::min(8)->letters()->numbers()],
         ]);
 
+        // Auto-generate a secure initial password
+        $plainPassword = Str::random(6) . rand(10, 99);  // e.g. "aXkQpz74"
+
         User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'role'      => $data['role'],
-            'job_title' => $data['job_title'] ?? null,
-            'phone'     => $data['phone'] ?? null,
-            'password'  => Hash::make($data['password']),
-            'email_verified_at' => now(),
+            'name'                  => $data['name'],
+            'email'                 => $data['email'],
+            'role'                  => $data['role'],
+            'job_title'             => $data['job_title'] ?? null,
+            'phone'                 => $data['phone'] ?? null,
+            'password'              => Hash::make($plainPassword),
+            'email_verified_at'     => now(),
+            'force_password_change' => true,
         ]);
 
         // ── Send welcome email with login credentials ──────────────────────
@@ -84,7 +87,7 @@ class UserController extends Controller
             Mail::to($data['email'])->send(new WelcomeNewUser(
                 userName:      $data['name'],
                 userEmail:     $data['email'],
-                plainPassword: $data['password'],
+                plainPassword: $plainPassword,
                 companyName:   $companyName,
                 appUrl:        $appUrl,
                 logoUrl:       $logoUrl,

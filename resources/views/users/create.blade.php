@@ -42,11 +42,10 @@
                     <label class="fc-label">Phone</label>
                     <input type="text" name="phone" value="{{ old('phone') }}" class="fc-input" placeholder="+263 77 ...">
                 </div>
-                <div>
-                    <label class="fc-label">Password <span style="color:#ef4444;">*</span></label>
-                    <input type="password" name="password" class="fc-input" required autocomplete="new-password">
-                    <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Min 8 chars, must include letters and numbers.</p>
-                    @error('password')<p class="fc-error">{{ $message }}</p>@enderror
+                <div style="grid-column:1/-1;">
+                    <p style="font-size:.78rem;color:#9ca3af;background:rgba(252,185,19,.07);border:1px solid rgba(252,185,19,.2);border-radius:8px;padding:10px 14px;">
+                        🔐 A secure password will be auto-generated and emailed to the new user. They will be prompted to change it on first login.
+                    </p>
                 </div>
             </div>
 
