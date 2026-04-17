@@ -1066,5 +1066,82 @@
             }
         });
         </script>
+
+        @auth
+        {{-- ── Inactivity session-timeout ─────────────────────────── --}}
+        <div id="idle-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+            <div style="background:var(--card);border:1px solid var(--topbar-border);border-radius:16px;padding:32px 28px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);">
+                <div style="font-size:2.4rem;margin-bottom:10px;">&#9201;</div>
+                <h2 style="font-size:1.1rem;font-weight:800;color:var(--text);margin:0 0 8px;">Session Expiring</h2>
+                <p style="font-size:.85rem;color:#9ca3af;margin:0 0 20px;line-height:1.5;">
+                    You've been inactive for a while. You'll be logged out in <strong id="idle-countdown" style="color:#fcb913;">60</strong> second(s).
+                </p>
+                <button id="idle-stay-btn" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 24px;background:#fcb913;color:#001a4d;border:none;border-radius:10px;font-size:.85rem;font-weight:800;cursor:pointer;letter-spacing:.03em;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                    Stay Logged In
+                </button>
+                <form id="idle-logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
+                    @csrf
+                </form>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var IDLE_MINUTES   = 25;          // show warning after 25 min idle
+            var WARN_SECONDS   = 60;          // countdown before auto-logout
+            var idleMs         = IDLE_MINUTES * 60 * 1000;
+            var warnMs         = WARN_SECONDS * 1000;
+            var idleTimer      = null;
+            var warnTimer      = null;
+            var countdownTimer = null;
+            var modal          = document.getElementById('idle-modal');
+            var countdown      = document.getElementById('idle-countdown');
+            var stayBtn        = document.getElementById('idle-stay-btn');
+            var logoutForm     = document.getElementById('idle-logout-form');
+
+            function doLogout(){
+                clearAllTimers();
+                logoutForm.submit();
+            }
+
+            function clearAllTimers(){
+                clearTimeout(idleTimer);
+                clearTimeout(warnTimer);
+                clearInterval(countdownTimer);
+            }
+
+            function showWarning(){
+                modal.style.display = 'flex';
+                var secs = WARN_SECONDS;
+                countdown.textContent = secs;
+                countdownTimer = setInterval(function(){
+                    secs--;
+                    countdown.textContent = secs;
+                    if(secs <= 0){ clearInterval(countdownTimer); doLogout(); }
+                }, 1000);
+                warnTimer = setTimeout(doLogout, warnMs);
+            }
+
+            function resetIdle(){
+                if(modal.style.display === 'flex') return; // warning showing — don't reset
+                clearAllTimers();
+                idleTimer = setTimeout(showWarning, idleMs);
+            }
+
+            stayBtn.addEventListener('click', function(){
+                clearAllTimers();
+                modal.style.display = 'none';
+                // Ping the server to refresh the session
+                fetch('{{ url('/') }}', { method:'HEAD', credentials:'same-origin' }).catch(function(){});
+                resetIdle();
+            });
+
+            ['mousemove','keydown','mousedown','touchstart','scroll','click'].forEach(function(evt){
+                document.addEventListener(evt, resetIdle, { passive:true, capture:true });
+            });
+
+            resetIdle(); // kick off on page load
+        })();
+        </script>
+        @endauth
     </body>
 </html>
