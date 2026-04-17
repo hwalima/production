@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chemical;
+use App\Models\AuditLog;
 use App\Http\Requests\StoreChemicalRequest;
 use App\Http\Requests\UpdateChemicalRequest;
 use Illuminate\Http\Request;
@@ -31,7 +32,8 @@ class ChemicalsController extends Controller
 
     public function store(StoreChemicalRequest $request)
     {
-        Chemical::create($request->validated());
+        $record = Chemical::create($request->validated());
+        AuditLog::record('chemicals_created', "Added chemical record for {$record->date}", 'Chemical', $record->id);
         return redirect()->route('chemicals.index')->with('success', 'Chemical record added.');
     }
 
@@ -48,12 +50,16 @@ class ChemicalsController extends Controller
     public function update(UpdateChemicalRequest $request, Chemical $chemical)
     {
         $chemical->update($request->validated());
+        AuditLog::record('chemicals_updated', "Updated chemical record #{$chemical->id} for {$chemical->date}", 'Chemical', $chemical->id);
         return redirect()->route('chemicals.index')->with('success', 'Chemical record updated.');
     }
 
     public function destroy(Chemical $chemical)
     {
+        $chemId   = $chemical->id;
+        $chemDate = $chemical->date;
         $chemical->delete();
+        AuditLog::record('chemicals_deleted', "Deleted chemical record #{$chemId} for {$chemDate}", 'Chemical', $chemId);
         return redirect()->route('chemicals.index')->with('success', 'Chemical record deleted.');
     }
 }

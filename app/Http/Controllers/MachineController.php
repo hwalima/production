@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MachineRuntime;
+use App\Models\AuditLog;
 use App\Http\Requests\StoreMachineRuntimeRequest;
 use App\Http\Requests\UpdateMachineRuntimeRequest;
 use Illuminate\Http\Request;
@@ -35,7 +36,8 @@ class MachineController extends Controller
     {
         $data = $request->validated();
         $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays($data['service_after_hours']);
-        MachineRuntime::create($data);
+        $machine = MachineRuntime::create($data);
+        AuditLog::record('machine_created', "Added machine runtime record for {$machine->machine_name}", 'MachineRuntime', $machine->id);
         return redirect()->route('machines.index')->with('success', 'Machine runtime added.');
     }
 
@@ -54,12 +56,16 @@ class MachineController extends Controller
         $data = $request->validated();
         $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays($data['service_after_hours']);
         $machine->update($data);
+        AuditLog::record('machine_updated', "Updated machine runtime #{$machine->id} for {$machine->machine_name}", 'MachineRuntime', $machine->id);
         return redirect()->route('machines.index')->with('success', 'Machine runtime updated.');
     }
 
     public function destroy(MachineRuntime $machine)
     {
+        $machineId   = $machine->id;
+        $machineName = $machine->machine_name;
         $machine->delete();
+        AuditLog::record('machine_deleted', "Deleted machine runtime #{$machineId} for {$machineName}", 'MachineRuntime', $machineId);
         return redirect()->route('machines.index')->with('success', 'Machine runtime deleted.');
     }
 }

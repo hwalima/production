@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LabourEnergy;
+use App\Models\AuditLog;
 use App\Models\MiningDepartment;
 use App\Http\Requests\StoreLabourEnergyRequest;
 use App\Http\Requests\UpdateLabourEnergyRequest;
@@ -44,6 +45,8 @@ class LabourEnergyController extends Controller
 
         $record->syncLabourTotal();
 
+        AuditLog::record('labour_energy_created', "Added labour & energy record for {$data['date']}", 'LabourEnergy', $record->id);
+
         return redirect()->route('labour-energy.index')->with('success', 'Labour & Energy record added.');
     }
 
@@ -84,12 +87,17 @@ class LabourEnergyController extends Controller
 
         $labour_energy->syncLabourTotal();
 
+        AuditLog::record('labour_energy_updated', "Updated labour & energy record for {$labour_energy->date->toDateString()}", 'LabourEnergy', $labour_energy->id);
+
         return redirect()->route('labour-energy.index')->with('success', 'Labour & Energy record updated.');
     }
 
     public function destroy(LabourEnergy $labour_energy)
     {
+        $leDate = $labour_energy->date->toDateString();
+        $leId   = $labour_energy->id;
         $labour_energy->delete();
+        AuditLog::record('labour_energy_deleted', "Deleted labour & energy record for {$leDate}", 'LabourEnergy', $leId);
         return redirect()->route('labour-energy.index')->with('success', 'Labour & Energy record deleted.');
     }
 }

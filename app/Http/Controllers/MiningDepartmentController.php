@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MiningDepartment;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
 class MiningDepartmentController extends Controller
@@ -26,6 +27,8 @@ class MiningDepartmentController extends Controller
             'is_active'   => true,
         ]);
 
+        AuditLog::record('department_created', "Added mining department: {$request->name}", 'MiningDepartment');
+
         return redirect()->route('mining-departments.index')->with('success', 'Department added.');
     }
 
@@ -48,18 +51,25 @@ class MiningDepartmentController extends Controller
             'is_active'   => $request->boolean('is_active', true),
         ]);
 
+        AuditLog::record('department_updated', "Updated mining department: {$miningDepartment->name}", 'MiningDepartment', $miningDepartment->id);
+
         return redirect()->route('mining-departments.index')->with('success', 'Department updated.');
     }
 
     public function destroy(MiningDepartment $miningDepartment)
     {
+        $deptId   = $miningDepartment->id;
+        $deptName = $miningDepartment->name;
         $miningDepartment->delete();
+        AuditLog::record('department_deleted', "Deleted mining department: {$deptName}", 'MiningDepartment', $deptId);
         return redirect()->route('mining-departments.index')->with('success', 'Department deleted.');
     }
 
     public function toggle(MiningDepartment $miningDepartment)
     {
         $miningDepartment->update(['is_active' => !$miningDepartment->is_active]);
+        $status = $miningDepartment->is_active ? 'activated' : 'deactivated';
+        AuditLog::record('department_toggled', "Mining department {$miningDepartment->name} {$status}", 'MiningDepartment', $miningDepartment->id);
         return redirect()->route('mining-departments.index');
     }
 }

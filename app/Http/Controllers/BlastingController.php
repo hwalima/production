@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlastingRecord;
+use App\Models\AuditLog;
 use App\Http\Requests\StoreBlastingRecordRequest;
 use App\Http\Requests\UpdateBlastingRecordRequest;
 use Illuminate\Http\Request;
@@ -31,7 +32,8 @@ class BlastingController extends Controller
 
     public function store(StoreBlastingRecordRequest $request)
     {
-        BlastingRecord::create($request->validated());
+        $record = BlastingRecord::create($request->validated());
+        AuditLog::record('blasting_created', "Added blasting record for {$record->date}", 'BlastingRecord', $record->id);
         return redirect()->route('blasting.index')->with('success', 'Blasting record added.');
     }
 
@@ -48,12 +50,16 @@ class BlastingController extends Controller
     public function update(UpdateBlastingRecordRequest $request, BlastingRecord $blasting)
     {
         $blasting->update($request->validated());
+        AuditLog::record('blasting_updated', "Updated blasting record #{$blasting->id} for {$blasting->date}", 'BlastingRecord', $blasting->id);
         return redirect()->route('blasting.index')->with('success', 'Blasting record updated.');
     }
 
     public function destroy(BlastingRecord $blasting)
     {
+        $blastingId   = $blasting->id;
+        $blastingDate = $blasting->date;
         $blasting->delete();
+        AuditLog::record('blasting_deleted', "Deleted blasting record #{$blastingId} for {$blastingDate}", 'BlastingRecord', $blastingId);
         return redirect()->route('blasting.index')->with('success', 'Blasting record deleted.');
     }
 }

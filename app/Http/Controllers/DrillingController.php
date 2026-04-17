@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DrillingRecord;
+use App\Models\AuditLog;
 use App\Http\Requests\StoreDrillingRecordRequest;
 use App\Http\Requests\UpdateDrillingRecordRequest;
 use Illuminate\Http\Request;
@@ -31,7 +32,8 @@ class DrillingController extends Controller
 
     public function store(StoreDrillingRecordRequest $request)
     {
-        DrillingRecord::create($request->validated());
+        $record = DrillingRecord::create($request->validated());
+        AuditLog::record('drilling_created', "Added drilling record for {$record->date}", 'DrillingRecord', $record->id);
         return redirect()->route('drilling.index')->with('success', 'Drilling record added.');
     }
 
@@ -48,12 +50,16 @@ class DrillingController extends Controller
     public function update(UpdateDrillingRecordRequest $request, DrillingRecord $drilling)
     {
         $drilling->update($request->validated());
+        AuditLog::record('drilling_updated', "Updated drilling record #{$drilling->id} for {$drilling->date}", 'DrillingRecord', $drilling->id);
         return redirect()->route('drilling.index')->with('success', 'Drilling record updated.');
     }
 
     public function destroy(DrillingRecord $drilling)
     {
+        $drillingId   = $drilling->id;
+        $drillingDate = $drilling->date;
         $drilling->delete();
+        AuditLog::record('drilling_deleted', "Deleted drilling record #{$drillingId} for {$drillingDate}", 'DrillingRecord', $drillingId);
         return redirect()->route('drilling.index')->with('success', 'Drilling record deleted.');
     }
 }

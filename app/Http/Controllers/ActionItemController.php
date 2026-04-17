@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActionItem;
+use App\Models\AuditLog;
 use App\Models\MiningDepartment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -64,6 +65,8 @@ class ActionItemController extends Controller
 
         Cache::forget('ai_overdue_count');
 
+        AuditLog::record('action_item_created', "Added action item: priority={$request->priority}, dept ID={$request->mining_department_id}", 'ActionItem');
+
         return redirect()->route('action-items.index')
             ->with('success', 'Action item added.');
     }
@@ -94,14 +97,18 @@ class ActionItemController extends Controller
 
         Cache::forget('ai_overdue_count');
 
+        AuditLog::record('action_item_updated', "Updated action item #{$actionItem->id}: status={$request->status}, priority={$request->priority}", 'ActionItem', $actionItem->id);
+
         return redirect()->route('action-items.index')
             ->with('success', 'Action item updated.');
     }
 
     public function destroy(ActionItem $actionItem)
     {
+        $itemId = $actionItem->id;
         $actionItem->delete();
         Cache::forget('ai_overdue_count');
+        AuditLog::record('action_item_deleted', "Deleted action item #{$itemId}", 'ActionItem', $itemId);
         return redirect()->route('action-items.index')
             ->with('success', 'Action item deleted.');
     }

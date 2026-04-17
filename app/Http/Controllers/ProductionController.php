@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyProduction;
+use App\Models\AuditLog;
 use App\Models\Shift;
 use App\Models\MiningSite;
 use App\Http\Requests\StoreDailyProductionRequest;
@@ -61,6 +62,8 @@ class ProductionController extends Controller
         DailyProduction::create($data);
         $this->recalculateFrom($data['date']);
 
+        AuditLog::record('production_created', "Added production record for {$data['date']}", 'DailyProduction');
+
         return redirect()->route('production.index')->with('success', 'Production record added.');
     }
 
@@ -95,6 +98,8 @@ class ProductionController extends Controller
         // Recascade from the earlier of old/new date so all subsequent rows stay correct
         $this->recalculateFrom(min($oldDate, $data['date']));
 
+        AuditLog::record('production_updated', "Updated production record for {$data['date']}", 'DailyProduction', $production->id);
+
         return redirect()->route('production.index')->with('success', 'Production record updated.');
     }
 
@@ -103,8 +108,11 @@ class ProductionController extends Controller
     public function destroy(DailyProduction $production)
     {
         $date = $production->date->toDateString();
+        $prodId = $production->id;
         $production->delete();
         $this->recalculateFrom($date);
+
+        AuditLog::record('production_deleted', "Deleted production record for {$date}", 'DailyProduction', $prodId);
 
         return redirect()->route('production.index')->with('success', 'Production record deleted.');
     }

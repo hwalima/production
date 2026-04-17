@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
@@ -110,7 +111,10 @@ class RoleController extends Controller
             return back()->with('error', 'You cannot change your own role.');
         }
 
+        $oldRole = $user->role;
         $user->update(['role' => $data['role']]);
+
+        AuditLog::record('role_assigned', "Changed role for {$user->name} ({$user->email}): {$oldRole} → {$data['role']}", 'User', $user->id);
 
         return redirect()->route('roles.index')
             ->with('success', "{$user->name}'s role updated to " . self::roleDefinitions()[$data['role']]['label'] . '.');

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssayResult;
+use App\Models\AuditLog;
 use App\Models\DailyProduction;
 use App\Http\Requests\StoreAssayResultRequest;
 use App\Http\Requests\UpdateAssayResultRequest;
@@ -143,7 +144,8 @@ class AssayController extends Controller
 
     public function store(StoreAssayResultRequest $request)
     {
-        AssayResult::create($request->validated());
+        $result = AssayResult::create($request->validated());
+        AuditLog::record('assay_created', "Added {$result->type} assay result for {$result->date->toDateString()}", 'AssayResult', $result->id);
         return redirect()->route('assay.index')->with('success', 'Assay result added.');
     }
 
@@ -160,12 +162,17 @@ class AssayController extends Controller
     public function update(UpdateAssayResultRequest $request, AssayResult $assay)
     {
         $assay->update($request->validated());
+        AuditLog::record('assay_updated', "Updated {$assay->type} assay result #{$assay->id} for {$assay->date->toDateString()}", 'AssayResult', $assay->id);
         return redirect()->route('assay.index')->with('success', 'Assay result updated.');
     }
 
     public function destroy(AssayResult $assay)
     {
+        $assayId   = $assay->id;
+        $assayType = $assay->type;
+        $assayDate = $assay->date->toDateString();
         $assay->delete();
+        AuditLog::record('assay_deleted', "Deleted {$assayType} assay result #{$assayId} for {$assayDate}", 'AssayResult', $assayId);
         return redirect()->route('assay.index')->with('success', 'Assay result deleted.');
     }
 }

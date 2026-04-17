@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -86,6 +87,8 @@ class SettingsController extends Controller
 
         // Invalidate the settings cache so updated values are picked up immediately
         Cache::forget('app_settings');
+
+        AuditLog::record('settings_updated', 'Company settings updated', 'Setting');
 
         return redirect()->route('settings.index')->with('success', 'Settings saved successfully.');
     }

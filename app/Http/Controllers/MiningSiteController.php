@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MiningSite;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
 class MiningSiteController extends Controller
@@ -26,6 +27,8 @@ class MiningSiteController extends Controller
             'is_active'   => true,
         ]);
 
+        AuditLog::record('mining_site_created', "Added mining site: {$request->name}", 'MiningSite');
+
         return redirect()->route('mining-sites.index')->with('success', 'Mining site added.');
     }
 
@@ -48,12 +51,17 @@ class MiningSiteController extends Controller
             'is_active'   => $request->boolean('is_active', true),
         ]);
 
+        AuditLog::record('mining_site_updated', "Updated mining site: {$miningSite->name}", 'MiningSite', $miningSite->id);
+
         return redirect()->route('mining-sites.index')->with('success', 'Mining site updated.');
     }
 
     public function destroy(MiningSite $miningSite)
     {
+        $siteId   = $miningSite->id;
+        $siteName = $miningSite->name;
         $miningSite->delete();
+        AuditLog::record('mining_site_deleted', "Deleted mining site: {$siteName}", 'MiningSite', $siteId);
         return redirect()->route('mining-sites.index')->with('success', 'Mining site deleted.');
     }
 
@@ -61,6 +69,8 @@ class MiningSiteController extends Controller
     public function toggle(MiningSite $miningSite)
     {
         $miningSite->update(['is_active' => !$miningSite->is_active]);
+        $status = $miningSite->is_active ? 'activated' : 'deactivated';
+        AuditLog::record('mining_site_toggled', "Mining site {$miningSite->name} {$status}", 'MiningSite', $miningSite->id);
         return redirect()->route('mining-sites.index');
     }
 }

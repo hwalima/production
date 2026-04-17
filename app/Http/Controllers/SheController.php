@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\SafetyIncidentAlert;
+use App\Models\AuditLog;
 use App\Models\MiningDepartment;
 use App\Models\Setting;
 use App\Models\SheIndicator;
@@ -122,6 +123,8 @@ class SheController extends Controller
             }
         }
 
+        AuditLog::record('she_created', "Added SHE indicator record for {$row['date']}, dept ID={$deptId}", 'SheIndicator');
+
         return redirect()->route('she.index')->with('success', 'SHE indicator record added.');
     }
 
@@ -155,12 +158,16 @@ class SheController extends Controller
         }
 
         $indicator->update($row);
+        AuditLog::record('she_updated', "Updated SHE indicator #{$indicator->id} for {$row['date']}, dept ID={$deptId}", 'SheIndicator', $indicator->id);
         return redirect()->route('she.index')->with('success', 'SHE indicator record updated.');
     }
 
     public function destroy(SheIndicator $indicator)
     {
+        $indId = $indicator->id;
+        $indDate = $indicator->date;
         $indicator->delete();
+        AuditLog::record('she_deleted', "Deleted SHE indicator #{$indId} for {$indDate}", 'SheIndicator', $indId);
         return redirect()->route('she.index')->with('success', 'Record deleted.');
     }
 
@@ -212,6 +219,8 @@ class SheController extends Controller
             );
         }
 
+        AuditLog::record('she_requirements_updated', "Updated SHE requirements for period " . Carbon::parse($periodDate)->format('F Y'), 'SheRequirementEntry');
+
         return redirect()->route('she.requirements.edit', ['period' => $request->period])
             ->with('success', 'Requirements saved for ' . Carbon::parse($periodDate)->format('F Y') . '.');
     }
@@ -233,12 +242,17 @@ class SheController extends Controller
             'is_active'       => true,
         ]);
 
+        AuditLog::record('she_item_created', "Added SHE requirement item: {$request->name} ({$request->category})", 'SheRequirementItem');
+
         return redirect()->back()->with('success', 'Item added.');
     }
 
     public function destroyItem(SheRequirementItem $item)
     {
+        $itemName = $item->name;
+        $itemId = $item->id;
         $item->delete();
+        AuditLog::record('she_item_deleted', "Deleted SHE requirement item: {$itemName}", 'SheRequirementItem', $itemId);
         return redirect()->back()->with('success', 'Item deleted.');
     }
 

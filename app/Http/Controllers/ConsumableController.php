@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Consumable;
+use App\Models\AuditLog;
 use App\Models\ConsumableStockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -81,7 +82,9 @@ class ConsumableController extends Controller
         $data['reorder_level'] = $data['reorder_level'] ?? 0;
         $data['is_active']     = true;
 
-        Consumable::create($data);
+        $item = Consumable::create($data);
+
+        AuditLog::record('consumable_created', "Added consumable: {$item->name} (category: {$item->category})", 'Consumable', $item->id);
 
         return redirect()->route('consumables.index')->with('success', 'Item added to the stores catalog.');
     }
@@ -140,13 +143,18 @@ class ConsumableController extends Controller
 
         $consumable->update($data);
 
+        AuditLog::record('consumable_updated', "Updated consumable: {$consumable->name}", 'Consumable', $consumable->id);
+
         return redirect()->route('consumables.show', $consumable)
             ->with('success', 'Consumable updated successfully.');
     }
 
     public function destroy(Consumable $consumable)
     {
+        $consumableId   = $consumable->id;
+        $consumableName = $consumable->name;
         $consumable->delete();
+        AuditLog::record('consumable_deleted', "Deleted consumable: {$consumableName}", 'Consumable', $consumableId);
         return redirect()->route('consumables.index')->with('success', 'Item removed from catalog.');
     }
 
@@ -197,6 +205,8 @@ class ConsumableController extends Controller
             'reference'     => $request->reference,
             'notes'         => $request->notes,
         ]);
+
+        AuditLog::record('consumable_received', "Received {$quantity} {$consumable->use_unit}(s) of {$consumable->name} ({$packs} packs)", 'Consumable', $consumable->id);
 
         return redirect()->route('consumables.show', $consumable)
             ->with('success', sprintf(
@@ -255,6 +265,8 @@ class ConsumableController extends Controller
             default      => 'Issued',
         };
 
+        AuditLog::record('consumable_used', "{$label} {$quantity} {$consumable->use_unit}(s) of {$consumable->name}", 'Consumable', $consumable->id);
+
         return redirect()->route('consumables.show', $consumable)
             ->with('success', "{$label}: {$quantity} {$consumable->use_unit}(s) of {$consumable->name}.");
     }
@@ -263,7 +275,10 @@ class ConsumableController extends Controller
     public function deleteMovement(Consumable $consumable, ConsumableStockMovement $movement)
     {
         abort_if($movement->consumable_id !== $consumable->id, 404);
+        $movementId = $movement->id;
         $movement->delete();
+
+        AuditLog::record('consumable_movement_deleted', "Deleted stock movement #{$movementId} for {$consumable->name}", 'ConsumableStockMovement', $movementId);
 
         return redirect()->route('consumables.show', $consumable)
             ->with('success', 'Stock movement deleted.');

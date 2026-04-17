@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AccountDeleted;
 use App\Mail\RoleChanged;
 use App\Mail\WelcomeNewUser;
+use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -79,6 +80,8 @@ class UserController extends Controller
             // Don't fail user creation if mail delivery fails
         }
 
+        AuditLog::record('user_created', "Created user {$data['name']} ({$data['email']}) with role {$data['role']}", 'User');
+
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
@@ -123,7 +126,15 @@ class UserController extends Controller
         }
 
         $oldRole = $user->role;
+        $oldName = $user->name;
+        $oldEmail = $user->email;
         $user->update($update);
+
+        $changes = [];
+        if ($update['name'] !== $oldName) $changes[] = "name";
+        if ($update['email'] !== $oldEmail) $changes[] = "email";
+        if (($data['role'] ?? $oldRole) !== $oldRole) $changes[] = "role ({$oldRole} → {$data['role']})";
+        if ($request->filled('password')) $changes[] = "password";
 
         // ── Notify user if their role changed ─────────────────────────────
         if (($data['role'] ?? $oldRole) !== $oldRole) {
@@ -148,6 +159,9 @@ class UserController extends Controller
                 // Don't fail the update if mail delivery fails
             }
         }
+
+        $changeStr = $changes ? implode(', ', $changes) : 'no field changes';
+        AuditLog::record('user_updated', "Updated user {$user->name} ({$user->email}): {$changeStr}", 'User', $user->id);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
@@ -212,7 +226,11 @@ class UserController extends Controller
             // Don't fail the deletion if mail delivery fails
         }
 
+        $deletedName  = $user->name;
+        $deletedEmail = $user->email;
         $user->delete();
+
+        AuditLog::record('user_deleted', "Deleted user {$deletedName} ({$deletedEmail})", 'User');
 
         return redirect()->route('users.index')->with('success', 'User deleted.');
     }
@@ -232,6 +250,7 @@ class UserController extends Controller
         $user->update(['is_active' => !$user->is_active]);
 
         $status = $user->is_active ? 'activated' : 'deactivated';
+        AuditLog::record('user_status_changed', "User {$user->name} ({$user->email}) {$status}", 'User', $user->id);
         return back()->with('success', "User {$user->name} has been {$status}.");
     }
 }

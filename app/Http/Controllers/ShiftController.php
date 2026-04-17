@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shift;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
 class ShiftController extends Controller
@@ -24,6 +25,8 @@ class ShiftController extends Controller
             'is_active' => true,
         ]);
 
+        AuditLog::record('shift_created', "Added shift: {$request->name}", 'Shift');
+
         return redirect()->route('shifts.index')->with('success', 'Shift added.');
     }
 
@@ -44,12 +47,17 @@ class ShiftController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
+        AuditLog::record('shift_updated', "Updated shift: {$shift->name}", 'Shift', $shift->id);
+
         return redirect()->route('shifts.index')->with('success', 'Shift updated.');
     }
 
     public function destroy(Shift $shift)
     {
+        $shiftId   = $shift->id;
+        $shiftName = $shift->name;
         $shift->delete();
+        AuditLog::record('shift_deleted', "Deleted shift: {$shiftName}", 'Shift', $shiftId);
         return redirect()->route('shifts.index')->with('success', 'Shift deleted.');
     }
 
@@ -57,6 +65,8 @@ class ShiftController extends Controller
     public function toggle(Shift $shift)
     {
         $shift->update(['is_active' => !$shift->is_active]);
+        $status = $shift->is_active ? 'activated' : 'deactivated';
+        AuditLog::record('shift_toggled', "Shift {$shift->name} {$status}", 'Shift', $shift->id);
         return redirect()->route('shifts.index');
     }
 }
