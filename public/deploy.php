@@ -30,17 +30,35 @@ function findPhpBin(): string {
     return 'php'; // fallback
 }
 
-// Detect the correct Composer binary
+// Detect the correct Composer binary, downloading it if necessary
 function findComposerBin(): string {
+    $php = findPhpBin();
     $candidates = [
         '/usr/local/bin/composer',
         '/usr/bin/composer',
         '/opt/cpanel/ea-php82/root/usr/bin/composer',
+        '/usr/local/cpanel/3rdparty/bin/composer',
+        '/home/trukumb2/bin/composer',
     ];
     foreach ($candidates as $c) {
         if (file_exists($c) && is_executable($c)) return $c;
     }
-    return 'composer'; // fallback
+    // Check for .phar files
+    $phars = [
+        '/usr/local/bin/composer.phar',
+        '/home/trukumb2/composer.phar',
+        APP_DIR . '/composer.phar',
+    ];
+    foreach ($phars as $p) {
+        if (file_exists($p) && is_readable($p)) return "{$php} {$p}";
+    }
+    // Download to /tmp as last resort
+    $phar = '/tmp/deploy-composer.phar';
+    if (!file_exists($phar)) {
+        @copy('https://getcomposer.org/composer-stable.phar', $phar);
+    }
+    if (file_exists($phar)) return "{$php} {$phar}";
+    return 'composer'; // final fallback
 }
 // ─────────────────────────────────────────────────────────────
 
