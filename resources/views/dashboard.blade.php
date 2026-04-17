@@ -482,8 +482,8 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             @if(count($shiftLabels) > 0)
             <canvas id="shiftChart" height="120"></canvas>
 
-            {{-- Per-shift summary rows --}}
-            <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
+            {{-- Per-shift summary cards — updated by JS on metric toggle --}}
+            <div id="shiftSummaryCards" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
                 @foreach($shiftLabels as $i => $sLabel)
                 @php
                     $colors = ['#fcb913','#38bdf8','#a78bfa','#34d399','#f87171'];
@@ -491,7 +491,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
                 @endphp
                 <div style="background:var(--input-bg);border-radius:10px;padding:10px 12px;border-left:3px solid {{ $col }};">
                     <div style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:{{ $col }};margin-bottom:4px;">{{ $sLabel }}</div>
-                    <div style="font-size:1rem;font-weight:800;color:var(--text);">{{ number_format($shiftGold[$i], 1) }} <span style="font-size:.6rem;font-weight:500;color:#9ca3af;">g</span></div>
+                    <div class="shift-card-val" data-idx="{{ $i }}" style="font-size:1rem;font-weight:800;color:var(--text);">{{ number_format($shiftGold[$i], 1) }} <span class="shift-card-unit" style="font-size:.6rem;font-weight:500;color:#9ca3af;">g</span></div>
                     <div style="font-size:.65rem;color:#9ca3af;margin-top:2px;">{{ $shiftCounts[$i] }} record{{ $shiftCounts[$i] != 1 ? 's' : '' }}</div>
                 </div>
                 @endforeach
@@ -654,6 +654,14 @@ document.addEventListener('DOMContentLoaded', function () {
             this.style.color       = '#fcb913';
             this.classList.add('active');
             buildShiftChart();
+            // Update summary cards
+            const decimals = (shiftMetric === 'purity') ? 1 : (shiftMetric === 'gold' ? 1 : 1);
+            const unit     = shiftUnits[shiftMetric];
+            document.querySelectorAll('.shift-card-val').forEach(el => {
+                const idx = parseInt(el.dataset.idx);
+                const val = shiftData[shiftMetric][idx];
+                el.innerHTML = val.toFixed(decimals) + ' <span class="shift-card-unit" style="font-size:.6rem;font-weight:500;color:#9ca3af;">' + unit + '</span>';
+            });
         });
     });
 
