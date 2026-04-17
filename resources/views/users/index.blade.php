@@ -21,12 +21,13 @@
                 <th>Job Title</th>
                 <th>Phone</th>
                 <th class="th-c">Role</th>
+                <th class="th-c">Status</th>
                 <th class="th-c">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($users as $u)
-            <tr>
+            <tr style="{{ ($u->is_active ?? true) ? '' : 'opacity:.55;' }}">
                 <td style="font-weight:600;">
                     {{ $u->name }}
                     @if($u->id === auth()->id())
@@ -50,11 +51,29 @@
                     </span>
                 </td>
                 <td class="td-c">
+                    @if($u->is_active ?? true)
+                        <span style="background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.3);border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;white-space:nowrap;">Active</span>
+                    @else
+                        <span style="background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.3);border-radius:20px;padding:3px 12px;font-size:.72rem;font-weight:700;white-space:nowrap;">Inactive</span>
+                    @endif
+                </td>
+                <td class="td-c">
                     <div class="act-group">
                         <a href="{{ route('users.edit', $u) }}" class="act-btn act-edit" title="Edit user">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </a>
                         @if($u->id !== auth()->id())
+                        <form method="POST" action="{{ route('users.toggle-active', $u) }}" style="display:contents">
+                            @csrf @method('PATCH')
+                            <button type="submit" class="act-btn" title="{{ ($u->is_active ?? true) ? 'Deactivate user' : 'Activate user' }}"
+                                style="color:{{ ($u->is_active ?? true) ? '#f87171' : '#34d399' }};border-color:{{ ($u->is_active ?? true) ? 'rgba(248,113,113,.3)' : 'rgba(52,211,153,.3)' }};">
+                                @if($u->is_active ?? true)
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                                @else
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                @endif
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('users.destroy', $u) }}" style="display:contents" onsubmit="event.preventDefault();confirmDelete('Delete user {{ $u->name }}? This cannot be undone.',this)">
                             @csrf @method('DELETE')
                             <button type="submit" class="act-btn act-delete" title="Delete user">
@@ -66,7 +85,7 @@
                 </td>
             </tr>
             @empty
-            <tr class="empty-row"><td colspan="6">No users found.</td></tr>
+            <tr class="empty-row"><td colspan="7">No users found.</td></tr>
             @endforelse
         </tbody>
     </table>

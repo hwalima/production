@@ -215,4 +215,22 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User deleted.');
     }
+
+    public function toggleActive(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot deactivate your own account.');
+        }
+
+        /** @var \App\Models\User $actor */
+        $actor = auth()->user();
+        if ($user->isSuperAdmin() && !$actor->isSuperAdmin()) {
+            return back()->with('error', 'Only a Super Administrator can change a Super Administrator\'s status.');
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        $status = $user->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "User {$user->name} has been {$status}.");
+    }
 }

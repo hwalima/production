@@ -26,6 +26,7 @@ class User extends Authenticatable
         'job_title',
         'avatar_path',
         'force_password_change',
+        'is_active',
     ];
 
     /**
@@ -45,7 +46,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at'      => 'datetime',
-        'force_password_change' => 'boolean',
+        'force_password_change'  => 'boolean',
+        'is_active'              => 'boolean',
     ];
 
     /* ── Role helpers ─────────────────────────────────── */

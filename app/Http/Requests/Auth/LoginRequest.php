@@ -50,6 +50,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Block deactivated accounts after credentials are verified
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account has been deactivated. Please contact your administrator.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

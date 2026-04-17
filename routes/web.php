@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified', 'force.pw.change'])->group(function () {
     Route::middleware('role:super_admin,admin')->group(function () {
         // User management
         Route::resource('users', UserController::class)->except(['show']);
+        Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
 
         // Consumable low-stock alert — manual trigger
         Route::post('/consumables/send-low-stock-alert', [ConsumableController::class, 'sendLowStockAlert'])
