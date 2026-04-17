@@ -132,7 +132,7 @@ class AssayController extends Controller
         return view('assay.trends', compact(
             'chartData', 'chartLabels',
             'purityAligned', 'purityStats',
-            'from', 'to'
+            'assays', 'from', 'to'
         ));
     }
 
