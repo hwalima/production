@@ -107,6 +107,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // User management
         Route::resource('users', UserController::class)->except(['show']);
 
+        // Consumable low-stock alert — manual trigger
+        Route::post('/consumables/send-low-stock-alert', [ConsumableController::class, 'sendLowStockAlert'])
+            ->name('consumables.low-stock-alert')
+            ->middleware('throttle:5,1');
+
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');

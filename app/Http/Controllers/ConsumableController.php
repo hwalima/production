@@ -4,10 +4,28 @@ namespace App\Http\Controllers;
 use App\Models\Consumable;
 use App\Models\ConsumableStockMovement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 class ConsumableController extends Controller
 {
+    // ── Manual low-stock alert trigger (admin/super_admin) ───────────────
+    public function sendLowStockAlert(): \Illuminate\Http\RedirectResponse
+    {
+        $exitCode = Artisan::call('consumables:check-low-stock');
+        $output   = trim(Artisan::output());
+
+        if (str_contains($output, 'above their reorder') || str_contains($output, 'Nothing to check')) {
+            return back()->with('success', 'All items are above reorder level — no alert needed.');
+        }
+
+        if ($exitCode === 0) {
+            return back()->with('success', 'Low-stock alert sent to all users.');
+        }
+
+        return back()->with('error', 'Alert command finished with warnings. Check server logs.');
+    }
+
     // ── Catalog index ─────────────────────────────────────────────────────
     public function index(Request $request)
     {

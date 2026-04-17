@@ -24,12 +24,26 @@
 {{-- ── Page header + add button ── --}}
 <div class="page-header">
     <h1 class="page-title">Stores &amp; Consumables</h1>
-    @if(auth()->user()->canWrite())
-    <a href="{{ route('consumables.create') }}" class="btn-add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Item
-    </a>
-    @endif
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        @if(auth()->user()->isAdminOrAbove() && $lowStockCount > 0)
+        <form method="POST" action="{{ route('consumables.low-stock-alert') }}" id="low-stock-alert-form">
+            @csrf
+            <button type="submit" onclick="this.disabled=true;this.innerHTML='Sending…';this.closest('form').submit();"
+                style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:.8rem;font-weight:700;
+                       border-radius:10px;border:1px solid #f59e0b;background:rgba(245,158,11,.12);
+                       color:#d97706;cursor:pointer;transition:background .15s,color .15s;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.62 4.9 2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.1a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+                Send Low-Stock Alert ({{ $lowStockCount }})
+            </button>
+        </form>
+        @endif
+        @if(auth()->user()->canWrite())
+        <a href="{{ route('consumables.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Item
+        </a>
+        @endif
+    </div>
 </div>
 
 {{-- ── Category filter pills ── --}}
