@@ -5,12 +5,18 @@
 
 <div class="page-header">
     <h1 class="page-title">Assay Results</h1>
-    @if(auth()->user()->canWrite())
-    <a href="{{ route('assay.create') }}" class="btn-add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Result
-    </a>
-    @endif
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <a href="{{ route('assay.trends') }}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:.85rem;font-weight:600;text-decoration:none;background:rgba(252,185,19,.12);color:#fcb913;border:1px solid rgba(252,185,19,.35);transition:background .15s;" title="View assay grade trend charts">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            Trend Analysis
+        </a>
+        @if(auth()->user()->canWrite())
+        <a href="{{ route('assay.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Result
+        </a>
+        @endif
+    </div>
 </div>
 
 @php
