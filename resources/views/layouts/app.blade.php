@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ auth()->check() && auth()->user()->theme_preference === 'dark' ? 'dark' : '' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1055,18 +1055,32 @@
         })();
 
         // ── Dark mode ──
+        // Theme is applied server-side (html.dark class) — no FOUC.
+        // localStorage is kept in sync so the class can be re-applied
+        // instantly if the layout is ever served unauthenticated.
         (function(){
-            if(localStorage.getItem('theme')==='dark'){
-                document.documentElement.classList.add('dark');
+            var saved = '{{ auth()->check() ? auth()->user()->theme_preference : "light" }}';
+            localStorage.setItem('theme', saved);
+            if(saved==='dark'){
                 document.getElementById('iconSun').style.display='none';
                 document.getElementById('iconMoon').style.display='';
             }
         })();
         document.getElementById('darkToggle').addEventListener('click',function(){
             const isDark=document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme',isDark?'dark':'light');
+            const theme=isDark?'dark':'light';
+            localStorage.setItem('theme',theme);
             document.getElementById('iconSun').style.display=isDark?'none':'';
             document.getElementById('iconMoon').style.display=isDark?'':'none';
+            // Persist to database (fire-and-forget, no visual feedback needed)
+            fetch('{{ route("user.theme") }}',{
+                method:'PATCH',
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}'
+                },
+                body:JSON.stringify({theme:theme})
+            }).catch(function(){/* silently ignore network errors */});
         });
 
         // ── Dropdowns ──

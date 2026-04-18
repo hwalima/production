@@ -27,6 +27,7 @@ class User extends Authenticatable
         'avatar_path',
         'force_password_change',
         'is_active',
+        'theme_preference',
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_confirmed_at',

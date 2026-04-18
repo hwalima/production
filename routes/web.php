@@ -24,6 +24,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferencesController;
 use App\Http\Controllers\ApiTokenController;
+use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
@@ -91,6 +92,9 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     Route::get('/profile/api-tokens',                 [ApiTokenController::class, 'index'])->name('api-tokens.index');
     Route::post('/profile/api-tokens',                [ApiTokenController::class, 'store'])->name('api-tokens.store');
     Route::delete('/profile/api-tokens/{tokenId}',    [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+
+    // Theme preference
+    Route::patch('/user/theme', [ThemeController::class, 'update'])->name('user.theme');
 
     // ── 2FA management (inside full auth + pw.change + 2fa guard) ─────────────
     Route::get('/two-factor/setup',             [TwoFactorController::class, 'setup'])->name('two-factor.setup');
