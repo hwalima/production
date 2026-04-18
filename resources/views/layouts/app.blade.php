@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ auth()->check() && auth()->user()->theme_preference === 'dark' ? 'dark' : '' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ auth()->check() && (auth()->user()->theme_preference ?? 'light') === 'dark' ? 'dark' : '' }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1059,7 +1059,7 @@
         // localStorage is kept in sync so the class can be re-applied
         // instantly if the layout is ever served unauthenticated.
         (function(){
-            var saved = '{{ auth()->check() ? auth()->user()->theme_preference : "light" }}';
+            var saved = '{{ auth()->check() ? (auth()->user()->theme_preference ?? 'light') : 'light' }}';
             localStorage.setItem('theme', saved);
             if(saved==='dark'){
                 document.getElementById('iconSun').style.display='none';
