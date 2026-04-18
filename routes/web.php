@@ -23,6 +23,7 @@ use App\Http\Controllers\ActionItemController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferencesController;
+use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
@@ -85,6 +86,11 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     // Notification preferences — any authenticated user manages their own
     Route::get('/profile/notification-preferences',   [NotificationPreferencesController::class, 'edit'])->name('notification-preferences.edit');
     Route::patch('/profile/notification-preferences', [NotificationPreferencesController::class, 'update'])->name('notification-preferences.update');
+
+    // API token management
+    Route::get('/profile/api-tokens',                 [ApiTokenController::class, 'index'])->name('api-tokens.index');
+    Route::post('/profile/api-tokens',                [ApiTokenController::class, 'store'])->name('api-tokens.store');
+    Route::delete('/profile/api-tokens/{tokenId}',    [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
 
     // ── 2FA management (inside full auth + pw.change + 2fa guard) ─────────────
     Route::get('/two-factor/setup',             [TwoFactorController::class, 'setup'])->name('two-factor.setup');

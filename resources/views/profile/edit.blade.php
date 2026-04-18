@@ -377,6 +377,20 @@
             </a>
         </div>
 
+        {{-- ══ API Tokens link ══ --}}
+        <div class="profile-card" style="margin-top:16px;">
+            <div class="section-title">API Access</div>
+            <p style="font-size:.78rem;color:#9ca3af;margin-bottom:14px;">
+                Generate personal API tokens for read-only access from dashboards, scripts, or mobile apps.
+            </p>
+            <a href="{{ route('api-tokens.index') }}"
+               style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#4338ca;text-decoration:none;transition:all .15s;"
+               onmouseover="this.style.background='#6366f1';this.style.color='#fff';"
+               onmouseout="this.style.background='rgba(99,102,241,.1)';this.style.color='#4338ca';">
+                🔑 Manage API Tokens →
+            </a>
+        </div>
+
     </div>
 </div>
 
