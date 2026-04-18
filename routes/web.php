@@ -25,6 +25,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationPreferencesController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
@@ -109,6 +110,14 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::resource('blasting',      BlastingController::class)->except(['index', 'show']);
         Route::resource('chemicals',     ChemicalsController::class)->except(['index', 'show']);
         Route::resource('consumables',   ConsumableController::class)->except(['index', 'show']);
+
+        // Bulk imports
+        Route::get('/import',                          [ImportController::class, 'index'])->name('import.index');
+        Route::get('/import/template/{type}',          [ImportController::class, 'template'])->name('import.template');
+        Route::post('/import/production',              [ImportController::class, 'importProduction'])->name('import.production');
+        Route::post('/import/consumables',             [ImportController::class, 'importConsumables'])->name('import.consumables');
+        Route::post('/import/labour-energy',           [ImportController::class, 'importLabourEnergy'])->name('import.labour-energy');
+
         Route::get('consumables/{consumable}/receive',  [ConsumableController::class, 'receiveForm'])->name('consumables.receive.form');
         Route::post('consumables/{consumable}/receive', [ConsumableController::class, 'receiveStock'])->name('consumables.receive');
         Route::get('consumables/{consumable}/use',      [ConsumableController::class, 'useForm'])->name('consumables.use.form');

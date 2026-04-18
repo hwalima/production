@@ -38,6 +38,13 @@
         </form>
         @endif
         @if(auth()->user()->canWrite())
+        <a href="{{ route('import.consumables') }}"
+           style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:.8rem;font-weight:700;border-radius:10px;border:1px solid var(--topbar-border);background:var(--card);color:var(--text);text-decoration:none;transition:background .15s,color .15s,border-color .15s;"
+           onmouseover="this.style.background='#fcb913';this.style.color='#001a4d';this.style.borderColor='#fcb913'"
+           onmouseout="this.style.background='';this.style.color='';this.style.borderColor=''">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+        </a>
         <a href="{{ route('consumables.create') }}" class="btn-add">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Item
