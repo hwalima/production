@@ -22,6 +22,7 @@ use App\Http\Controllers\SheController;
 use App\Http\Controllers\ActionItemController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationPreferencesController;
 use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
@@ -80,6 +81,10 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Notification preferences — any authenticated user manages their own
+    Route::get('/profile/notification-preferences',   [NotificationPreferencesController::class, 'edit'])->name('notification-preferences.edit');
+    Route::patch('/profile/notification-preferences', [NotificationPreferencesController::class, 'update'])->name('notification-preferences.update');
 
     // ── 2FA management (inside full auth + pw.change + 2fa guard) ─────────────
     Route::get('/two-factor/setup',             [TwoFactorController::class, 'setup'])->name('two-factor.setup');
@@ -201,6 +206,9 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         Route::patch('/roles/{user}/assign', [RoleController::class, 'assign'])->name('roles.assign');
+
+        // Notification preferences overview — who opted out of what
+        Route::get('/admin/notification-preferences', [NotificationPreferencesController::class, 'adminOverview'])->name('admin.notification-preferences');
     });
 });
 

@@ -89,10 +89,14 @@ class CheckConsumableLowStock extends Command
             }
         }
 
-        // ── Send consolidated email to every user ──────────────────────────
+        // ── Send consolidated email to every user who has opted in ─────────
         $sent = 0;
 
         foreach ($users as $user) {
+            if (!$user->wantsAlert('consumable_low_stock')) {
+                $this->line("  ⊘ Skipped {$user->email} (opted out)");
+                continue;
+            }
             try {
                 Mail::to($user->email)
                     ->send(new ConsumableLowStockAlert($lowItems, $companyName, $appUrl, $logoUrl));
@@ -105,8 +109,9 @@ class CheckConsumableLowStock extends Command
 
         $this->info("Alert sent to {$sent} user(s).");
 
-        // ── Also push a database notification for every user ───────────────
+        // ── Also push a database notification for every opted-in user ──────
         foreach ($users as $user) {
+            if (!$user->wantsAlert('consumable_low_stock')) continue;
             try {
                 $user->notify(new AppNotification(
                     title: 'Low Stock Alert',

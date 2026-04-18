@@ -363,6 +363,20 @@
         </div>
         @endif
 
+        {{-- ══ Notification Preferences link ══ --}}
+        <div class="profile-card" style="margin-top:20px;">
+            <div class="section-title">Email Notification Preferences</div>
+            <p style="font-size:.78rem;color:#9ca3af;margin-bottom:14px;">
+                Control which automated email alerts you receive. You can opt out of any alert type at any time.
+            </p>
+            <a href="{{ route('notification-preferences.edit') }}"
+               style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(252,185,19,.12);border:1px solid rgba(252,185,19,.3);color:#b45309;text-decoration:none;transition:all .15s;"
+               onmouseover="this.style.background='#fcb913';this.style.color='#001a4d';"
+               onmouseout="this.style.background='rgba(252,185,19,.12)';this.style.color='#b45309';">
+                🔔 Manage Notification Preferences →
+            </a>
+        </div>
+
     </div>
 </div>
 

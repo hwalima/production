@@ -5,10 +5,20 @@
 
 <div class="page-header">
     <h1 class="page-title">Users</h1>
-    <a href="{{ route('users.create') }}" class="btn-add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        New User
-    </a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        @if(auth()->user()->isSuperAdmin())
+        <a href="{{ route('admin.notification-preferences') }}"
+           style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;font-size:.8rem;font-weight:700;border-radius:10px;border:1px solid var(--topbar-border);background:var(--card);color:var(--text);text-decoration:none;transition:all .15s;"
+           onmouseover="this.style.background='rgba(252,185,19,.12)';this.style.borderColor='#fcb913';"
+           onmouseout="this.style.background='';this.style.borderColor='';">
+            🔔 Notification Opt-Outs
+        </a>
+        @endif
+        <a href="{{ route('users.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New User
+        </a>
+    </div>
 </div>
 
 <div class="data-card">

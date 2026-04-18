@@ -72,6 +72,10 @@ class CheckMachineServiceAlerts extends Command
         $sent        = 0;
 
         foreach ($admins as $admin) {
+            if (!$admin->wantsAlert('machine_service_alert')) {
+                $this->line("  ⊘ Skipped {$admin->email} (opted out)");
+                continue;
+            }
             try {
                 Mail::to($admin->email)
                     ->send(new MachineServiceAlert($overdueList, $companyName, $appUrl, $logoUrl));
@@ -88,8 +92,9 @@ class CheckMachineServiceAlerts extends Command
                 ->update(['service_alert_sent_at' => now()]);
             $this->info("Marked {$newlyOverdue->count()} record(s) as notified.");
 
-            // ── Also push a database notification for each admin ───────────
+            // ── Also push a database notification for each opted-in admin ──
             foreach ($admins as $admin) {
+                if (!$admin->wantsAlert('machine_service_alert')) continue;
                 try {
                     $admin->notify(new AppNotification(
                         title: 'Machine Service Alert',

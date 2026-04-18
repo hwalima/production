@@ -51,6 +51,10 @@ class CheckOverdueActionItems extends Command
         $recipients = User::whereIn('role', ['super_admin', 'admin', 'manager'])->get();
 
         foreach ($recipients as $user) {
+            if (!$user->wantsAlert('overdue_action_items')) {
+                $this->line("  ⊘ Skipped {$user->email} (opted out)");
+                continue;
+            }
             Mail::to($user->email)->send(new OverdueActionItemsDigest(
                 items:       $overdueItems,
                 companyName: $companyName,

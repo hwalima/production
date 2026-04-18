@@ -84,4 +84,17 @@ class User extends Authenticatable
     {
         return $this->two_factor_confirmed_at !== null;
     }
+
+    /* ── Notification Preferences ────────────────────────────────────────── */
+
+    public function notificationPreferences()
+    {
+        return $this->hasMany(\App\Models\NotificationPreference::class);
+    }
+
+    /** True when the user is opted in to the given alert type (default: true). */
+    public function wantsAlert(string $alertType): bool
+    {
+        return \App\Models\NotificationPreference::wantsAlert($this, $alertType);
+    }
 }
