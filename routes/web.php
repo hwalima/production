@@ -26,6 +26,8 @@ use App\Http\Controllers\NotificationPreferencesController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\KnowledgeBaseController;
+use App\Http\Controllers\KnowledgeBaseAdminController;
 use App\Http\Controllers\Auth\TwoFactorController;
 
 Route::get('/', function () {
@@ -131,6 +133,11 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
     });
 
+    // ── Knowledge Base — all authenticated users ──────────────────────────
+    Route::get('/help',                      [KnowledgeBaseController::class, 'index'])->name('kb.index');
+    Route::get('/help/search',               [KnowledgeBaseController::class, 'search'])->name('kb.search');
+    Route::get('/help/{category}/{article}', [KnowledgeBaseController::class, 'show'])->name('kb.show');
+
     // ── Notifications ─────────────────────────────────────────────────────
     Route::post('/notifications/read-all',  [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
@@ -214,6 +221,20 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         // Mining Departments
         Route::resource('settings/mining-departments', MiningDepartmentController::class)->names('mining-departments')->parameter('mining-departments', 'miningDepartment')->except(['show', 'create']);
         Route::patch('settings/mining-departments/{miningDepartment}/toggle', [MiningDepartmentController::class, 'toggle'])->name('mining-departments.toggle');
+
+        // Knowledge Base admin
+        Route::get('/admin/kb',                              [KnowledgeBaseAdminController::class, 'index'])->name('kb.admin.index');
+        Route::get('/admin/kb/categories/create',            [KnowledgeBaseAdminController::class, 'createCategory'])->name('kb.categories.create');
+        Route::post('/admin/kb/categories',                  [KnowledgeBaseAdminController::class, 'storeCategory'])->name('kb.categories.store');
+        Route::get('/admin/kb/categories/{category}/edit',   [KnowledgeBaseAdminController::class, 'editCategory'])->name('kb.categories.edit');
+        Route::put('/admin/kb/categories/{category}',        [KnowledgeBaseAdminController::class, 'updateCategory'])->name('kb.categories.update');
+        Route::delete('/admin/kb/categories/{category}',     [KnowledgeBaseAdminController::class, 'destroyCategory'])->name('kb.categories.destroy');
+        Route::get('/admin/kb/articles/create',              [KnowledgeBaseAdminController::class, 'createArticle'])->name('kb.articles.create');
+        Route::post('/admin/kb/articles',                    [KnowledgeBaseAdminController::class, 'storeArticle'])->name('kb.articles.store');
+        Route::get('/admin/kb/articles/{article}/edit',      [KnowledgeBaseAdminController::class, 'editArticle'])->name('kb.articles.edit');
+        Route::put('/admin/kb/articles/{article}',           [KnowledgeBaseAdminController::class, 'updateArticle'])->name('kb.articles.update');
+        Route::delete('/admin/kb/articles/{article}',        [KnowledgeBaseAdminController::class, 'destroyArticle'])->name('kb.articles.destroy');
+        Route::post('/admin/kb/articles/{article}/toggle',   [KnowledgeBaseAdminController::class, 'toggleArticle'])->name('kb.articles.toggle');
 
         // Maintenance
         Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');

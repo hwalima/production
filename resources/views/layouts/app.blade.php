@@ -365,6 +365,9 @@
                         <a href="{{ route('reports.accounts') }}" class="sub {{ request()->routeIs('reports.accounts') ? 'active' : '' }}" title="Accounts Report"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Accounts Report</span></a>
                     </div>
 
+                    {{-- ── Help ── --}}
+                    <a href="{{ route('kb.index') }}" class="{{ request()->routeIs('kb.*') ? 'active' : '' }}" title="Knowledge Base"><span class="nav-icon">&#128218;</span><span class="nav-text">&nbsp;Help / Docs</span></a>
+
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
                     <div class="nav-section-label"><span class="nsl-text">Admin</span><span class="nsl-line"></span></div>
