@@ -112,11 +112,14 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::resource('consumables',   ConsumableController::class)->except(['index', 'show']);
 
         // Bulk imports
-        Route::get('/import',                          [ImportController::class, 'index'])->name('import.index');
-        Route::get('/import/template/{type}',          [ImportController::class, 'template'])->name('import.template');
-        Route::post('/import/production',              [ImportController::class, 'importProduction'])->name('import.production');
-        Route::post('/import/consumables',             [ImportController::class, 'importConsumables'])->name('import.consumables');
-        Route::post('/import/labour-energy',           [ImportController::class, 'importLabourEnergy'])->name('import.labour-energy');
+        Route::get('/import',                           [ImportController::class, 'index'])->name('import.index');
+        Route::get('/import/template/{type}',           [ImportController::class, 'template'])->name('import.template');
+        Route::get('/import/production',                [ImportController::class, 'showProduction'])->name('import.production');
+        Route::post('/import/production',               [ImportController::class, 'importProduction'])->name('import.production.store');
+        Route::get('/import/consumables',               [ImportController::class, 'showConsumables'])->name('import.consumables');
+        Route::post('/import/consumables',              [ImportController::class, 'importConsumables'])->name('import.consumables.store');
+        Route::get('/import/labour-energy',             [ImportController::class, 'showLabourEnergy'])->name('import.labour-energy');
+        Route::post('/import/labour-energy',            [ImportController::class, 'importLabourEnergy'])->name('import.labour-energy.store');
 
         Route::get('consumables/{consumable}/receive',  [ConsumableController::class, 'receiveForm'])->name('consumables.receive.form');
         Route::post('consumables/{consumable}/receive', [ConsumableController::class, 'receiveStock'])->name('consumables.receive');

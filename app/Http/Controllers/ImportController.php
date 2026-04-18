@@ -95,6 +95,21 @@ class ImportController extends Controller
         return view('imports.index');
     }
 
+    public function showProduction()
+    {
+        return view('imports.production');
+    }
+
+    public function showConsumables()
+    {
+        return view('imports.consumables');
+    }
+
+    public function showLabourEnergy()
+    {
+        return view('imports.labour-energy');
+    }
+
     // ── Template download ─────────────────────────────────────────────────
 
     public function template(string $type): Response

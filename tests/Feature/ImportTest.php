@@ -115,7 +115,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect(route('import.production'));
 
         $this->assertEquals(2, DailyProduction::count());
@@ -148,7 +148,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)]);
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)]);
 
         $this->assertEquals(1, DailyProduction::count());
         $this->assertDatabaseHas('daily_productions', ['shift' => 'Day', 'gold_smelted' => 45.50]);
@@ -163,7 +163,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect(route('import.production'))
             ->assertSessionHas('import_result');
 
@@ -178,7 +178,7 @@ class ImportTest extends TestCase
         $csv = "date,ore_hoisted\r\n2026-04-01,100.00";
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect()
             ->assertSessionHasErrors('file');
     }
@@ -194,7 +194,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)]);
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)]);
 
         $this->assertEquals(2, DailyProduction::count());
     }
@@ -211,7 +211,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.consumables'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.consumables.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect(route('import.consumables'));
 
         $this->assertEquals(2, Consumable::count());
@@ -237,7 +237,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.consumables'), ['file' => $this->csvFile($csv)]);
+            ->post(route('import.consumables.store'), ['file' => $this->csvFile($csv)]);
 
         $this->assertEquals(1, Consumable::count());
         $this->assertDatabaseHas('consumables', ['name' => 'Drill Bit 38mm', 'pack_cost' => 1400.00]);
@@ -252,7 +252,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.consumables'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.consumables.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect()
             ->assertSessionHas('import_result');
 
@@ -273,7 +273,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.labour-energy'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.labour-energy.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect(route('import.labour-energy'));
 
         $this->assertEquals(2, LabourEnergy::count());
@@ -296,7 +296,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.labour-energy'), ['file' => $this->csvFile($csv)]);
+            ->post(route('import.labour-energy.store'), ['file' => $this->csvFile($csv)]);
 
         $this->assertEquals(1, LabourEnergy::count());
         // Confirm the zesa_cost was updated (not the original 10000)
@@ -312,7 +312,7 @@ class ImportTest extends TestCase
         ]);
 
         $this->actingAs($this->writer())
-            ->post(route('import.labour-energy'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.labour-energy.store'), ['file' => $this->csvFile($csv)])
             ->assertRedirect()
             ->assertSessionHas('import_result');
 
@@ -327,7 +327,7 @@ class ImportTest extends TestCase
         $txt = UploadedFile::fake()->create('data.txt', 1, 'text/plain');
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $txt])
+            ->post(route('import.production.store'), ['file' => $txt])
             ->assertSessionHasErrors('file');
     }
 
@@ -337,7 +337,8 @@ class ImportTest extends TestCase
         $csv = "date,ore_hoisted,waste_hoisted,ore_crushed,ore_milled,gold_smelted,purity_percentage,fidelity_price\r\n";
 
         $this->actingAs($this->writer())
-            ->post(route('import.production'), ['file' => $this->csvFile($csv)])
+            ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
             ->assertSessionHasErrors('file');
     }
 }
+
