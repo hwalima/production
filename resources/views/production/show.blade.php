@@ -13,7 +13,18 @@
     <div class="detail-card">
         <div class="detail-row"><span class="dr-label">Date</span><span class="dr-value">{{ $production->date->format('d M Y') }}</span></div>
         @if($production->shift)
-        <div class="detail-row"><span class="dr-label">Shift</span><span class="dr-value">{{ $production->shift }}</span></div>
+        @php
+            $sc = ['Day'=>'#f59e0b','Night'=>'#6366f1','Afternoon'=>'#10b981','Morning'=>'#38bdf8'];
+            $bc = $sc[$production->shift] ?? '#9ca3af';
+        @endphp
+        <div class="detail-row">
+            <span class="dr-label">Shift</span>
+            <span class="dr-value">
+                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:{{ $bc }}22;color:{{ $bc }};border:1px solid {{ $bc }}44;">
+                    <span style="width:6px;height:6px;border-radius:50%;background:{{ $bc }};"></span>{{ $production->shift }}
+                </span>
+            </span>
+        </div>
         @endif
         @if($production->mining_site)
         <div class="detail-row"><span class="dr-label">Mining Site</span><span class="dr-value">{{ $production->mining_site }}</span></div>

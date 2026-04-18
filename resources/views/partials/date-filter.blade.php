@@ -1,6 +1,7 @@
 ﻿{{--
     Date range filter bar.
     Required vars: $routeName (string), $filterFrom, $filterTo, $isDefaultRange
+    Optional vars: $extraParams (array of extra hidden inputs, e.g. ['shift' => 'Day'])
 --}}
 @php
     $now = \Carbon\Carbon::now();
@@ -11,8 +12,12 @@
         'Last 30 Days' => [$now->copy()->subDays(29)->toDateString(), $now->toDateString()],
         'This Year'    => [$now->copy()->startOfYear()->toDateString(), $now->copy()->endOfYear()->toDateString()],
     ];
+    $extraParams = $extraParams ?? [];
 @endphp
 <form method="GET" action="{{ route($routeName) }}">
+    @foreach($extraParams as $epKey => $epVal)
+        <input type="hidden" name="{{ $epKey }}" value="{{ $epVal }}">
+    @endforeach
     <div class="fbar">
         <span class="fbar-label">&#128197; Filter</span>
         <div class="fbar-ctrl">
@@ -29,7 +34,7 @@
         @endif
         <div class="fbar-presets">
             @foreach($presets as $label => [$pFrom, $pTo])
-                <a href="{{ route($routeName, ['from' => $pFrom, 'to' => $pTo]) }}"
+                <a href="{{ route($routeName, array_merge(['from' => $pFrom, 'to' => $pTo], $extraParams)) }}"
                    class="fbar-preset {{ $filterFrom === $pFrom && $filterTo === $pTo ? 'active' : '' }}">{{ $label }}</a>
             @endforeach
         </div>

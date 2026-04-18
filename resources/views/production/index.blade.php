@@ -18,7 +18,56 @@
     </div>
 </div>
 
-@include('partials.date-filter', ['routeName' => 'production.index'])
+@include('partials.date-filter', [
+    'routeName'   => 'production.index',
+    'extraParams' => $filterShift !== '' ? ['shift' => $filterShift] : [],
+])
+
+{{-- ── Per-shift breakdown summary bar ──────────────────────────────── --}}
+@if($shiftBreakdown->isNotEmpty())
+@php
+    $totalGoldAll = $shiftBreakdown->sum('gold_smelted');
+    $shiftColors  = ['Day' => '#f59e0b', 'Night' => '#6366f1', 'Afternoon' => '#10b981', 'Morning' => '#38bdf8'];
+    $defaultColor = '#9ca3af';
+@endphp
+<div style="background:var(--card);border:1px solid var(--topbar-border);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+    <span style="font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;margin-right:4px;">Shift Breakdown</span>
+    @foreach($shiftBreakdown as $sb)
+    @php
+        $pct   = $totalGoldAll > 0 ? round(($sb->gold_smelted / $totalGoldAll) * 100, 1) : 0;
+        $col   = $shiftColors[$sb->shift_name] ?? $defaultColor;
+        $isActive = $filterShift === $sb->shift_name;
+    @endphp
+    <a href="{{ route('production.index', array_merge(request()->query(), ['shift' => $sb->shift_name, 'page' => 1])) }}"
+       style="display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:10px;text-decoration:none;font-size:.78rem;font-weight:700;transition:all .15s;
+              background:{{ $isActive ? $col : 'transparent' }};
+              color:{{ $isActive ? '#001a4d' : 'var(--text)' }};
+              border:1.5px solid {{ $isActive ? $col : 'var(--topbar-border)' }};"
+       onmouseover="this.style.borderColor='{{ $col }}';this.style.color='{{ $isActive ? '#001a4d' : $col }}';"
+       onmouseout="this.style.borderColor='{{ $isActive ? $col : 'var(--topbar-border)' }}';this.style.color='{{ $isActive ? '#001a4d' : 'var(--text)' }}';">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ $col }};display:inline-block;flex-shrink:0;"></span>
+        <span>{{ $sb->shift_name }}</span>
+        <span style="color:{{ $isActive ? 'rgba(0,26,77,.6)' : '#9ca3af' }};font-weight:600;">{{ number_format($sb->gold_smelted, 1) }}g</span>
+        <span style="font-size:.68rem;padding:1px 6px;border-radius:99px;background:{{ $isActive ? 'rgba(0,26,77,.12)' : 'rgba(156,163,175,.12)' }};color:{{ $isActive ? '#001a4d' : '#9ca3af' }};">{{ $pct }}%</span>
+        <span style="color:{{ $isActive ? 'rgba(0,26,77,.5)' : '#9ca3af' }};font-size:.68rem;">{{ $sb->records }}r</span>
+    </a>
+    @endforeach
+    @if($filterShift !== '')
+    <a href="{{ route('production.index', array_diff_key(request()->query(), ['shift' => '', 'page' => ''])) }}"
+       style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:8px;text-decoration:none;font-size:.75rem;font-weight:700;border:1.5px solid var(--topbar-border);color:#9ca3af;transition:all .15s;"
+       onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444';"
+       onmouseout="this.style.borderColor='';this.style.color='#9ca3af';">
+        &#10005; Clear shift
+    </a>
+    @endif
+</div>
+@if($filterShift !== '')
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:.78rem;color:#9ca3af;">
+    <span style="width:8px;height:8px;border-radius:50%;background:{{ $shiftColors[$filterShift] ?? $defaultColor }};display:inline-block;"></span>
+    Showing <strong style="color:var(--text);">{{ $filterShift }} shift</strong> records only
+</div>
+@endif
+@endif
 
 <div class="data-card" style="padding:0;overflow:hidden;">
     <div class="tbl-scroll">
@@ -47,7 +96,19 @@
             @forelse($productions as $prod)
             <tr style="white-space:nowrap;">
                 <td data-sort="{{ $prod->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $prod->date->format('d M Y') }}</span></td>
-                <td>{{ $prod->shift ?? '—' }}</td>
+                <td>
+                    @if($prod->shift)
+                    @php
+                        $sc = ['Day'=>'#f59e0b','Night'=>'#6366f1','Afternoon'=>'#10b981','Morning'=>'#38bdf8'];
+                        $bc = $sc[$prod->shift] ?? '#9ca3af';
+                    @endphp
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:.68rem;font-weight:700;background:{{ $bc }}22;color:{{ $bc }};border:1px solid {{ $bc }}44;">
+                        <span style="width:5px;height:5px;border-radius:50%;background:{{ $bc }};"></span>{{ $prod->shift }}
+                    </span>
+                    @else
+                    <span style="color:#6b7280;font-size:.75rem;">—</span>
+                    @endif
+                </td>
                 <td>{{ $prod->mining_site ?? '—' }}</td>
                 <td class="td-r">{{ number_format($prod->ore_hoisted, 1) }} t</td>
                 @php $hv = $prod->ore_hoisted_target !== null ? (float)$prod->ore_hoisted_target - (float)$prod->ore_hoisted : null; @endphp

@@ -21,11 +21,17 @@ class ProductionController extends Controller
         $filterFrom = $request->filled('from') ? $request->input('from') : $now->copy()->startOfMonth()->toDateString();
         $filterTo   = $request->filled('to')   ? $request->input('to')   : $now->copy()->endOfMonth()->toDateString();
         if ($filterFrom > $filterTo) $filterFrom = $now->copy()->startOfMonth()->toDateString();
+        $filterShift = $request->input('shift', '');   // '' = all shifts
 
-        $productions = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
-            ->orderByDesc('date')->paginate(30)->withQueryString();
+        $baseQuery = DailyProduction::whereBetween('date', [$filterFrom, $filterTo]);
+        if ($filterShift !== '') {
+            $baseQuery->where('shift', $filterShift);
+        }
 
-        $totals = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
+        $productions = (clone $baseQuery)->orderByDesc('date')->orderByDesc('id')
+            ->paginate(30)->withQueryString();
+
+        $totals = (clone $baseQuery)
             ->selectRaw('
                 SUM(ore_hoisted)        as ore_hoisted,
                 SUM(ore_hoisted_target) as ore_hoisted_target,
@@ -37,10 +43,30 @@ class ProductionController extends Controller
                 AVG(purity_percentage)  as avg_purity
             ')->first();
 
+        // Per-shift breakdown for the current date range (always unfiltered by shift)
+        $shiftBreakdown = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
+            ->selectRaw('
+                COALESCE(shift, \'Unassigned\') as shift_name,
+                COUNT(*)                        as records,
+                SUM(gold_smelted)               as gold_smelted,
+                SUM(ore_hoisted)                as ore_hoisted,
+                SUM(ore_milled)                 as ore_milled,
+                AVG(purity_percentage)          as avg_purity
+            ')
+            ->groupByRaw('COALESCE(shift, \'Unassigned\')')
+            ->orderBy('shift_name')
+            ->get();
+
+        // All distinct known shift names for filter chips
+        $knownShifts = Shift::orderBy('name')->pluck('name');
+
         $isDefaultRange = $filterFrom === $now->copy()->startOfMonth()->toDateString()
                        && $filterTo   === $now->copy()->endOfMonth()->toDateString();
 
-        return view('production.index', compact('productions', 'filterFrom', 'filterTo', 'isDefaultRange', 'totals'));
+        return view('production.index', compact(
+            'productions', 'filterFrom', 'filterTo', 'filterShift',
+            'isDefaultRange', 'totals', 'shiftBreakdown', 'knownShifts'
+        ));
     }
 
     /* ── create / store ──────────────────────────────── */
