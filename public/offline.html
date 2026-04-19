@@ -83,7 +83,7 @@
         </ul>
     </div>
 
-    <a href="/dashboard" class="btn-retry" onclick="window.location.reload(); return false;">
+    <a href="/login" class="btn-retry" id="retryBtn">
         ↻ Try Again
     </a>
 
@@ -92,13 +92,16 @@
         const PAGE_LABELS = {
             '/dashboard':            '📊 Dashboard',
             '/production':           '⚒️ Daily Production',
-            '/mining/gold':          '🥇 Gold Smelting',
-            '/consumables':          '📦 Consumables',
-            '/employees':            '👷 Employees',
-            '/machinery':            '⚙️ Machinery',
-            '/explosives':           '💥 Explosives',
-            '/safety/incidents':     '🦺 Safety Incidents',
             '/production/calendar':  '📅 Production Calendar',
+            '/consumables':          '📦 Consumables',
+            '/labour-energy':        '⚡ Labour & Energy',
+            '/machines':             '⚙️ Machines',
+            '/drilling':             '🔩 Drilling',
+            '/blasting':             '💥 Blasting',
+            '/reports/production':   '📈 Production Report',
+            '/she':                  '🦺 SHE',
+            '/action-items':         '✅ Action Items',
+            '/help':                 '📚 Help / Docs',
         };
 
         const list = document.getElementById('cached-pages');
@@ -134,6 +137,20 @@
         }
 
         loadCachedPages();
+
+        // Retry button — navigate to /login, bypassing any cached version
+        document.getElementById('retryBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            // Force a fresh network fetch by appending a cache-busting param,
+            // which the server ignores but prevents the service worker from
+            // matching a cached response.
+            window.location.href = '/login?_r=' + Date.now();
+        });
+
+        // Auto-retry when the browser detects the connection is restored
+        window.addEventListener('online', function () {
+            window.location.href = '/login?_r=' + Date.now();
+        });
     </script>
 </body>
 </html>

@@ -10,7 +10,7 @@
  * POST / non-GET / cross-origin requests are never intercepted.
  */
 
-const CACHE_VERSION = 'mymine-v1';
+const CACHE_VERSION = 'mymine-v2';
 
 const PRECACHE = [
     '/offline.html',
@@ -52,14 +52,19 @@ self.addEventListener('fetch', event => {
     // Skip deploy/opcache/admin scripts
     if (url.pathname.startsWith('/deploy') || url.pathname.startsWith('/opcache')) return;
 
+    // Never intercept auth routes — always pass directly to the network so the
+    // login/logout flow is never served from a stale cache.
+    const AUTH_PATHS = ['/login', '/logout', '/register', '/two-factor', '/forgot-password', '/reset-password', '/password'];
+    if (AUTH_PATHS.some(p => url.pathname === p || url.pathname.startsWith(p + '/'))) return;
+
     // ── 1. Vite hashed assets → Cache-first (they never change)
     if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/')) {
         event.respondWith(cacheFirst(req));
         return;
     }
 
-    // ── 2. manifest / sw / offline → Cache-first
-    if (url.pathname === '/manifest.json' || url.pathname === '/sw.js' || url.pathname === '/offline.html') {
+    // ── 2. manifest / sw → Cache-first (offline.html is network-first so the retry works)
+    if (url.pathname === '/manifest.json' || url.pathname === '/sw.js') {
         event.respondWith(cacheFirst(req));
         return;
     }
@@ -96,12 +101,11 @@ async function cacheFirst(req) {
 async function networkFirstNav(req) {
     try {
         const response = await fetch(req);
-        if (response.ok || response.type === 'opaqueredirect') {
-            // Only cache 200 HTML responses
-            if (response.status === 200) {
-                const cache = await caches.open(CACHE_VERSION);
-                cache.put(req, response.clone());
-            }
+        // Only cache clean 200 HTML responses — never cache redirects or errors,
+        // as a cached redirect would prevent the user from reaching the login page.
+        if (response.status === 200 && response.type !== 'opaqueredirect') {
+            const cache = await caches.open(CACHE_VERSION);
+            cache.put(req, response.clone());
         }
         return response;
     } catch {
