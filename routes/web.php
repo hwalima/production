@@ -34,40 +34,6 @@ Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });
 
-// ── PWA manifest (public, no auth) ───────────────────────────────────────────
-Route::get('/manifest.json', function () {
-    $settings  = \Illuminate\Support\Facades\Cache::remember('app_settings', 600,
-        fn() => \App\Models\Setting::all()->pluck('value', 'key'));
-    $name      = $settings['company_name'] ?? config('app.name', 'MyMine');
-    $shortName = \Illuminate\Support\Str::limit($name, 14, '');
-
-    return response()->json([
-        'name'             => $name,
-        'short_name'       => $shortName,
-        'description'      => $name . ' Mining Production Dashboard',
-        'start_url'        => '/dashboard?source=pwa',
-        'display'          => 'standalone',
-        'background_color' => '#001a4d',
-        'theme_color'      => '#fcb913',
-        'orientation'      => 'portrait-primary',
-        'scope'            => '/',
-        'lang'             => 'en',
-        'categories'       => ['productivity', 'business'],
-        'icons'            => [
-            ['src' => asset('icons/icon-192.png'), 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
-            ['src' => asset('icons/icon-512.png'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
-            ['src' => asset('icons/apple-touch-icon.png'), 'sizes' => '180x180', 'type' => 'image/png', 'purpose' => 'any'],
-        ],
-        'shortcuts' => [
-            ['name' => 'Dashboard',        'url' => '/dashboard',           'description' => 'Production overview'],
-            ['name' => 'Daily Production', 'url' => '/production',          'description' => 'Log daily production data'],
-            ['name' => 'Gold Smelting',    'url' => '/mining/gold',         'description' => 'Gold smelting records'],
-            ['name' => 'Consumables',      'url' => '/consumables',         'description' => 'Consumable stock levels'],
-        ],
-        'screenshots' => [],
-    ], 200, ['Content-Type' => 'application/manifest+json; charset=utf-8']);
-})->name('pwa.manifest');
-
 // ── Forced password change (auth only — no force.pw.change loop) ─────────────
 Route::middleware(['auth'])->group(function () {
     Route::get('/password/change',  [\App\Http\Controllers\ForcePasswordChangeController::class, 'show'])->name('password.force-change');
