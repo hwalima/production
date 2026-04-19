@@ -99,6 +99,9 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
     });
 
+    // ── Documentation ─────────────────────────────────────────────────────
+    Route::get('/docs', fn() => view('docs.index'))->name('docs.index');
+
     // ── Knowledge Base — all authenticated users ──────────────────────────
     Route::get('/help',                      [KnowledgeBaseController::class, 'index'])->name('kb.index');
     Route::get('/help/search',               [KnowledgeBaseController::class, 'search'])->name('kb.search');

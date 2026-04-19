@@ -360,6 +360,7 @@
 
                     {{-- ── Help ── --}}
                     <a href="{{ route('kb.index') }}" class="{{ request()->routeIs('kb.*') ? 'active' : '' }}" title="Knowledge Base"><span class="nav-icon">&#128218;</span><span class="nav-text">&nbsp;Help / Docs</span></a>
+                    <a href="{{ route('docs.index') }}" class="{{ request()->routeIs('docs.*') ? 'active' : '' }}" title="App Documentation"><span class="nav-icon">&#128196;</span><span class="nav-text">&nbsp;App Docs / PDF</span></a>
 
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
