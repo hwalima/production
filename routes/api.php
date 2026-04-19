@@ -28,10 +28,11 @@ Route::post('/auth/token', [AuthController::class, 'issue'])
 Route::middleware('auth:sanctum')->group(function () {
 
     // Revoke the current token
-    Route::delete('/auth/token', [AuthController::class, 'revoke']);
+    Route::delete('/auth/token', [AuthController::class, 'revoke'])
+        ->middleware('throttle:10,1');
 
-    // ── v1 read-only endpoints ────────────────────────────────────────
-    Route::prefix('v1')->group(function () {
+    // ── v1 read-only endpoints (rate-limited: 60 requests / minute) ─
+    Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
 
         // Dashboard KPIs
         Route::get('/dashboard',              [DashboardController::class,       'index']);
