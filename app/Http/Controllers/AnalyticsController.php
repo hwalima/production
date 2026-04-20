@@ -233,12 +233,16 @@ class AnalyticsController extends Controller
             ->orderByDesc('total_cost')
             ->get();
 
-        // Consumables cost trend monthly
+        // Consumables cost trend monthly (DB-agnostic date grouping)
+        $dbDriver  = DB::connection()->getDriverName();
+        $monthExpr = $dbDriver === 'sqlite'
+            ? "strftime('%Y-%m', movement_date)"
+            : "DATE_FORMAT(movement_date, '%Y-%m')";
         $consumMonthly = DB::table('consumable_stock_movements')
             ->whereBetween('movement_date', [$from, $to])
             ->where('direction', 'out')
-            ->selectRaw("DATE_FORMAT(movement_date, '%Y-%m') as month, SUM(total_cost) as total")
-            ->groupBy('month')
+            ->selectRaw("{$monthExpr} as month, SUM(total_cost) as total")
+            ->groupByRaw($monthExpr)
             ->orderBy('month')
             ->get();
         $consumMonthLabels = $consumMonthly->map(fn($r) => Carbon::parse($r->month . '-01')->format('M Y'))->toArray();

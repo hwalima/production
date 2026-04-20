@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->integer('service_after_hours');
-            $table->date('next_service_date');
+            $table->date('next_service_date')->nullable();
             $table->timestamps();
         });
     }
