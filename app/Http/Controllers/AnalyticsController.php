@@ -213,9 +213,9 @@ class AnalyticsController extends Controller
                 'nlti'    => $rows->sum('nlti'),
                 'medical' => $rows->sum('medical_injury_case'),
                 'fatal'   => $rows->sum('fatal_incident'),
-            ]);
-        ksort($sheByMonth);
-        $sheMonthLabels  = array_map(fn($m) => Carbon::parse($m . '-01')->format('M Y'), array_keys($sheByMonth->toArray()));
+            ])
+            ->sortKeys();
+        $sheMonthLabels  = array_map(fn($m) => Carbon::parse($m . '-01')->format('M Y'), $sheByMonth->keys()->toArray());
         $sheMonthLti     = $sheByMonth->pluck('lti')->toArray();
         $sheMonthNlti    = $sheByMonth->pluck('nlti')->toArray();
         $sheMonthMedical = $sheByMonth->pluck('medical')->toArray();
