@@ -315,6 +315,21 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
         <canvas id="trendChart" height="80"></canvas>
     </div>
 
+    {{-- MILL RECOVERY TREND --}}
+    @if(count($millRecoveryTrend) > 0 && count(array_filter($millRecoveryTrend)) > 0)
+    <div class="gc ccrd" style="padding:18px 20px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <p class="cht-ttl" style="margin-bottom:0;">Mill Recovery % Trend</p>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                <span style="font-size:.72rem;color:#9ca3af;">Avg: <b style="color:{{ $avgMillRecovery >= 85 ? '#34d399' : ($avgMillRecovery >= 75 ? '#fcb913' : '#f87171') }};">{{ $avgMillRecovery }}%</b></span>
+                <span style="font-size:.72rem;color:#9ca3af;">Target: <b style="color:#a78bfa;">≥85%</b></span>
+                <a href="{{ route('analytics.index') }}" style="font-size:.7rem;color:#fcb913;text-decoration:none;font-weight:600;">Full Analytics &#8599;</a>
+            </div>
+        </div>
+        <canvas id="recoveryTrendChart" height="45"></canvas>
+    </div>
+    @endif
+
     {{-- CUMULATIVE GOLD vs TARGET PACE --}}
     @if(count($cumGoldLabels) > 0)
     <div class="gc ccrd" style="padding:18px 20px 14px;">
@@ -413,6 +428,30 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
             <p class="kv {{ $srGv }}" @if(!$srGv) style="color:#f87171" @endif>{{ number_format($strippingRatio, 2) }}</p>
             <p class="ks">waste : ore (t/t)</p>
             <span class="pill {{ $srPillCls }}">{{ $srLabel }}</span>
+        </div>
+
+        {{-- Mill Recovery % --}}
+        @php
+            [$mrGv, $mrOb, $mrIb, $mrPillCls, $mrLabel] = $avgMillRecovery === null
+                ? ['', 'ob-purple', 'ib-purple', '', 'No Assay Data']
+                : ($avgMillRecovery >= 85
+                    ? ['gv-green',  'ob-green',  'ib-green',  'p-green', 'Excellent']
+                    : ($avgMillRecovery >= 75
+                        ? ['gv-gold', 'ob-gold', 'ib-gold', 'p-amber', 'Acceptable']
+                        : ['',         'ob-red',  'ib-red',  'p-red',   'Low']));
+        @endphp
+        <div class="gc kpi">
+            <div class="orb {{ $mrOb }}"></div>
+            <div class="ib {{ $mrIb }}">♻️</div>
+            <p class="kt">Mill Recovery</p>
+            @if($avgMillRecovery !== null)
+                <p class="kv {{ $mrGv }}" @if(!$mrGv) style="color:#f87171" @endif>{{ $avgMillRecovery }}</p>
+                <p class="ks">% avg recovery</p>
+            @else
+                <p class="kv" style="color:#6b7280;font-size:1.4rem;">N/A</p>
+                <p class="ks">no fire assay data</p>
+            @endif
+            <span class="pill {{ $mrPillCls }}" @if(!$mrPillCls) style="background:rgba(139,92,246,.13);color:#a78bfa;" @endif>{{ $mrLabel }}</span>
         </div>
 
     </div>
@@ -775,6 +814,69 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('darkToggle').addEventListener('click', () => {
         setTimeout(buildShiftChart, 60);
     });
+    @endif
+
+    /* ── Mill Recovery Trend Chart ── */
+    @if(count($millRecoveryTrend) > 0 && count(array_filter($millRecoveryTrend)) > 0)
+    let recoveryChart = null;
+    function buildRecoveryChart() {
+        const c = cc();
+        if (recoveryChart) recoveryChart.destroy();
+        recoveryChart = new Chart(document.getElementById('recoveryTrendChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: @json($trendLabels),
+                datasets: [
+                    {
+                        label: 'Mill Recovery %',
+                        data: @json($millRecoveryTrend),
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52,211,153,.08)',
+                        fill: true,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        tension: .4,
+                        spanGaps: true,
+                    },
+                    {
+                        label: 'Target (85%)',
+                        data: Array(@json($trendLabels).length).fill(85),
+                        borderColor: '#a78bfa',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        tension: 0,
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode:'index', intersect:false },
+                plugins: {
+                    legend: { position:'top', labels:{ color:c.text, boxWidth:12, boxHeight:2, padding:14, font:{size:11} } },
+                    tooltip: {
+                        backgroundColor:c.ttBg, titleColor:c.ttTitle, bodyColor:c.ttBody,
+                        borderColor:c.ttBord, borderWidth:1, padding:10, cornerRadius:10,
+                        callbacks: { label: x => x.dataset.label==='Target (85%)' ? null : '  ' + x.dataset.label + ': ' + (x.parsed.y !== null ? x.parsed.y.toFixed(1) + '%' : 'N/A') }
+                    }
+                },
+                scales: {
+                    x: { ticks:{color:c.text,font:{size:10},maxTicksLimit:12}, grid:{color:c.grid}, border:{display:false} },
+                    y: {
+                        beginAtZero: false,
+                        min: 0, max: 110,
+                        ticks:{ color:c.text, font:{size:10}, callback: v => v + '%' },
+                        grid:{ color:c.grid }, border:{display:false}
+                    }
+                }
+            }
+        });
+    }
+    buildRecoveryChart();
+    document.getElementById('darkToggle').addEventListener('click', () => { setTimeout(buildRecoveryChart, 58); });
     @endif
 
     /* ── Weather init ── */

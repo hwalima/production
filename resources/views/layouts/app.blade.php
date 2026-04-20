@@ -334,6 +334,7 @@
                 </div>
                 <nav class="flex-1 flex flex-col gap-0.5 overflow-y-auto" id="sidebarNav">
                     <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
+                    <a href="{{ route('analytics.index') }}" class="{{ request()->routeIs('analytics.*') ? 'active' : '' }}" title="Analytics"><span class="nav-icon">&#127775;</span><span class="nav-text">&nbsp;Analytics</span></a>
 
                     {{-- ── Operations group ── --}}
                     <div class="nav-section-label"><span class="nsl-text">Operations</span><span class="nsl-line"></span></div>

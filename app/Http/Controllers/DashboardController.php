@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\AssayResult;
 use App\Models\DailyProduction;
 use App\Models\MachineRuntime;
 use App\Models\Setting;
@@ -94,6 +95,29 @@ class DashboardController extends Controller
         $trendOreMilled    = $trend->pluck('ore_milled')->map(fn($v) => (float) $v)->toArray();
         $trendGoldSmelted  = $trend->pluck('gold_smelted')->map(fn($v) => (float) $v)->toArray();
 
+        // ── Mill Recovery % ───────────────────────────────────────────────
+        $fireAssayByDate = AssayResult::whereBetween('date', [$filterFromStr, $filterToStr])
+            ->where('type', 'fire_assay')
+            ->selectRaw('DATE(date) as day, AVG(assay_value) as avg_grade')
+            ->groupBy('day')
+            ->pluck('avg_grade', 'day');
+
+        $millRecoveryTrend = [];
+        foreach ($trend as $row) {
+            $dayStr = $row->date->format('Y-m-d');
+            $grade  = (float) ($fireAssayByDate[$dayStr] ?? 0);
+            if ($grade > 0 && (float) $row->ore_milled > 0) {
+                $rec = ((float) $row->gold_smelted / ((float) $row->ore_milled * $grade)) * 100;
+                $millRecoveryTrend[] = round($rec, 1);
+            } else {
+                $millRecoveryTrend[] = null;
+            }
+        }
+        $validRecoveries = array_filter($millRecoveryTrend, fn($v) => $v !== null);
+        $avgMillRecovery = count($validRecoveries) > 0
+            ? round(array_sum($validRecoveries) / count($validRecoveries), 1)
+            : null;
+
         // ── Cumulative gold + cumulative target pace ───────────────────────
         // Group by date so multi-shift days sum correctly
         $goldByDate  = $trend->groupBy(fn($r) => $r->date->format('Y-m-d'))
@@ -156,6 +180,7 @@ class DashboardController extends Controller
             'machinesTotal', 'machinesOverdue', 'machinesDueSoon',
             'trendLabels', 'trendOreHoisted', 'trendWasteHoisted',
             'trendOreCrushed', 'trendOreMilled', 'trendGoldSmelted',
+            'millRecoveryTrend', 'avgMillRecovery',
             'cumGoldLabels', 'cumGoldData', 'cumTargetData', 'dailyPace',
             'shiftLabels', 'shiftGold', 'shiftOreHoisted', 'shiftOreMilled',
             'shiftPurity', 'shiftCounts',

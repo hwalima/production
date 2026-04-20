@@ -29,6 +29,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\KnowledgeBaseAdminController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
@@ -70,6 +71,10 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Analytics
+    Route::get('/analytics',        [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
 
     // Profile — any authenticated user
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
