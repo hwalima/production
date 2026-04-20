@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MaintenanceController extends Controller
 {
@@ -129,5 +130,37 @@ class MaintenanceController extends Controller
         AuditLog::record('deleted', "Purged {$deleted} login log entries ({$label}).");
 
         return back()->with('success', "Deleted {$deleted} login log entr" . ($deleted === 1 ? 'y' : 'ies') . " ({$label}).");
+    }
+
+    /* ── Stock Movements ── */
+    public function purgeStockMovements(Request $request)
+    {
+        $from = $request->input('from');
+        $to   = $request->input('to');
+
+        $query = DB::table('consumable_stock_movements');
+
+        if ($from) {
+            $query->whereDate('movement_date', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('movement_date', '<=', $to);
+        }
+
+        $deleted = $query->count();
+        $query->delete();
+
+        // Reset current_stock on all consumables to 0 if clearing all movements
+        if (!$from && !$to) {
+            DB::table('consumables')->update(['current_stock' => 0]);
+        }
+
+        $label = ($from || $to)
+            ? 'from ' . ($from ?? 'beginning') . ' to ' . ($to ?? 'now')
+            : 'all records';
+
+        AuditLog::record('deleted', "Purged {$deleted} stock movement records ({$label}).");
+
+        return back()->with('success', "Deleted {$deleted} stock movement record" . ($deleted === 1 ? '' : 's') . " ({$label}).");
     }
 }

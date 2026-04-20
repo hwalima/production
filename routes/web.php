@@ -235,6 +235,7 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::post('/maintenance/audit-logs/purge', [MaintenanceController::class, 'purgeAuditLogs'])->name('maintenance.audit-logs.purge');
         Route::get('/maintenance/login-logs', [MaintenanceController::class, 'loginLogs'])->name('maintenance.login-logs');
         Route::post('/maintenance/login-logs/purge', [MaintenanceController::class, 'purgeLoginLogs'])->name('maintenance.login-logs.purge');
+        Route::post('/maintenance/stock-movements/purge', [MaintenanceController::class, 'purgeStockMovements'])->name('maintenance.stock-movements.purge');
     });
 
     // ── Super admin only ──────────────────────────────────────────────────

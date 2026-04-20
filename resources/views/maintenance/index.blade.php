@@ -178,4 +178,35 @@
     </div>
 </div>
 
+{{-- ── Stock Movements ── --}}
+<div class="data-card" style="margin-bottom:20px;padding:0;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--topbar-border);">
+        <div style="width:42px;height:42px;border-radius:10px;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">&#128230;</div>
+        <div>
+            <div style="font-weight:700;font-size:.95rem;">Consumable Stock Movements</div>
+            <div style="font-size:.78rem;color:#6b7280;margin-top:1px;">Purge stock movement history (the issue/usage records that appear in the Accounts report). Optionally filter by date range. Clearing all records also resets all stock quantities to zero.</div>
+        </div>
+    </div>
+    <form method="POST" action="{{ route('maintenance.stock-movements.purge') }}"
+          onsubmit="event.preventDefault();confirmDelete('Permanently delete stock movement records? If no date range is set, all stock quantities will also be reset to zero.',this)">
+        @csrf
+        <div style="padding:18px 22px;">
+            <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <label style="font-size:.75rem;font-weight:600;color:#6b7280;display:block;margin-bottom:4px;">From date <span style="font-weight:400;">(leave blank for all)</span></label>
+                    <input type="date" name="from" class="fc-input" style="width:160px;">
+                </div>
+                <div>
+                    <label style="font-size:.75rem;font-weight:600;color:#6b7280;display:block;margin-bottom:4px;">To date <span style="font-weight:400;">(leave blank for all)</span></label>
+                    <input type="date" name="to" class="fc-input" style="width:160px;">
+                </div>
+                <button type="submit" class="btn-add" style="background:#ef4444;border-color:#ef4444;display:inline-flex;align-items:center;gap:6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    Purge Stock Movements
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 @endsection
