@@ -15,6 +15,13 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}">
+        {{-- PWA --}}
+        <link rel="manifest" href="/manifest.json">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="{{ $companyName }}">
+        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
         <meta name="theme-color" content="#fcb913">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -407,6 +414,11 @@
                     <button class="icon-btn" id="darkToggle" title="Toggle dark mode">
                         <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
                         <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+                    </button>
+
+                    <!-- PWA Install button (hidden until browser fires beforeinstallprompt) -->
+                    <button class="icon-btn" id="pwaInstallBtn" title="Install App" style="display:none;" aria-label="Install App">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     </button>
 
                     <!-- Notifications -->
@@ -1267,6 +1279,44 @@
         </script>
         @endauth
 
+        {{-- PWA: Service Worker registration + install prompt --}}
+        <script>
+        (function () {
+            // Register the service worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                        .catch(function (err) { console.warn('SW registration failed:', err); });
+                });
+            }
+
+            // Capture the install prompt and show the install button
+            var deferredPrompt = null;
+            var installBtn = document.getElementById('pwaInstallBtn');
+
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (installBtn) installBtn.style.display = '';
+            });
+
+            window.addEventListener('appinstalled', function () {
+                deferredPrompt = null;
+                if (installBtn) installBtn.style.display = 'none';
+            });
+
+            if (installBtn) {
+                installBtn.addEventListener('click', function () {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(function () {
+                        deferredPrompt = null;
+                        installBtn.style.display = 'none';
+                    });
+                });
+            }
+        }());
+        </script>
 
     </body>
 </html>

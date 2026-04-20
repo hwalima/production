@@ -34,6 +34,29 @@ Route::get('/', function () {
     return auth()->check() ? redirect('/dashboard') : redirect('/login');
 });
 
+// ── PWA Manifest (public — browsers fetch before user is authenticated) ───────
+Route::get('/manifest.json', function () {
+    $s        = \Illuminate\Support\Facades\Cache::remember('app_settings', 600, fn() => \App\Models\Setting::all()->pluck('value', 'key'));
+    $name     = $s['company_name'] ?? config('app.name', 'My Mine');
+    $logoPath = $s['logo_path'] ?? '';
+    $icon192  = $logoPath ? asset('storage/'.$logoPath) : asset('icons/icon-192.png');
+    $icon512  = $logoPath ? asset('storage/'.$logoPath) : asset('icons/icon-512.png');
+    return response()->json([
+        'name'             => $name,
+        'short_name'       => 'MyMine',
+        'description'      => 'Mine Production Management System',
+        'start_url'        => '/dashboard',
+        'scope'            => '/',
+        'display'          => 'standalone',
+        'background_color' => '#001a4d',
+        'theme_color'      => '#fcb913',
+        'icons'            => [
+            ['src' => $icon192, 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any maskable'],
+            ['src' => $icon512, 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
+        ],
+    ])->header('Content-Type', 'application/manifest+json');
+})->name('pwa.manifest');
+
 // ── Forced password change (auth only — no force.pw.change loop) ─────────────
 Route::middleware(['auth'])->group(function () {
     Route::get('/password/change',  [\App\Http\Controllers\ForcePasswordChangeController::class, 'show'])->name('password.force-change');
