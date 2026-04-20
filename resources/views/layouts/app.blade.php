@@ -537,15 +537,19 @@
 
                 {{-- ── App Footer ── --}}
                 <footer style="margin-top:48px; padding:18px 0 8px; border-top:1px solid var(--topbar-border); text-align:center; font-size:.75rem; color:var(--muted,#9ca3af); line-height:2;">
-                    {{-- Row 1: Epoch Mines --}}
+                    {{-- Row 1: Company details from settings --}}
                     <div>
-                        <a href="https://www.epochmines.co.zw/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600;">&copy; {{ date('Y') }} {{ $companyName }}</a>
-                        <span style="margin:0 8px; opacity:.4;">|</span>
-                        <a href="mailto:admin@epochmines.co.zw" style="color:inherit; text-decoration:none;">admin@epochmines.co.zw</a>
-                        <span style="margin:0 8px; opacity:.4;">|</span>
-                        <a href="tel:+263719024096" style="color:inherit; text-decoration:none;">+263 71 902 4096</a>
+                        <span style="color:#fcb913; font-weight:600;">&copy; {{ date('Y') }} {{ $companyName }}</span>
+                        @if(!empty($appSettings['company_email']))
+                            <span style="margin:0 8px; opacity:.4;">|</span>
+                            <a href="mailto:{{ $appSettings['company_email'] }}" style="color:inherit; text-decoration:none;">{{ $appSettings['company_email'] }}</a>
+                        @endif
+                        @if(!empty($appSettings['company_phone']))
+                            <span style="margin:0 8px; opacity:.4;">|</span>
+                            <a href="tel:{{ preg_replace('/\s+/', '', $appSettings['company_phone']) }}" style="color:inherit; text-decoration:none;">{{ $appSettings['company_phone'] }}</a>
+                        @endif
                     </div>
-                    {{-- Row 2: Hwalima Digital --}}
+                    {{-- Row 2: Hwalima Digital (hardcoded developer credit) --}}
                     <div style="margin-top:2px;">
                         <span style="opacity:.6;">Developed by</span>
                         <a href="https://www.hwalima.digital/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600; margin-left:4px;">Hwalima Digital</a>
