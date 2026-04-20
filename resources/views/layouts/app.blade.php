@@ -12,6 +12,7 @@
             $faviconUrl   = $logoUrl ?? asset('favicon.ico');
         @endphp
         <title>@yield('title', $companyName) — {{ $companyName }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}">
         <meta name="theme-color" content="#fcb913">
