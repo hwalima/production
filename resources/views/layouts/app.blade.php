@@ -333,8 +333,12 @@
                     @endif
                 </div>
                 <nav class="flex-1 flex flex-col gap-0.5 overflow-y-auto" id="sidebarNav">
-                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
-                    <a href="{{ route('analytics.index') }}" class="{{ request()->routeIs('analytics.*') ? 'active' : '' }}" title="Analytics"><span class="nav-icon">&#127775;</span><span class="nav-text">&nbsp;Analytics</span></a>
+                    {{-- ── Overview group ── --}}
+                    <div class="nav-section-label"><span class="nsl-text">Overview</span><span class="nsl-line"></span></div>
+                    <div class="nav-group-items" id="ng-overview">
+                        <a href="{{ route('dashboard') }}" class="sub {{ request()->routeIs('dashboard') ? 'active' : '' }}" title="Dashboard"><span class="nav-icon">&#128200;</span><span class="nav-text">&nbsp;Dashboard</span></a>
+                        <a href="{{ route('analytics.index') }}" class="sub {{ request()->routeIs('analytics.*') ? 'active' : '' }}" title="Analytics"><span class="nav-icon">&#127775;</span><span class="nav-text">&nbsp;Analytics</span></a>
+                    </div>
 
                     {{-- ── Operations group ── --}}
                     <div class="nav-section-label"><span class="nsl-text">Operations</span><span class="nsl-line"></span></div>
@@ -368,8 +372,11 @@
                     </div>
 
                     {{-- ── Help ── --}}
-                    <a href="{{ route('kb.index') }}" class="{{ request()->routeIs('kb.*') ? 'active' : '' }}" title="Knowledge Base"><span class="nav-icon">&#128218;</span><span class="nav-text">&nbsp;Help / Docs</span></a>
-                    <a href="{{ route('docs.index') }}" class="{{ request()->routeIs('docs.*') ? 'active' : '' }}" title="App Documentation"><span class="nav-icon">&#128196;</span><span class="nav-text">&nbsp;App Docs / PDF</span></a>
+                    <div class="nav-section-label"><span class="nsl-text">Help</span><span class="nsl-line"></span></div>
+                    <div class="nav-group-items" id="ng-help">
+                        <a href="{{ route('kb.index') }}" class="sub {{ request()->routeIs('kb.*') ? 'active' : '' }}" title="Knowledge Base"><span class="nav-icon">&#128218;</span><span class="nav-text">&nbsp;Help / Docs</span></a>
+                        <a href="{{ route('docs.index') }}" class="{{ request()->routeIs('docs.*') ? 'active' : '' }}" title="App Documentation"><span class="nav-icon">&#128196;</span><span class="nav-text">&nbsp;App Docs / PDF</span></a>
+                    </div>
 
                     {{-- ── Admin group ── --}}
                     @if(auth()->user()?->isAdminOrAbove())
