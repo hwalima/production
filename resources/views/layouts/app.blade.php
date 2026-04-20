@@ -513,6 +513,17 @@
                     @media(min-width:1024px){ #mainContent { padding:28px 32px !important; } }
                 </style>
                 @yield('content')
+
+                {{-- ── App Footer ── --}}
+                <footer style="margin-top:48px; padding:18px 0 8px; border-top:1px solid var(--topbar-border); text-align:center; font-size:.75rem; color:var(--muted,#9ca3af); line-height:1.8;">
+                    <span>Developed by <a href="https://www.hwalima.digital/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600;">Hwalima Digital</a></span>
+                    <span style="margin:0 8px; opacity:.4;">|</span>
+                    <a href="mailto:info@hwalima.digital" style="color:inherit; text-decoration:none;">info@hwalima.digital</a>
+                    <span style="margin:0 8px; opacity:.4;">|</span>
+                    <a href="tel:+27785425978" style="color:inherit; text-decoration:none;">+27 78 542 5978</a>
+                    <span style="margin:0 8px; opacity:.4;">|</span>
+                    <span>&copy; {{ date('Y') }} {{ $companyName }}. All rights reserved.</span>
+                </footer>
             </main>
         </div>
 
