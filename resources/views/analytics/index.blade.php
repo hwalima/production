@@ -7,10 +7,12 @@
 /* ── Analytics page layout ─────────────────────────────────────── */
 .an-wrap    { display:flex; flex-direction:column; gap:20px; padding:20px; max-width:1400px; }
 .an-filter  { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.an-filter input[type=date] { background:var(--card); border:1px solid var(--topbar-border); color:var(--text); border-radius:8px; padding:6px 10px; font-size:.82rem; }
+.an-filter { --g-gold: linear-gradient(135deg,#f59e0b,#fcc104); }
+.an-filter input[type=date] { background:var(--card); border:1px solid var(--topbar-border); color:var(--text); border-radius:8px; padding:6px 10px; font-size:.82rem; color-scheme:dark; }
 .an-filter .preset-btn { background:transparent; border:1px solid var(--topbar-border); color:#9ca3af; border-radius:7px; padding:5px 11px; font-size:.75rem; cursor:pointer; transition:all .15s; }
 .an-filter .preset-btn:hover,.an-filter .preset-btn.active { background:rgba(252,185,19,.15); border-color:#fcb913; color:#fcb913; }
-.an-filter .apply-btn { background:var(--g-gold); color:#000; font-weight:700; border:none; border-radius:8px; padding:7px 18px; font-size:.82rem; cursor:pointer; }
+.an-filter .apply-btn { background:linear-gradient(135deg,#f59e0b,#fcc104); color:#000; font-weight:700; border:none; border-radius:8px; padding:7px 18px; font-size:.82rem; cursor:pointer; transition:filter .15s,box-shadow .15s; box-shadow:0 2px 8px rgba(245,158,11,.4); }
+.an-filter .apply-btn:hover { filter:brightness(1.12); box-shadow:0 4px 14px rgba(245,158,11,.55); }
 .an-filter .export-btn { background:transparent; border:1px solid var(--topbar-border); color:#9ca3af; border-radius:8px; padding:6px 13px; font-size:.78rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; }
 .an-filter .export-btn:hover { border-color:#34d399; color:#34d399; }
 .an-filter .print-btn { background:transparent; border:1px solid var(--topbar-border); color:#9ca3af; border-radius:8px; padding:6px 13px; font-size:.78rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; }
@@ -97,7 +99,7 @@
     <div class="an-card" style="padding:14px 18px;">
         <form method="GET" action="{{ route('analytics.index') }}" id="anFilterForm" style="display:contents;">
             <div class="an-filter">
-                <span style="font-size:.78rem;font-weight:700;color:#9ca3af;white-space:nowrap;">&#128197; Date Range:</span>
+                <span style="font-size:.78rem;font-weight:700;color:#fcb913;white-space:nowrap;">&#128197; Date Range:</span>
                 <input type="date" name="from" id="anFrom" value="{{ $from }}" max="{{ $to }}">
                 <span style="color:#6b7280;font-size:.8rem;">to</span>
                 <input type="date" name="to" id="anTo" value="{{ $to }}" min="{{ $from }}">
