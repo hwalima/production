@@ -197,6 +197,7 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         // User management
         Route::resource('users', UserController::class)->except(['show']);
         Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
 
         // Consumable low-stock alert — manual trigger
         Route::post('/consumables/send-low-stock-alert', [ConsumableController::class, 'sendLowStockAlert'])

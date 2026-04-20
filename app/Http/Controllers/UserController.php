@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AccountDeleted;
+use App\Mail\PasswordResetByAdmin;
 use App\Mail\RoleChanged;
 use App\Mail\WelcomeNewUser;
 use App\Models\AuditLog;
@@ -235,8 +236,60 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User deleted.');
     }
 
-    public function toggleActive(User $user)
+    public function resetPassword(User $user)
     {
+        /** @var \App\Models\User $actor */
+        $actor = auth()->user();
+
+        if (!$actor->isSuperAdmin()) {
+            return back()->with('error', 'Only a Super Administrator can reset passwords.');
+        }
+
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Use your profile page to change your own password.');
+        }
+
+        // Generate a strong random temporary password
+        $plainPassword = ucfirst(Str::random(6)) . rand(10, 99) . '!';
+
+        $user->update([
+            'password'              => Hash::make($plainPassword),
+            'force_password_change' => true,
+            'two_factor_secret'         => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at'   => null,
+        ]);
+
+        // Email the new temporary password to the user
+        try {
+            $settings    = Setting::all()->pluck('value', 'key');
+            $companyName = $settings['company_name'] ?? config('app.name');
+            $appUrl      = rtrim(config('app.url'), '/');
+            $logoUrl     = $this->resolveLogoUrl($settings);
+
+            $this->applyMailSettings($settings);
+
+            Mail::to($user->email)->send(new PasswordResetByAdmin(
+                userName:      $user->name,
+                userEmail:     $user->email,
+                plainPassword: $plainPassword,
+                resetBy:       $actor->name,
+                companyName:   $companyName,
+                appUrl:        $appUrl,
+                logoUrl:       $logoUrl,
+            ));
+
+            $mailNote = ' A temporary password has been emailed to them.';
+        } catch (\Exception) {
+            $mailNote = ' (Email delivery failed — temporary password: ' . $plainPassword . ')';
+        }
+
+        AuditLog::record('user_password_reset', "Super admin {$actor->name} reset password for {$user->name} ({$user->email})", 'User', $user->id);
+
+        return back()->with('success', "Password reset for {$user->name}.{$mailNote}");
+    }
+
+    public function toggleActive(User $user)    {
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot deactivate your own account.');
         }
