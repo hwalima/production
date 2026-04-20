@@ -9,10 +9,13 @@ use App\Models\DailyProduction;
 use App\Models\DrillingRecord;
 use App\Models\LabourEnergy;
 use App\Models\MachineRuntime;
+use App\Models\Setting;
 use App\Models\SheIndicator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AnalyticsController extends Controller
 {
@@ -361,6 +364,54 @@ class AnalyticsController extends Controller
             // 13
             'anomalies'
         ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $from = $request->input('from', session('analytics_from', Carbon::now()->subMonths(3)->startOfMonth()->toDateString()));
+        $to   = $request->input('to',   session('analytics_to',   Carbon::now()->endOfMonth()->toDateString()));
+
+        // Build a synthetic request and grab the view data via getData()
+        $fakeRequest = \Illuminate\Http\Request::create('/analytics', 'GET', ['from' => $from, 'to' => $to]);
+        $view        = $this->index($fakeRequest);
+        $data        = $view->getData();
+
+        // PDF company settings
+        $settings   = \Illuminate\Support\Facades\Cache::remember('app_settings', 600, fn() => Setting::all()->pluck('value', 'key'));
+        $logoPath   = $settings['logo_path'] ?? null;
+        $logoBase64 = null;
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            $absPath    = storage_path('app/public/' . $logoPath);
+            $mime       = mime_content_type($absPath);
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(Storage::disk('public')->get($logoPath));
+        }
+
+        // Extra per-day detail the PDF needs
+        $prodByDayPdf = DailyProduction::whereBetween('date', [$from, $to])
+            ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled, SUM(ore_hoisted) as hoisted')
+            ->groupBy('day')->orderBy('day')->get();
+
+        $fireAssayByDatePdf = AssayResult::whereBetween('date', [$from, $to])
+            ->where('type', 'fire_assay')
+            ->selectRaw('DATE(date) as day, AVG(assay_value) as avg_grade')
+            ->groupBy('day')->pluck('avg_grade', 'day')->map(fn($v) => (float) $v);
+
+        $pdfData = array_merge($data, [
+            'logoBase64'         => $logoBase64,
+            'companyName'        => $settings['company_name']     ?? config('app.name'),
+            'companyLocation'    => $settings['company_location'] ?? ($settings['company_address'] ?? ''),
+            'companyPhone'       => $settings['company_phone']    ?? '',
+            'companyEmail'       => $settings['company_email']    ?? '',
+            'prodByDayPdf'       => $prodByDayPdf,
+            'fireAssayByDatePdf' => $fireAssayByDatePdf,
+        ]);
+
+        $filename = 'analytics-' . $from . '-to-' . $to . '.pdf';
+
+        return Pdf::loadView('pdf.analytics', $pdfData)
+            ->setPaper('a4', 'portrait')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->download($filename);
     }
 
     public function export(Request $request)

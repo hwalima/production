@@ -114,6 +114,9 @@
                     <a href="{{ route('analytics.export', ['from' => $from, 'to' => $to]) }}" class="export-btn">
                         &#8659; Export CSV
                     </a>
+                    <a href="{{ route('analytics.export.pdf', ['from' => $from, 'to' => $to]) }}" class="export-btn" style="border-color:var(--topbar-border);" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171';" onmouseout="this.style.borderColor='var(--topbar-border)';this.style.color='#9ca3af';">
+                        &#128196; Export PDF
+                    </a>
                     <button type="button" class="print-btn" onclick="window.print()">&#128424; Print</button>
                 </div>
             </div>

@@ -73,8 +73,9 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Analytics
-    Route::get('/analytics',        [AnalyticsController::class, 'index'])->name('analytics.index');
-    Route::get('/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
+    Route::get('/analytics',            [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/export',     [AnalyticsController::class, 'export'])->name('analytics.export');
+    Route::get('/analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])->name('analytics.export.pdf')->middleware('throttle:10,1');
 
     // Profile — any authenticated user
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
