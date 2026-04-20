@@ -17,6 +17,40 @@
     </a>
 </div>
 
+@push('scripts')
+<script>
+function copyForWhatsApp() {
+    const rows = document.querySelectorAll('#loginLogsTable tbody tr[data-row]');
+    if (!rows.length) { alert('No records to copy.'); return; }
+
+    const lines = [
+        '🔐 *Login Logs — {{ config('app.name') }}*',
+        '_Generated: {{ now()->format('d M Y, H:i') }}_',
+        '',
+    ];
+
+    rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        const name  = cells[0]?.innerText.trim();
+        const event = cells[2]?.innerText.trim().toLowerCase();
+        const ip    = cells[3]?.innerText.trim();
+        const date  = cells[5]?.innerText.trim();
+
+        const icon = event === 'login' ? '✅' : (event === 'failed' ? '❌' : '🚪');
+        lines.push(`${icon} *${name}* — ${event.toUpperCase()} — ${date} — IP: ${ip}`);
+    });
+
+    lines.push('', `_Total: ${rows.length} records_`);
+
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('waBtn');
+        btn.textContent = '✓ Copied!';
+        btn.style.background = '#22c55e';
+        setTimeout(() => { btn.textContent = '📲 Copy for WhatsApp'; btn.style.background = ''; }, 2500);
+    }).catch(() => alert('Copy failed — please allow clipboard access.'));
+}
+</script>
+@endpush
 {{-- Filters --}}
 <form method="GET" action="{{ route('maintenance.login-logs') }}" class="filter-form" style="margin-bottom:16px;">
     <div class="filter-group">
@@ -49,6 +83,11 @@
 <div class="data-card" style="overflow:hidden;">
     <div style="padding:14px 18px;border-bottom:1px solid var(--topbar-border);display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:.82rem;color:#6b7280;">{{ $logs->total() }} records</span>
+        <button id="waBtn" onclick="copyForWhatsApp()" type="button"
+            style="background:transparent;border:1px solid #25D366;color:#25D366;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s,color .15s;"
+            onmouseover="this.style.background='rgba(37,211,102,.12)'" onmouseout="this.style.background='transparent'">
+            📲 Copy for WhatsApp
+        </button>
     </div>
     <div class="table-responsive">
         <table class="data-table" id="loginLogsTable">
@@ -64,7 +103,7 @@
             </thead>
             <tbody>
                 @forelse($logs as $log)
-                <tr>
+                <tr data-row="1">
                     <td style="font-weight:600;font-size:.85rem;">{{ $log->user_name ?? '—' }}</td>
                     <td style="font-size:.82rem;color:#9ca3af;">{{ $log->user_email ?? '—' }}</td>
                     <td>
