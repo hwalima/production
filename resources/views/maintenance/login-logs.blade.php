@@ -23,30 +23,35 @@ function copyForWhatsApp() {
     const rows = document.querySelectorAll('#loginLogsTable tbody tr[data-row]');
     if (!rows.length) { alert('No records to copy.'); return; }
 
+    const date = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
     const lines = [
-        '🔐 *Login Logs — {{ config('app.name') }}*',
-        '_Generated: {{ now()->format('d M Y, H:i') }}_',
+        '🏭 *{{ config('app.name') }}*',
+        '',
+        '🔐 *Login Logs*',
+        '_' + date + '  ·  ' + rows.length + ' records_',
         '',
     ];
 
     rows.forEach(r => {
         const cells = r.querySelectorAll('td');
         const name  = cells[0]?.innerText.trim();
+        const email = cells[1]?.innerText.trim();
         const event = cells[2]?.innerText.trim().toLowerCase();
         const ip    = cells[3]?.innerText.trim();
         const date  = cells[5]?.innerText.trim();
 
         const icon = event === 'login' ? '✅' : (event === 'failed' ? '❌' : '🚪');
-        lines.push(`${icon} *${name}* — ${event.toUpperCase()} — ${date} — IP: ${ip}`);
+        lines.push(`${icon} *${name}*\n  _${email}_\n  *Event:* ${event.toUpperCase()}  ·  *IP:* ${ip}\n  *When:* ${date}`);
+        lines.push('');
     });
 
-    lines.push('', `_Total: ${rows.length} records_`);
+    lines.push('─────────────────', `_Total: ${rows.length} records_`);
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
         const btn = document.getElementById('waBtn');
         btn.textContent = '✓ Copied!';
-        btn.style.background = '#22c55e';
-        setTimeout(() => { btn.textContent = '📲 Copy for WhatsApp'; btn.style.background = ''; }, 2500);
+        btn.style.background = 'rgba(37,211,102,.2)';
+        setTimeout(() => { btn.textContent = '📲 Copy for WhatsApp'; btn.style.background = 'transparent'; }, 2500);
     }).catch(() => alert('Copy failed — please allow clipboard access.'));
 }
 </script>

@@ -776,24 +776,41 @@
             }
 
             function tableToText(table, title) {
-                var ci = window.companyInfo || {};
+                var ci      = window.companyInfo || {};
                 var headers = getHeaders(table);
-                var rows = getRowData(table);
-                var sep = headers.map(function () { return '───────────'; }).join('─┼─');
+                var rows    = getRowData(table);
+                var date    = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+                var narrow  = headers.length <= 4;
+
                 var lines = [
-                    '╔══ ' + (ci.name || 'My Mine') + ' ══╗',
-                    [ci.location, ci.address].filter(Boolean).join(' | '),
-                    ci.phone ? 'Tel: ' + ci.phone : '',
+                    '🏭 *' + (ci.name || 'My Mine') + '*',
+                    (ci.location ? '📍 ' + ci.location : ''),
                     '',
-                    '📄 ' + title,
-                    'Generated: ' + new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}),
-                    sep,
-                    headers.join(' | '),
-                    sep,
-                ].filter(function (l) { return l !== null; });
-                rows.forEach(function (r) { lines.push(r.join(' | ')); });
-                lines.push(sep);
-                lines.push('Total: ' + rows.length + ' records');
+                    '📋 *' + title + '*',
+                    '_' + date + '  ·  ' + rows.length + ' records_',
+                    '',
+                ].filter(function (l) { return l !== ''; });
+
+                if (narrow) {
+                    // Compact columnar format for tables with few columns
+                    rows.forEach(function (r) {
+                        var parts = headers.map(function (h, i) { return '*' + h + ':* ' + (r[i] || '—'); });
+                        lines.push(parts.join('  ·  '));
+                    });
+                } else {
+                    // Card-per-row format for wide tables
+                    rows.forEach(function (r, ri) {
+                        var card = headers.map(function (h, i) {
+                            var val = (r[i] || '').toString().trim();
+                            if (!val || val === '—') return null;
+                            return '  *' + h + ':* ' + val;
+                        }).filter(Boolean).join('\n');
+                        lines.push(card);
+                        if (ri < rows.length - 1) lines.push('');
+                    });
+                }
+
+                lines.push('', '─────────────────', '_Total: ' + rows.length + ' records_');
                 return lines.join('\n');
             }
 
