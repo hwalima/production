@@ -515,14 +515,24 @@
                 @yield('content')
 
                 {{-- ── App Footer ── --}}
-                <footer style="margin-top:48px; padding:18px 0 8px; border-top:1px solid var(--topbar-border); text-align:center; font-size:.75rem; color:var(--muted,#9ca3af); line-height:1.8;">
-                    <span>Developed by <a href="https://www.hwalima.digital/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600;">Hwalima Digital</a></span>
-                    <span style="margin:0 8px; opacity:.4;">|</span>
-                    <a href="mailto:info@hwalima.digital" style="color:inherit; text-decoration:none;">info@hwalima.digital</a>
-                    <span style="margin:0 8px; opacity:.4;">|</span>
-                    <a href="tel:+27785425978" style="color:inherit; text-decoration:none;">+27 78 542 5978</a>
-                    <span style="margin:0 8px; opacity:.4;">|</span>
-                    <span>&copy; {{ date('Y') }} {{ $companyName }}. All rights reserved.</span>
+                <footer style="margin-top:48px; padding:18px 0 8px; border-top:1px solid var(--topbar-border); text-align:center; font-size:.75rem; color:var(--muted,#9ca3af); line-height:2;">
+                    {{-- Row 1: Epoch Mines --}}
+                    <div>
+                        <a href="https://www.epochmines.co.zw/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600;">&copy; {{ date('Y') }} {{ $companyName }}</a>
+                        <span style="margin:0 8px; opacity:.4;">|</span>
+                        <a href="mailto:admin@epochmines.co.zw" style="color:inherit; text-decoration:none;">admin@epochmines.co.zw</a>
+                        <span style="margin:0 8px; opacity:.4;">|</span>
+                        <a href="tel:+263719024096" style="color:inherit; text-decoration:none;">+263 71 902 4096</a>
+                    </div>
+                    {{-- Row 2: Hwalima Digital --}}
+                    <div style="margin-top:2px;">
+                        <span style="opacity:.6;">Developed by</span>
+                        <a href="https://www.hwalima.digital/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600; margin-left:4px;">Hwalima Digital</a>
+                        <span style="margin:0 8px; opacity:.4;">|</span>
+                        <a href="mailto:info@hwalima.digital" style="color:inherit; text-decoration:none;">info@hwalima.digital</a>
+                        <span style="margin:0 8px; opacity:.4;">|</span>
+                        <a href="tel:+27785425978" style="color:inherit; text-decoration:none;">+27 78 542 5978</a>
+                    </div>
                 </footer>
             </main>
         </div>
