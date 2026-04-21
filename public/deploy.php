@@ -54,7 +54,7 @@ function findPhpBin(): string {
 function findComposerBin(): string {
     $php = findPhpBin();
     // Detect home dir dynamically so this works on any server account
-    $home = getenv('HOME') ?: posix_getpwuid(posix_getuid())['dir'] ?? '/tmp';
+    $home = getenv('HOME') ?: (function_exists('posix_getpwuid') ? (posix_getpwuid(posix_getuid())['dir'] ?? '/tmp') : '/tmp');
     $candidates = [
         '/usr/local/bin/composer',
         '/usr/bin/composer',
