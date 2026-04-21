@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 /**
  * Webhook deploy script — called by GitHub on every push to main.
  * Works on any server — reads config from the app's .env file.
@@ -112,42 +110,20 @@ if ($ref !== 'refs/heads/' . BRANCH) {
     exit("Push to '{$ref}' ignored (not " . BRANCH . ").\n");
 }
 
-// 4. Run deploy commands
-$php      = findPhpBin();
-$composer = findComposerBin();
-$dir = APP_DIR;
+// 4. Write a deploy-pending flag — the cron job picks this up and runs the actual deploy
+//    (shell_exec / exec are disabled in web PHP on this host)
+$flagFile = APP_DIR . '/storage/deploy-pending';
+$meta     = json_encode([
+    'triggered_at' => date('Y-m-d H:i:s'),
+    'ref'          => $ref,
+    'commit'       => $data['after'] ?? 'unknown',
+    'pusher'       => $data['pusher']['name'] ?? 'unknown',
+]);
 
-$commands = [
-    "cd {$dir} && git fetch origin " . BRANCH,
-    "cd {$dir} && git reset --hard origin/" . BRANCH,
-    "HOME=/tmp COMPOSER_HOME=/tmp/composer-home {$composer} install --no-dev --optimize-autoloader --working-dir={$dir}",
-    "{$php} {$dir}/artisan config:clear",
-    "{$php} {$dir}/artisan view:clear",
-    "{$php} {$dir}/artisan route:clear",
-    "{$php} {$dir}/artisan config:cache",
-    "{$php} {$dir}/artisan route:cache",
-    "{$php} {$dir}/artisan view:cache",
-    "{$php} {$dir}/artisan migrate --force",
-];
-
-$log   = "\n[" . date('Y-m-d H:i:s') . "] Deploy triggered by push to " . BRANCH . "\n";
-$output = '';
-
-foreach ($commands as $cmd) {
-    $result = shell_exec($cmd . ' 2>&1');
-    $line   = "$ {$cmd}\n{$result}\n";
-    $output .= $line;
-    $log    .= $line;
+if (file_put_contents($flagFile, $meta) === false) {
+    http_response_code(500);
+    exit("Could not write deploy flag to {$flagFile}\n");
 }
 
-// 5. Reset OPcache via HTTP (CLI opcache_reset() doesn't affect web-server OPcache)
-$resetUrl = 'http://127.0.0.1/opcache-reset.php?token=' . DEPLOY_SECRET;
-$resetOut = @file_get_contents($resetUrl) ?: shell_exec('curl -s "' . $resetUrl . '"');
-$output  .= "$ OPcache reset\n" . ($resetOut ?: '(no response)') . "\n";
-$log     .= "$ OPcache reset\n" . ($resetOut ?: '(no response)') . "\n";
-
-// 6. Write to log file
-file_put_contents(LOG_FILE, $log, FILE_APPEND);
-
 http_response_code(200);
-echo "Deploy complete.\n\n" . $output;
+echo "Deploy queued. Cron job will execute within 1 minute.\n{$meta}\n";
