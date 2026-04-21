@@ -60,6 +60,7 @@ echo "==> artisan"
 "$PHP_BIN" artisan view:clear
 "$PHP_BIN" artisan route:clear
 "$PHP_BIN" artisan migrate --force
+"$PHP_BIN" artisan db:seed --class=KnowledgeBaseSeeder --force
 "$PHP_BIN" artisan config:cache
 "$PHP_BIN" artisan route:cache
 "$PHP_BIN" artisan view:cache

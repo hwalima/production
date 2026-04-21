@@ -9,10 +9,6 @@ class KnowledgeBaseSeeder extends Seeder
 {
     public function run(): void
     {
-        if (DB::table('knowledge_base_categories')->count() > 0) {
-            return;
-        }
-
         $now = now()->toDateTimeString();
 
         $data = [
@@ -36,6 +32,7 @@ class KnowledgeBaseSeeder extends Seeder
   <li><strong>Assay Results</strong> — Record metallurgical assay data and view grade/recovery trends</li>
   <li><strong>SHE</strong> — Safety, health and environment indicators and compliance requirements</li>
   <li><strong>Action Items</strong> — Create, assign and track corrective/preventive actions</li>
+  <li><strong>Analytics &amp; Insights</strong> — 13 KPI charts: mill recovery, AISC, SPC control charts, anomaly detection, predictive maintenance, and more</li>
   <li><strong>Reports &amp; PDF Export</strong> — Production, consumables, and accounts reports</li>
   <li><strong>Bulk Import</strong> — CSV / Excel import for historical data across all modules</li>
   <li><strong>API Access</strong> — Read-only JSON API for dashboards and third-party integrations</li>
@@ -915,6 +912,189 @@ HTML,
                     ],
                 ],
             ],
+
+            // ── 15. Analytics & Insights ─────────────────────────────────────────
+            [
+                'title' => 'Analytics & Insights', 'slug' => 'analytics-insights', 'icon' => '📈', 'sort_order' => 15,
+                'articles' => [
+                    [
+                        'title' => 'Analytics Overview',
+                        'slug'  => 'analytics-overview',
+                        'content' => <<<'HTML'
+<p>The <strong>Analytics</strong> module transforms raw operational data into actionable intelligence. It delivers 13 KPI charts covering every aspect of the mining operation — from gold recovery and cost control to safety, equipment health, and statistical process control.</p>
+<h2 id="access">Accessing Analytics <a class="kb-anchor" href="#access">¶</a></h2>
+<p>Navigate to <strong>Analytics</strong> in the left sidebar. The page is available to all roles (Viewer and above).</p>
+<h2 id="filter">Date Range Filter <a class="kb-anchor" href="#filter">¶</a></h2>
+<p>At the top of the page, set a <strong>From</strong> and <strong>To</strong> date and click <strong>Apply</strong>. All 13 charts update simultaneously to reflect the selected period. The default range is the last 90 days.</p>
+<h2 id="charts">Chart Layout <a class="kb-anchor" href="#charts">¶</a></h2>
+<p>Charts are arranged in a responsive grid. Each card has a title, a brief description of what the metric measures, and an interactive Chart.js chart. Hover over data points to see exact values.</p>
+<div class="kb-callout kb-info"><strong>Data requirement:</strong> Charts only display data that has been recorded. If a chart appears empty, enter production, assay, or cost records for the selected date range first.</div>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 1 — Mill Recovery %',
+                        'slug'  => 'kpi-mill-recovery',
+                        'content' => <<<'HTML'
+<p><strong>Mill Recovery %</strong> measures how efficiently the mill extracts gold from the ore it processes. It is the most critical metallurgical KPI.</p>
+<h2 id="formula">Formula <a class="kb-anchor" href="#formula">¶</a></h2>
+<p>$$\text{Recovery \%} = \frac{\text{Gold Produced (g)}}{\text{Ore Milled (t)} \times \text{Head Grade (g/t)}} \times 100$$</p>
+<p>Head grade is taken from the <strong>Fire Assay</strong> result recorded in Assay Results for the same date.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>The line chart shows daily recovery % over the selected period. A horizontal reference line at <strong>85%</strong> indicates a typical target threshold. Points below this line warrant investigation of mill settings, ore hardness, or reagent dosage.</p>
+<div class="kb-callout kb-warning"><strong>Note:</strong> Days with no fire assay result are excluded from the calculation and will appear as gaps in the chart.</div>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 2 — All-In Sustaining Cost (AISC)',
+                        'slug'  => 'kpi-aisc',
+                        'content' => <<<'HTML'
+<p><strong>AISC per gram</strong> is the total cost of producing one gram of gold, including all operational, labour, energy, and consumable costs. It is the primary profitability metric.</p>
+<h2 id="formula">Formula <a class="kb-anchor" href="#formula">¶</a></h2>
+<p>$$\text{AISC ($/g)} = \frac{\text{Total Costs (\$)}}{\text{Total Gold Produced (g)}}$$</p>
+<p>Total costs include: Labour, ZESA electricity, diesel, and all consumable usage costs recorded in the selected period.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>Monthly bars show AISC for each month in the selected range. Compare against the <strong>Fidelity Gold Price</strong> (the price at which gold is sold) — if AISC exceeds the gold price, the operation is running at a loss for that month.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 3 — Grade Reconciliation',
+                        'slug'  => 'kpi-grade-reconciliation',
+                        'content' => <<<'HTML'
+<p><strong>Grade Reconciliation</strong> compares the <em>predicted</em> gold grade (from fire assay) against the <em>actual</em> grade achieved in production. Divergence indicates measurement error, ore sorting issues, or dilution.</p>
+<h2 id="formula">Formula <a class="kb-anchor" href="#formula">¶</a></h2>
+<ul>
+  <li><strong>Predicted grade (g/t)</strong> — Average fire assay result for the period</li>
+  <li><strong>Actual grade (g/t)</strong> — Gold produced ÷ ore milled</li>
+  <li><strong>Reconciliation factor</strong> — Actual ÷ Predicted × 100%</li>
+</ul>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A grouped bar chart shows predicted vs actual grade per day. Consistent under-performance of actual vs predicted suggests dilution or sampling bias. Over-performance may indicate conservative assay estimates.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 4 — Cost per Tonne Milled',
+                        'slug'  => 'kpi-cost-per-tonne',
+                        'content' => <<<'HTML'
+<p><strong>Cost per tonne milled</strong> tracks operational efficiency by showing how much it costs to process each tonne of ore through the mill.</p>
+<h2 id="formula">Formula <a class="kb-anchor" href="#formula">¶</a></h2>
+<p>$$\text{Cost/t} = \frac{\text{Total Costs (\$)}}{\text{Ore Milled (t)}}$$</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>Monthly bars. Rising cost/tonne over time signals increasing inefficiency (rising input costs, falling throughput, or equipment degradation). Use alongside AISC to distinguish metallurgical problems from throughput problems.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 5 — Month-on-Month & YTD Comparison',
+                        'slug'  => 'kpi-mom-ytd',
+                        'content' => <<<'HTML'
+<p>Compares gold production across months and accumulates year-to-date (YTD) output to track progress against annual targets.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A dual-axis chart: bars show monthly gold production (g), the line shows cumulative YTD production. Use this to spot seasonal patterns, identify strong and weak months, and forecast year-end output.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 6 — Stockpile Balance Trend',
+                        'slug'  => 'kpi-stockpile',
+                        'content' => <<<'HTML'
+<p>Tracks the volume of ore at each stage of the processing pipeline — run-of-mine (ROM), crushed, and milled — over time.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A stacked area chart showing <strong>Uncrushed Stockpile</strong> and <strong>Unmilled Stockpile</strong> by day. A growing uncrushed stockpile with a shrinking unmilled stockpile indicates a crusher bottleneck. Both declining signals the mill is consuming faster than the mine is producing.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 7 — Blasting Powder Factor',
+                        'slug'  => 'kpi-powder-factor',
+                        'content' => <<<'HTML'
+<p><strong>Powder factor (kg/t)</strong> measures explosive efficiency — how many kilograms of ANFO are consumed per tonne of rock blasted.</p>
+<h2 id="formula">Formula <a class="kb-anchor" href="#formula">¶</a></h2>
+<p>$$\text{Powder Factor (kg/t)} = \frac{\text{ANFO Used (kg)}}{\text{Tonnes Blasted (t)}}$$</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A line chart over the selected period. Higher powder factors cost more per tonne but may be necessary for hard rock. Sudden spikes can indicate poor blast design or incorrect charge loading. Data is sourced from Blasting Records.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 8 — Safety Rates (LTIFR & TRIFR)',
+                        'slug'  => 'kpi-safety-rates',
+                        'content' => <<<'HTML'
+<p>Safety performance is measured using industry-standard frequency rates based on SHE records.</p>
+<h2 id="ltifr">Lost Time Injury Frequency Rate (LTIFR) <a class="kb-anchor" href="#ltifr">¶</a></h2>
+<p>$$\text{LTIFR} = \frac{\text{Lost Time Injuries} \times 1{,}000{,}000}{\text{Hours Worked}}$$</p>
+<h2 id="trifr">Total Recordable Injury Frequency Rate (TRIFR) <a class="kb-anchor" href="#trifr">¶</a></h2>
+<p>$$\text{TRIFR} = \frac{\text{Total Recordable Injuries} \times 1{,}000{,}000}{\text{Hours Worked}}$$</p>
+<p>Total recordable injuries = lost time injuries + medical treatment injuries + restricted work injuries.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>Monthly dual-line chart. Lower is better. A zero LTIFR for the period is a significant safety achievement. Spikes should trigger immediate incident review.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 9 — Consumables Burn Rate & Runway',
+                        'slug'  => 'kpi-consumables-runway',
+                        'content' => <<<'HTML'
+<p>Shows how quickly consumable stock is being depleted and estimates how many days of stock remain at the current consumption rate.</p>
+<h2 id="burnrate">Burn Rate <a class="kb-anchor" href="#burnrate">¶</a></h2>
+<p>Average daily usage (quantity) per consumable item over the selected period, calculated from stock movement records with type <em>usage</em>.</p>
+<h2 id="runway">Runway (days) <a class="kb-anchor" href="#runway">¶</a></h2>
+<p>$$\text{Runway (days)} = \frac{\text{Current Stock Quantity}}{\text{Average Daily Burn Rate}}$$</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A horizontal bar chart ranked by shortest runway first. Items with runway below the reorder threshold are highlighted in red — these require immediate procurement action.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 10 — Drill Metres Trend',
+                        'slug'  => 'kpi-drill-metres',
+                        'content' => <<<'HTML'
+<p>Tracks total metres drilled per day, broken down by drill type (production vs development), giving visibility of future ore availability.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A stacked bar chart by day. Production drilling directly feeds the blast-mine cycle. Development drilling creates access for future mining blocks. A sustained drop in drill metres will reduce available ore tonnage 2–4 weeks later. Data sourced from Drilling Records.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 11 — Statistical Process Control (SPC)',
+                        'slug'  => 'kpi-spc',
+                        'content' => <<<'HTML'
+<p>The <strong>SPC Control Chart</strong> applies statistical process control to implied gold grade, detecting whether the production process is operating within normal variation or has experienced a significant shift.</p>
+<h2 id="how">How It Works <a class="kb-anchor" href="#how">¶</a></h2>
+<ul>
+  <li><strong>Centre line (CL)</strong> — Mean implied gold grade over the period</li>
+  <li><strong>Upper Control Limit (UCL)</strong> — Mean + 2 standard deviations</li>
+  <li><strong>Lower Control Limit (LCL)</strong> — Mean − 2 standard deviations (floor 0)</li>
+</ul>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>Points within the control limits indicate <strong>common cause variation</strong> — normal process noise. Points <strong>outside</strong> the control limits (highlighted in red) are <strong>out-of-control signals</strong> requiring investigation: equipment failure, assay error, ore change, or process disruption.</p>
+<div class="kb-callout kb-info">SPC requires at least 7 data points to calculate meaningful control limits.</div>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 12 — Predictive Maintenance',
+                        'slug'  => 'kpi-predictive-maintenance',
+                        'content' => <<<'HTML'
+<p>The <strong>Predictive Maintenance</strong> chart monitors machine runtime hours and forecasts when each machine will reach its next service threshold.</p>
+<h2 id="how">How It Works <a class="kb-anchor" href="#how">¶</a></h2>
+<p>For each machine, the system calculates the average daily runtime hours over the selected period. It then projects how many days remain before the machine accumulates enough hours to require its next scheduled service.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A horizontal bar chart showing <strong>days to next service</strong> per machine, colour-coded:</p>
+<ul>
+  <li><span style="color:#22c55e">■</span> <strong>Green</strong> — More than 14 days remaining</li>
+  <li><span style="color:#f59e0b">■</span> <strong>Amber</strong> — 7–14 days remaining</li>
+  <li><span style="color:#ef4444">■</span> <strong>Red</strong> — Less than 7 days — service overdue or imminent</li>
+</ul>
+<p>Data is sourced from Machine Runtime records. Machines with no recent runtime records are excluded.</p>
+HTML,
+                    ],
+                    [
+                        'title' => 'KPI 13 — Anomaly Detection',
+                        'slug'  => 'kpi-anomaly-detection',
+                        'content' => <<<'HTML'
+<p><strong>Anomaly Detection</strong> uses z-score analysis to automatically flag days where gold grade deviated abnormally from the historical mean, helping identify events that require investigation.</p>
+<h2 id="how">How It Works <a class="kb-anchor" href="#how">¶</a></h2>
+<p>$$\text{Z-score} = \frac{\text{Daily Grade} - \mu}{\sigma}$$</p>
+<p>Where μ is the mean implied gold grade and σ is the standard deviation over the selected period. Days with |z-score| > 2 are flagged as anomalies.</p>
+<h2 id="reading">Reading the Chart <a class="kb-anchor" href="#reading">¶</a></h2>
+<p>A scatter chart where normal days appear as blue dots and anomalous days appear as <span style="color:#ef4444">red dots</span>. Hover over a red dot to see the exact date, grade value, and z-score. Investigate flagged days in the corresponding Daily Production and Assay Results records.</p>
+<div class="kb-callout kb-warning"><strong>Note:</strong> Anomaly detection requires at least 10 data points to be statistically meaningful. With fewer records, all points will appear as normal.</div>
+HTML,
+                    ],
+                ],
+            ],
         ];
 
         foreach ($data as $catRow) {
@@ -923,19 +1103,29 @@ HTML,
             $catRow['created_at'] = $now;
             $catRow['updated_at'] = $now;
 
-            $catId = DB::table('knowledge_base_categories')->insertGetId($catRow);
+            // Upsert category by slug so re-running is safe
+            $existing = DB::table('knowledge_base_categories')->where('slug', $catRow['slug'])->first();
+            if ($existing) {
+                DB::table('knowledge_base_categories')->where('slug', $catRow['slug'])->update($catRow);
+                $catId = $existing->id;
+            } else {
+                $catId = DB::table('knowledge_base_categories')->insertGetId($catRow);
+            }
 
             foreach ($articles as $i => $art) {
-                DB::table('knowledge_base_articles')->insert([
-                    'knowledge_base_category_id' => $catId,
-                    'title'      => $art['title'],
-                    'slug'       => $art['slug'],
-                    'content'    => $art['content'],
-                    'sort_order' => $i + 1,
-                    'is_published' => true,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
+                DB::table('knowledge_base_articles')->updateOrInsert(
+                    ['slug' => $art['slug']],
+                    [
+                        'knowledge_base_category_id' => $catId,
+                        'title'      => $art['title'],
+                        'slug'       => $art['slug'],
+                        'content'    => $art['content'],
+                        'sort_order' => $i + 1,
+                        'is_published' => true,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]
+                );
             }
         }
     }
