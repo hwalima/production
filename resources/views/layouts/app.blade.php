@@ -9,11 +9,10 @@
             $companyName  = $appSettings['company_name'] ?? config('app.name', 'My Mine');
             $logoPath     = $appSettings['logo_path'] ?? '';
             $logoUrl      = $logoPath ? asset('storage/' . $logoPath) : null;
-            $faviconUrl   = $logoUrl ?? asset('favicon.ico');
         @endphp
         <title>@yield('title', $companyName) — {{ $companyName }}</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
-        <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}?v=2">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}?v=2">
         {{-- PWA --}}
         <link rel="manifest" href="/manifest.json">

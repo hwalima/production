@@ -110,20 +110,57 @@ if ($ref !== 'refs/heads/' . BRANCH) {
     exit("Push to '{$ref}' ignored (not " . BRANCH . ").\n");
 }
 
-// 4. Write a deploy-pending flag — the cron job picks this up and runs the actual deploy
-//    (shell_exec / exec are disabled in web PHP on this host)
-$flagFile = APP_DIR . '/storage/deploy-pending';
-$meta     = json_encode([
+// 4. Run deploy — directly if shell_exec is available (cPanel), otherwise flag file + cron (DirectAdmin)
+$meta = json_encode([
     'triggered_at' => date('Y-m-d H:i:s'),
     'ref'          => $ref,
     'commit'       => $data['after'] ?? 'unknown',
     'pusher'       => $data['pusher']['name'] ?? 'unknown',
 ]);
 
-if (file_put_contents($flagFile, $meta) === false) {
-    http_response_code(500);
-    exit("Could not write deploy flag to {$flagFile}\n");
-}
+$canExec = function_exists('shell_exec') && !in_array('shell_exec', array_map('trim', explode(',', ini_get('disable_functions'))));
 
-http_response_code(200);
-echo "Deploy queued. Cron job will execute within 1 minute.\n{$meta}\n";
+if ($canExec) {
+    // ── Direct deploy (cPanel / shell_exec enabled) ──────────────────────────
+    $php      = findPhpBin();
+    $composer = findComposerBin();
+    $dir      = APP_DIR;
+    $logFile  = LOG_FILE;
+
+    $commands = [
+        "cd {$dir}",
+        "git fetch --all 2>&1",
+        "git reset --hard origin/" . BRANCH . " 2>&1",
+        "{$composer} install --no-interaction --prefer-dist --optimize-autoloader --no-dev 2>&1",
+        "{$php} artisan migrate --force 2>&1",
+        "{$php} artisan db:seed --class=KnowledgeBaseSeeder --force 2>&1",
+        "{$php} artisan config:cache 2>&1",
+        "{$php} artisan route:cache 2>&1",
+        "{$php} artisan view:cache 2>&1",
+    ];
+
+    $log  = "[" . date('Y-m-d H:i:s') . "] Deploy started (direct).\n";
+    $log .= "Commit: " . ($data['after'] ?? 'unknown') . "\n";
+
+    foreach ($commands as $cmd) {
+        $out  = shell_exec($cmd . ' 2>&1');
+        $log .= "$ {$cmd}\n{$out}\n";
+    }
+
+    $log .= "[" . date('Y-m-d H:i:s') . "] Deploy complete.\n";
+    file_put_contents($logFile, $log, FILE_APPEND);
+
+    http_response_code(200);
+    echo "Deploy executed directly.\n{$meta}\n";
+} else {
+    // ── Flag file (DirectAdmin / shell_exec disabled) — cron picks this up ──
+    $flagFile = APP_DIR . '/storage/deploy-pending';
+
+    if (file_put_contents($flagFile, $meta) === false) {
+        http_response_code(500);
+        exit("Could not write deploy flag to {$flagFile}\n");
+    }
+
+    http_response_code(200);
+    echo "Deploy queued. Cron job will execute within 1 minute.\n{$meta}\n";
+}
