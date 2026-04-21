@@ -1,15 +1,35 @@
 <?php
 /**
  * Webhook deploy script — called by GitHub on every push to main.
- * URL: https://production.epochmines.co.zw/deploy.php
+ * Works on any server — reads config from the app's .env file.
  *
- * Set the same secret in GitHub:
- *   Repo → Settings → Webhooks → Secret
+ * Add to each server's .env:
+ *   DEPLOY_SECRET=your-secret-here
+ *
+ * Add one GitHub webhook per server:
+ *   https://yourserver.com/deploy.php  (same secret)
  */
 
+// ── Bootstrap: read .env from one level up (laravel root) ────
+function readDotEnv(string $path): array {
+    if (!file_exists($path)) return [];
+    $vars = [];
+    foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        if (strpos($line, '=') === false) continue;
+        [$key, $val] = explode('=', $line, 2);
+        $vars[trim($key)] = trim($val, " \t\n\r\0\x0B'\"");
+    }
+    return $vars;
+}
+
+$appDir  = dirname(__DIR__);          // public/../  = laravel root
+$envVars = readDotEnv($appDir . '/.env');
+
 // ── Config ───────────────────────────────────────────────────
-define('DEPLOY_SECRET', getenv('DEPLOY_SECRET') ?: 'epochmines-deploy-2026');
-define('APP_DIR',       '/home/trukumb2/public_html/mymine');
+define('DEPLOY_SECRET', $envVars['DEPLOY_SECRET'] ?? getenv('DEPLOY_SECRET') ?: 'mymine-deploy-2026');
+define('APP_DIR',       $appDir);
 define('LOG_FILE',      APP_DIR . '/storage/logs/deploy.log');
 define('BRANCH',        'main');
 
@@ -33,12 +53,14 @@ function findPhpBin(): string {
 // Detect the correct Composer binary, downloading it if necessary
 function findComposerBin(): string {
     $php = findPhpBin();
+    // Detect home dir dynamically so this works on any server account
+    $home = getenv('HOME') ?: posix_getpwuid(posix_getuid())['dir'] ?? '/tmp';
     $candidates = [
         '/usr/local/bin/composer',
         '/usr/bin/composer',
         '/opt/cpanel/ea-php82/root/usr/bin/composer',
         '/usr/local/cpanel/3rdparty/bin/composer',
-        '/home/trukumb2/bin/composer',
+        $home . '/bin/composer',
     ];
     foreach ($candidates as $c) {
         if (file_exists($c) && is_executable($c)) return $c;
@@ -46,7 +68,7 @@ function findComposerBin(): string {
     // Check for .phar files
     $phars = [
         '/usr/local/bin/composer.phar',
-        '/home/trukumb2/composer.phar',
+        $home . '/composer.phar',
         APP_DIR . '/composer.phar',
     ];
     foreach ($phars as $p) {
