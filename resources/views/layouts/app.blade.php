@@ -12,9 +12,9 @@
             $faviconUrl   = $logoUrl ?? asset('favicon.ico');
         @endphp
         <title>@yield('title', $companyName) — {{ $companyName }}</title>
-        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-        <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
+        <link rel="icon" type="image/x-icon" href="{{ $faviconUrl }}?v=2">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/favicon-32.png') }}?v=2">
         {{-- PWA --}}
         <link rel="manifest" href="/manifest.json">
         <meta name="mobile-web-app-capable" content="yes">
