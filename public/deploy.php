@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * Webhook deploy script — called by GitHub on every push to main.
  * Works on any server — reads config from the app's .env file.
