@@ -130,7 +130,8 @@ if ($canExec) {
     $commands = [
         'git fetch --all',
         'git reset --hard origin/' . BRANCH,
-        "{$composer} install --no-interaction --prefer-dist --optimize-autoloader --no-dev",
+        'mkdir -p /tmp/composer-home',
+        "HOME=/tmp COMPOSER_HOME=/tmp/composer-home {$composer} install --no-interaction --prefer-dist --optimize-autoloader --no-dev",
         escapeshellarg($php) . ' artisan optimize:clear',
         escapeshellarg($php) . ' artisan migrate --force',
         escapeshellarg($php) . ' artisan db:seed --class=KnowledgeBaseSeeder --force',
