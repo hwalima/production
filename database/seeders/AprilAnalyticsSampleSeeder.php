@@ -40,6 +40,7 @@ class AprilAnalyticsSampleSeeder extends Seeder
     {
         // ── 0. Purge existing rows for these dates ─────────────────────────
         DB::table('daily_productions')->whereIn('date', $this->dates)->delete();
+        DB::table('mining_records')->whereIn('date', $this->dates)->delete();
         DB::table('assay_results')->whereIn(DB::raw('DATE(date)'), $this->dates)->delete();
         DB::table('labour_energy')->whereIn('date', $this->dates)->delete();
         DB::table('blasting_records')->whereIn('date', $this->dates)->delete();
@@ -54,24 +55,40 @@ class AprilAnalyticsSampleSeeder extends Seeder
                 = $this->prodData[$date];
 
             $goldSmelted = round($milled * $grade * $recovery, 2);
+            $roMilled = round($milled * 0.4, 2);
 
             $id = DB::table('daily_productions')->insertGetId([
                 'date'               => $date,
                 'shift'              => $shift,
                 'mining_site'        => 'Main Reef',
-                'ore_hoisted'        => $hoisted,
-                'ore_hoisted_target' => round($hoisted * 1.05, 1),
-                'waste_hoisted'      => $waste,
+                'ore_hoisted'        => 0,
+                'ore_hoisted_target' => null,
+                'waste_hoisted'      => 0,
                 'uncrushed_stockpile'=> $uncrushed,
                 'ore_crushed'        => $crushed,
                 'unmilled_stockpile' => $unmilled,
                 'ore_milled'         => $milled,
+                'ro_mine_milled'     => $roMilled,
+                'sanda_milled'       => round($milled - $roMilled, 2),
+                'sanda_milled_manual'=> false,
                 'ore_milled_target'  => round($milled * 1.05, 1),
                 'gold_smelted'       => $goldSmelted,
                 'purity_percentage'  => $purity,
                 'fidelity_price'     => 156.00,   // $156/g as specified
                 'created_at'         => $date,
                 'updated_at'         => $date,
+            ]);
+            DB::table('mining_records')->insert([
+                'date' => $date,
+                'shift' => $shift,
+                'mining_site' => 'Main Reef',
+                'ore_hoisted_entered' => $hoisted,
+                'ore_hoisted' => $hoisted,
+                'ore_hoisted_target' => round($hoisted * 1.05, 1),
+                'waste_hoisted' => $waste,
+                'skip_factor' => 1,
+                'created_at' => $date,
+                'updated_at' => $date,
             ]);
 
             $prodIds[$date] = $id;

@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Add Production')
-@section('page-title', 'Daily Production')
+@section('title', 'Add Plant Production')
+@section('page-title', 'Plant Production')
 @section('content')
 <div style="max-width:680px;">
     <div class="page-header">
-        <h1 class="page-title">Add Daily Production</h1>
+        <h1 class="page-title">Add Plant Production</h1>
         <a href="{{ route('production.index') }}" class="btn-cancel">&larr; Back</a>
     </div>
     <div class="form-card">
@@ -14,13 +14,13 @@
             {{-- Date, Shift, Mining Site --}}
             <div style="margin-bottom:14px;">
                 <label class="fc-label">Date</label>
-                <input type="date" name="date" id="date" class="fc-input" value="{{ old('date') }}" required>
+                <input type="date" name="date" id="date" class="fc-input" value="{{ old('date', date('Y-m-d')) }}" required>
                 @error('date')<p class="fc-error">{{ $message }}</p>@enderror
             </div>
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">Shift</label>
-                    <select name="shift" id="shift" class="fc-input">
+                    <label class="fc-label">Shift <span style="color:#ef4444;">*</span></label>
+                    <select name="shift" id="shift" class="fc-input" required>
                         <option value="">— Select shift —</option>
                         @foreach($shifts as $s)
                         <option value="{{ $s }}" {{ old('shift') === $s ? 'selected' : '' }}>{{ $s }}</option>
@@ -29,8 +29,8 @@
                     @error('shift')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Mining Site</label>
-                    <select name="mining_site" id="mining_site" class="fc-input">
+                    <label class="fc-label">Mining Site <span style="color:#ef4444;">*</span></label>
+                    <select name="mining_site" id="mining_site" class="fc-input" required>
                         <option value="">— Select site —</option>
                         @foreach($miningSites as $site)
                         <option value="{{ $site }}" {{ old('mining_site') === $site ? 'selected' : '' }}>{{ $site }}</option>
@@ -40,30 +40,7 @@
                 </div>
             </div>
 
-            {{-- Hoisting --}}
-            {{-- Hoisting --}}
-            <div class="fc-grid" style="margin-bottom:14px;">
-                <div>
-                    <label class="fc-label">Ore Hoisted (t)</label>
-                    <input type="number" name="ore_hoisted" id="ore_hoisted" step="0.01" class="fc-input" value="{{ old('ore_hoisted') }}" required>
-                    @error('ore_hoisted')<p class="fc-error">{{ $message }}</p>@enderror
-                </div>
-                <div>
-                    <label class="fc-label">Ore Hoisted Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
-                    <input type="number" name="ore_hoisted_target" id="ore_hoisted_target" step="0.01" class="fc-input" value="{{ old('ore_hoisted_target') }}">
-                    @error('ore_hoisted_target')<p class="fc-error">{{ $message }}</p>@enderror
-                </div>
-            </div>
-
-            <div class="fc-grid" style="margin-bottom:14px;">
-                <div>
-                    <label class="fc-label">Waste Hoisted (t)</label>
-                    <input type="number" name="waste_hoisted" id="waste_hoisted" step="0.01" class="fc-input" value="{{ old('waste_hoisted') }}" required>
-                    @error('waste_hoisted')<p class="fc-error">{{ $message }}</p>@enderror
-                </div>
-            </div>
-
-            {{-- Crushing & Milling --}}
+            {{-- Plant processing --}}
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
                     <label class="fc-label">Ore Crushed (t)</label>
@@ -73,14 +50,31 @@
             </div>
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">Ore Milled (t)</label>
+                    <label class="fc-label">Total Ore Milled (t)</label>
                     <input type="number" name="ore_milled" id="ore_milled" step="0.01" class="fc-input" value="{{ old('ore_milled') }}" required>
                     @error('ore_milled')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Ore Milled Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+                    <label class="fc-label">Total Ore Milled Target (t) <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
                     <input type="number" name="ore_milled_target" id="ore_milled_target" step="0.01" class="fc-input" value="{{ old('ore_milled_target') }}">
                     @error('ore_milled_target')<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+            </div>
+            <div class="fc-grid" style="margin-bottom:14px;">
+                <div>
+                    <label class="fc-label">R.O. Mine Milled (t)</label>
+                    <input type="number" name="ro_mine_milled" id="ro_mine_milled" step="0.01" min="0" class="fc-input" value="{{ old('ro_mine_milled', '0') }}" required>
+                    @error('ro_mine_milled')<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="fc-label">Sanda Milled (t)</label>
+                    <input type="number" name="sanda_milled" id="sanda_milled" step="0.01" min="0" class="fc-input" value="{{ old('sanda_milled', '0') }}" required>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:#6b7280;margin-top:5px;">
+                        <input type="checkbox" name="sanda_milled_manual" id="sanda_milled_manual" value="1" {{ old('sanda_milled_manual') ? 'checked' : '' }}>
+                        Keep a manual Sanda value
+                    </label>
+                    <p style="font-size:.72rem;color:#6b7280;margin-top:4px;">Prefilled as Total Ore Milled minus R.O. Mine Milled. Check the box to keep a manual override.</p>
+                    @error('sanda_milled')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="fc-grid" style="margin-bottom:14px;">
@@ -108,7 +102,7 @@
                     <label class="fc-label">Uncrushed Stockpile (t)</label>
                     <input type="text" id="uncrushed_preview" class="fc-input fc-frozen" readonly
                            placeholder="Enter ore values above…" tabindex="-1">
-                    <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Prev {{ number_format($prev?->uncrushed_stockpile ?? 0, 2) }} t + Hoisted &minus; Crushed</p>
+                    <p style="font-size:.7rem;color:#9ca3af;margin-top:3px;">Includes {{ number_format($mineHoistedForDate, 2) }} t hoisted for this date, minus crushed.</p>
                 </div>
                 <div>
                     <label class="fc-label">Unmilled Stockpile (t)</label>
@@ -128,25 +122,30 @@
 @push('scripts')
 <script>
 (function() {
-    const prevUncrushed = {{ $prev ? (float)$prev->uncrushed_stockpile : 0 }};
+    const prevUncrushed = {{ $prev ? (float)$prev->uncrushed_stockpile : 0 }} + {{ (float)$mineHoistedForDate }};
     const prevUnmilled  = {{ $prev ? (float)$prev->unmilled_stockpile  : 0 }};
 
     function fmt(n) { return n.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
     function updateCalcs() {
-        const hoisted = parseFloat(document.getElementById('ore_hoisted').value)       || 0;
         const crushed = parseFloat(document.getElementById('ore_crushed').value)       || 0;
         const milled  = parseFloat(document.getElementById('ore_milled').value)        || 0;
-        const smelted = parseFloat(document.getElementById('gold_smelted').value)      || 0;
-        const price   = parseFloat(document.getElementById('fidelity_price').value)    || 0;
-        const purity  = parseFloat(document.getElementById('purity_percentage').value) || 0;
 
-        document.getElementById('uncrushed_preview').value = fmt(prevUncrushed + hoisted - crushed) + ' t';
+        document.getElementById('uncrushed_preview').value = fmt(prevUncrushed - crushed) + ' t';
         document.getElementById('unmilled_preview').value  = fmt(prevUnmilled  + crushed - milled)  + ' t';
+
+        const total = parseFloat(document.getElementById('ore_milled').value) || 0;
+        const ro = parseFloat(document.getElementById('ro_mine_milled').value) || 0;
+        const sanda = document.getElementById('sanda_milled');
+        const manual = document.getElementById('sanda_milled_manual');
+        if (!manual.checked) sanda.value = Math.max(0, total - ro).toFixed(2);
     }
 
-    ['ore_hoisted','ore_crushed','ore_milled','gold_smelted','fidelity_price','purity_percentage']
-        .forEach(id => document.getElementById(id)?.addEventListener('input', updateCalcs));
+    ['ore_crushed','ore_milled','ro_mine_milled'].forEach(id => document.getElementById(id)?.addEventListener('input', updateCalcs));
+    document.getElementById('sanda_milled').addEventListener('input', function() {
+        document.getElementById('sanda_milled_manual').checked = true;
+    });
+    document.getElementById('sanda_milled_manual').addEventListener('change', updateCalcs);
     updateCalcs();
 })();
 </script>

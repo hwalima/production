@@ -387,7 +387,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
         <div class="gc kpi">
             <div class="orb ob-orange"></div>
             <div class="ib ib-orange">⚙️</div>
-            <p class="kt">Ore Milled</p>
+            <p class="kt">Total Ore Milled</p>
             <p class="kv gv-orange">{{ number_format($oreMilledMonth, 0) }}</p>
             <p class="ks">tonnes</p>
             <div class="ptrack"><div class="pfill" style="width:{{ min(100,$millingEfficiency) }}%;background:var(--g-orange);"></div></div>
@@ -532,7 +532,7 @@ html:not(.dark) .fbar input[type=date] { color-scheme: light; }
                 <div id="shiftMetricBtns" style="display:flex;gap:5px;flex-wrap:wrap;">
                     <button class="smet-btn active" data-metric="gold"   style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid #fcb913;background:rgba(252,185,19,.15);color:#fcb913;cursor:pointer;">Gold (g)</button>
                     <button class="smet-btn"        data-metric="hoisted" style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Ore Hoisted</button>
-                    <button class="smet-btn"        data-metric="milled"  style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Ore Milled</button>
+                    <button class="smet-btn"        data-metric="milled"  style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Total Ore Milled</button>
                     <button class="smet-btn"        data-metric="purity"  style="padding:4px 11px;font-size:.7rem;font-weight:700;border-radius:20px;border:1px solid var(--topbar-border);background:transparent;color:#9ca3af;cursor:pointer;">Purity %</button>
                 </div>
             </div>
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     { label:'Ore Hoisted (t)',   data:@json($trendOreHoisted),   yAxisID:'yT', borderColor:'#fbbf24', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Waste Hoisted (t)', data:@json($trendWasteHoisted), yAxisID:'yT', borderColor:'#f87171', backgroundColor:'transparent', borderWidth:2, borderDash:[5,4], pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Ore Crushed (t)',   data:@json($trendOreCrushed),   yAxisID:'yT', borderColor:'#38bdf8', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
-                    { label:'Ore Milled (t)',    data:@json($trendOreMilled),    yAxisID:'yT', borderColor:'#a78bfa', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
+                    { label:'Total Ore Milled (t)', data:@json($trendOreMilled), yAxisID:'yT', borderColor:'#a78bfa', backgroundColor:'transparent', borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.4 },
                     { label:'Gold Smelted (g)',  data:@json($trendGoldSmelted),  yAxisID:'yG', borderColor:'#34d399', backgroundColor:'rgba(52,211,153,.07)', fill:true, borderWidth:2.5, pointRadius:0, pointHoverRadius:5, tension:.4 },
                     { label:'Daily Target (g)',  data:Array(nPts).fill(dailyPace), yAxisID:'yG', borderColor:'#fcb913', backgroundColor:'transparent', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHoverRadius:0, tension:0, tooltip:{enabled:false} },
                 ]

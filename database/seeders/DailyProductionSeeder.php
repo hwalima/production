@@ -51,19 +51,36 @@ class DailyProductionSeeder extends Seeder
 
             DB::table('daily_productions')->insert([
                 'date'               => $date->toDateString(),
-                'ore_hoisted'        => $ore_hoisted,
-                'ore_hoisted_target' => $ore_hoisted_target,
-                'waste_hoisted'      => $waste_hoisted,
-                'hoisted_stockpile'  => $hoisted_stockpile,
+                'shift'              => null,
+                'mining_site'        => null,
+                'ore_hoisted'        => 0,
+                'ore_hoisted_target' => null,
+                'waste_hoisted'      => 0,
+                'uncrushed_stockpile'=> $hoisted_stockpile,
                 'ore_crushed'        => $ore_crushed,
-                'crushed_stockpile'  => $crushed_stockpile,
+                'unmilled_stockpile' => $crushed_stockpile,
                 'ore_milled'         => $ore_milled,
+                'ro_mine_milled'     => 0,
+                'sanda_milled'       => $ore_milled,
+                'sanda_milled_manual'=> false,
                 'ore_milled_target'  => $ore_milled_target,
                 'gold_smelted'       => $gold_smelted,
                 'purity_percentage'  => $purity_percentage,
                 'fidelity_price'     => $fidelity_price,
                 'created_at'         => $date,
                 'updated_at'         => $date,
+            ]);
+            DB::table('mining_records')->insert([
+                'date' => $date->toDateString(),
+                'shift' => null,
+                'mining_site' => null,
+                'ore_hoisted_entered' => $ore_hoisted,
+                'ore_hoisted' => $ore_hoisted,
+                'ore_hoisted_target' => $ore_hoisted_target,
+                'waste_hoisted' => $waste_hoisted,
+                'skip_factor' => 1,
+                'created_at' => $date,
+                'updated_at' => $date,
             ]);
         }
     }

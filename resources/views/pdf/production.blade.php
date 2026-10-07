@@ -10,11 +10,11 @@
     <tr>
         <td style="width:20%;">
             <div class="tile-label">Total Ore Hoisted (t)</div>
-            <div class="tile-value">{{ number_format($productions->sum('ore_hoisted'), 2) }}</div>
+            <div class="tile-value">{{ number_format($totHoisted, 2) }}</div>
         </td>
         <td style="width:20%;">
             <div class="tile-label">Total Waste Hoisted (t)</div>
-            <div class="tile-value">{{ number_format($productions->sum('waste_hoisted'), 2) }}</div>
+            <div class="tile-value">{{ number_format($totWaste, 2) }}</div>
         </td>
         <td style="width:20%;">
             <div class="tile-label">Total Ore Crushed (t)</div>
@@ -48,14 +48,16 @@
             <th>Date</th>
             <th class="th-c">Shift</th>
             <th class="th-c">Site</th>
-            <th class="th-r">Ore Hoisted (t)</th>
+            <th class="th-r">Ore Hoisted (adjusted t)</th>
             <th class="th-r">Hoist Tgt</th>
             <th class="th-r">Hoist Var</th>
             <th class="th-r">Waste Hoisted (t)</th>
             <th class="th-r">Uncrushed Stk (t)</th>
             <th class="th-r">Ore Crushed (t)</th>
             <th class="th-r">Unmilled Stk (t)</th>
-            <th class="th-r">Ore Milled (t)</th>
+            <th class="th-r">Total Ore Milled (t)</th>
+            <th class="th-r">R.O. Mine Milled (t)</th>
+            <th class="th-r">Sanda Milled (t)</th>
             <th class="th-r">Mill Tgt</th>
             <th class="th-r">Mill Var</th>
             <th class="th-r">Gold (g)</th>
@@ -63,22 +65,33 @@
         </tr>
     </thead>
     <tbody>
+        @php $shownMiningKeys = []; @endphp
         @forelse($productions as $p)
+        @php
+            $miningKey = implode('|', [$p->date->format('Y-m-d'), $p->shift ?? '', $p->mining_site ?? '']);
+            $mining = isset($shownMiningKeys[$miningKey]) ? null : ($miningByKey[$miningKey] ?? null);
+            $shownMiningKeys[$miningKey] = true;
+            $oreHoisted = (float) ($mining->ore_hoisted ?? 0);
+            $oreHoistedTarget = $mining?->ore_hoisted_target;
+            $wasteHoisted = (float) ($mining->waste_hoisted ?? 0);
+        @endphp
         <tr>
             <td>{{ $p->date->format('d M Y') }}</td>
             <td class="td-c muted">{{ $p->shift ?? '—' }}</td>
             <td class="td-c muted">{{ $p->mining_site ?? '—' }}</td>
-            <td class="td-r">{{ number_format($p->ore_hoisted, 2) }}</td>
-            @php $hv = $p->ore_hoisted_target !== null ? (float)$p->ore_hoisted_target - (float)$p->ore_hoisted : null; @endphp
-            <td class="td-r muted">{{ $p->ore_hoisted_target !== null ? number_format($p->ore_hoisted_target, 2) : '—' }}</td>
+            <td class="td-r">{{ number_format($oreHoisted, 2) }}</td>
+            @php $hv = $oreHoistedTarget !== null ? (float)$oreHoistedTarget - $oreHoisted : null; @endphp
+            <td class="td-r muted">{{ $oreHoistedTarget !== null ? number_format($oreHoistedTarget, 2) : '—' }}</td>
             <td class="td-r" style="color:{{ $hv === null ? '#9ca3af' : ($hv > 0 ? '#b91c1c' : '#15803d') }};font-weight:600;">
                 {{ $hv === null ? '—' : (($hv > 0 ? '+' : '').number_format($hv, 2)) }}
             </td>
-            <td class="td-r">{{ number_format($p->waste_hoisted, 2) }}</td>
+            <td class="td-r">{{ number_format($wasteHoisted, 2) }}</td>
             <td class="td-r gold">{{ number_format($p->uncrushed_stockpile, 2) }}</td>
             <td class="td-r">{{ number_format($p->ore_crushed, 2) }}</td>
             <td class="td-r gold">{{ number_format($p->unmilled_stockpile, 2) }}</td>
             <td class="td-r">{{ number_format($p->ore_milled, 2) }}</td>
+            <td class="td-r">{{ number_format($p->ro_mine_milled, 2) }}</td>
+            <td class="td-r">{{ number_format($p->sanda_milled, 2) }}</td>
             @php $mv = $p->ore_milled_target !== null ? (float)$p->ore_milled_target - (float)$p->ore_milled : null; @endphp
             <td class="td-r muted">{{ $p->ore_milled_target !== null ? number_format($p->ore_milled_target, 2) : '—' }}</td>
             <td class="td-r" style="color:{{ $mv === null ? '#9ca3af' : ($mv > 0 ? '#b91c1c' : '#15803d') }};font-weight:600;">
@@ -88,7 +101,7 @@
             <td class="td-r">{{ $p->purity_percentage }}%</td>
         </tr>
         @empty
-        <tr><td colspan="11" style="text-align:center;padding:16px;color:#9ca3af;">No records found for this period.</td></tr>
+        <tr><td colspan="17" style="text-align:center;padding:16px;color:#9ca3af;">No records found for this period.</td></tr>
         @endforelse
     </tbody>
     @if($productions->count())
@@ -105,6 +118,8 @@
             <td class="td-r" style="font-weight:700;">{{ number_format($totCrushed, 2) }}</td>
             <td class="td-r">&mdash;</td>
             <td class="td-r" style="font-weight:700;">{{ number_format($totalOre, 2) }}</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($productions->sum('ro_mine_milled'), 2) }}</td>
+            <td class="td-r" style="font-weight:700;">{{ number_format($productions->sum('sanda_milled'), 2) }}</td>
             <td class="td-r">{{ $totMillTgt ? number_format($totMillTgt, 2) : '&mdash;' }}</td>
             <td class="td-r" style="font-weight:700;color:{{ $totMillVar === null ? '#94a3b8' : ($totMillVar > 0 ? '#fca5a5' : '#86efac') }};">
                 {{ $totMillVar === null ? '&mdash;' : (($totMillVar > 0 ? '+' : '').number_format($totMillVar, 2)) }}

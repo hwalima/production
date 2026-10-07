@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Consumable;
 use App\Models\DailyProduction;
 use App\Models\LabourEnergy;
+use App\Services\StockpileService;
 use App\Models\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,31 +22,24 @@ class ImportController extends Controller
             'filename' => 'production_import_template.csv',
             'headers'  => [
                 'date', 'shift', 'mining_site',
-                'ore_hoisted', 'ore_hoisted_target',
-                'waste_hoisted', 'uncrushed_stockpile',
-                'ore_crushed', 'unmilled_stockpile',
-                'ore_milled', 'ore_milled_target',
+                'ore_crushed', 'ore_milled', 'ro_mine_milled', 'sanda_milled',
+                'ore_milled_target',
                 'gold_smelted', 'purity_percentage', 'fidelity_price',
             ],
             'example' => [
                 '2026-04-01', 'Day', 'Main Pit',
-                '100.00', '110.00',
-                '50.00', '5.00',
-                '95.00', '3.00',
-                '92.00', '95.00',
+                '95.00', '92.00', '42.00', '50.00',
+                '95.00',
                 '45.50', '92.00', '3450000.00',
             ],
             'notes' => [
                 'date'               => 'YYYY-MM-DD format. Required.',
-                'shift'              => 'Day / Night / Afternoon / Morning. Optional.',
-                'mining_site'        => 'Site name. Optional.',
-                'ore_hoisted'        => 'Tonnes. Required.',
-                'ore_hoisted_target' => 'Tonnes. Optional.',
-                'waste_hoisted'      => 'Tonnes. Required.',
-                'uncrushed_stockpile'=> 'Tonnes. Optional.',
+                'shift'              => 'Day / Night / Afternoon / Morning. Required to match mining records.',
+                'mining_site'        => 'Site name. Required to match mining records.',
                 'ore_crushed'        => 'Tonnes. Required.',
-                'unmilled_stockpile' => 'Tonnes. Optional.',
-                'ore_milled'         => 'Tonnes. Required.',
+                'ore_milled'         => 'Total ore milled in tonnes. Required.',
+                'ro_mine_milled'     => 'R.O. Mine Milled in tonnes. Required.',
+                'sanda_milled'       => 'Sanda Milled in tonnes. Required; can differ from calculated balance.',
                 'ore_milled_target'  => 'Tonnes. Optional.',
                 'gold_smelted'       => 'Grams. Required.',
                 'purity_percentage'  => '0–100. Required.',
@@ -148,7 +142,7 @@ class ImportController extends Controller
 
         $map = $this->buildHeaderMap($rows[0], self::TEMPLATES['production']['headers']);
 
-        $required = ['date', 'ore_hoisted', 'waste_hoisted', 'ore_crushed', 'ore_milled', 'gold_smelted', 'purity_percentage', 'fidelity_price'];
+        $required = ['date', 'shift', 'mining_site', 'ore_crushed', 'ore_milled', 'ro_mine_milled', 'sanda_milled', 'gold_smelted', 'purity_percentage', 'fidelity_price'];
         if ($missing = array_diff($required, array_keys($map))) {
             return back()->withErrors(['file' => 'Missing required columns: ' . implode(', ', $missing)]);
         }
@@ -156,7 +150,8 @@ class ImportController extends Controller
         $inserted = $updated = 0;
         $errors   = [];
 
-        DB::transaction(function () use ($rows, $map, $required, &$inserted, &$updated, &$errors) {
+        $earliestDate = null;
+        DB::transaction(function () use ($rows, $map, $required, &$inserted, &$updated, &$errors, &$earliestDate) {
             foreach (array_slice($rows, 1) as $i => $row) {
                 $rowNum = $i + 2;
                 $g = $this->rowGetter($row, $map);
@@ -176,6 +171,19 @@ class ImportController extends Controller
                 if (!$this->isValidDate($g('date'))) {
                     $rowErrors[] = "date must be YYYY-MM-DD";
                 }
+                foreach (['ore_crushed', 'ore_milled', 'ro_mine_milled', 'sanda_milled', 'gold_smelted', 'purity_percentage', 'fidelity_price'] as $numericColumn) {
+                    if ($g($numericColumn) !== '' && (!is_numeric(str_replace(',', '', $g($numericColumn))) || (float) str_replace(',', '', $g($numericColumn)) < 0)) {
+                        $rowErrors[] = "$numericColumn must be a non-negative number";
+                    }
+                }
+                if (is_numeric($g('ore_milled')) && is_numeric($g('ro_mine_milled')) && (float) $g('ro_mine_milled') > (float) $g('ore_milled')) {
+                    $rowErrors[] = 'ro_mine_milled cannot exceed ore_milled';
+                }
+                foreach (['ore_milled_target'] as $optionalNumericColumn) {
+                    if ($g($optionalNumericColumn) !== '' && (!is_numeric(str_replace(',', '', $g($optionalNumericColumn))) || (float) str_replace(',', '', $g($optionalNumericColumn)) < 0)) {
+                        $rowErrors[] = "$optionalNumericColumn must be a non-negative number";
+                    }
+                }
                 if ($rowErrors) {
                     $errors[] = ['row' => $rowNum, 'message' => implode('; ', $rowErrors)];
                     continue;
@@ -183,23 +191,28 @@ class ImportController extends Controller
 
                 $data = [
                     'date'                 => $g('date'),
-                    'shift'                => $g('shift') ?: null,
-                    'mining_site'          => $g('mining_site') ?: null,
-                    'ore_hoisted'          => $this->num($g('ore_hoisted')),
-                    'ore_hoisted_target'   => $this->numOrNull($g('ore_hoisted_target')),
-                    'waste_hoisted'        => $this->num($g('waste_hoisted')),
-                    'uncrushed_stockpile'  => $this->num($g('uncrushed_stockpile')),
+                    'shift'                => $g('shift'),
+                    'mining_site'          => $g('mining_site'),
+                    'ore_hoisted'          => 0,
+                    'ore_hoisted_target'   => null,
+                    'waste_hoisted'        => 0,
+                    'uncrushed_stockpile'  => 0,
                     'ore_crushed'          => $this->num($g('ore_crushed')),
-                    'unmilled_stockpile'   => $this->num($g('unmilled_stockpile')),
+                    'unmilled_stockpile'   => 0,
                     'ore_milled'           => $this->num($g('ore_milled')),
+                    'ro_mine_milled'       => $this->num($g('ro_mine_milled')),
+                    'sanda_milled'         => $this->num($g('sanda_milled')),
+                    'sanda_milled_manual'  => true,
                     'ore_milled_target'    => $this->numOrNull($g('ore_milled_target')),
                     'gold_smelted'         => $this->num($g('gold_smelted')),
                     'purity_percentage'    => $this->num($g('purity_percentage')),
                     'fidelity_price'       => $this->num($g('fidelity_price')),
                 ];
+                $earliestDate = $earliestDate === null ? $data['date'] : min($earliestDate, $data['date']);
 
                 $existing = DailyProduction::whereDate('date', $data['date'])
                     ->where('shift', $data['shift'])
+                    ->where('mining_site', $data['mining_site'])
                     ->first();
 
                 if ($existing) {
@@ -211,6 +224,9 @@ class ImportController extends Controller
                 }
             }
         });
+        if ($earliestDate !== null) {
+            app(StockpileService::class)->recalculateFrom($earliestDate);
+        }
 
         AuditLog::create([
             'user_id'    => $request->user()->id,

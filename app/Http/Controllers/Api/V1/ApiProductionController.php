@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\DailyProduction;
+use App\Models\MiningRecord;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -45,9 +46,38 @@ class ApiProductionController extends Controller
             $query->where('shift', $request->input('shift'));
         }
 
-        return response()->json(
-            $query->orderByDesc('date')->orderByDesc('id')->paginate($perPage)
-        );
+        $miningByKey = MiningRecord::whereBetween('date', [$from, $to])
+            ->get()
+            ->groupBy(fn($record) => implode('|', [
+                $record->date->toDateString(),
+                $record->shift ?? '',
+                $record->mining_site ?? '',
+            ]))
+            ->map(fn($records) => [
+                'ore_hoisted_adjusted_t' => round((float) $records->sum('ore_hoisted'), 2),
+                'ore_hoisted_target_t' => round((float) $records->sum('ore_hoisted_target'), 2),
+                'waste_hoisted_t' => round((float) $records->sum('waste_hoisted'), 2),
+            ]);
+
+        $records = $query->orderByDesc('date')->orderByDesc('id')->paginate($perPage);
+        $records->getCollection()->transform(function (DailyProduction $production) use ($miningByKey) {
+            $key = implode('|', [
+                $production->date->toDateString(),
+                $production->shift ?? '',
+                $production->mining_site ?? '',
+            ]);
+            $mining = $miningByKey->get($key, [
+                'ore_hoisted_adjusted_t' => 0,
+                'ore_hoisted_target_t' => null,
+                'waste_hoisted_t' => 0,
+            ]);
+            $production->setAttribute('ore_hoisted', $mining['ore_hoisted_adjusted_t']);
+            $production->setAttribute('ore_hoisted_target', $mining['ore_hoisted_target_t']);
+            $production->setAttribute('waste_hoisted', $mining['waste_hoisted_t']);
+            $production->setAttribute('mining', $mining);
+            return $production;
+        });
+        return response()->json($records);
     }
 
     /**
@@ -67,21 +97,30 @@ class ApiProductionController extends Controller
         [$from, $to] = $this->dateRange($request);
 
         $base = DailyProduction::whereBetween('date', [$from, $to]);
+        $miningBase = MiningRecord::whereBetween('date', [$from, $to]);
         if ($request->filled('shift')) {
             $base->where('shift', $request->input('shift'));
+            $miningBase->where('shift', $request->input('shift'));
         }
 
         $totals = (clone $base)->selectRaw('
             COUNT(*)                        as records,
-            SUM(ore_hoisted)                as ore_hoisted_t,
-            SUM(ore_hoisted_target)         as ore_hoisted_target_t,
-            SUM(waste_hoisted)              as waste_hoisted_t,
             SUM(ore_crushed)                as ore_crushed_t,
             SUM(ore_milled)                 as ore_milled_t,
+            SUM(ro_mine_milled)             as ro_mine_milled_t,
+            SUM(sanda_milled)               as sanda_milled_t,
             SUM(ore_milled_target)          as ore_milled_target_t,
             SUM(gold_smelted)               as gold_smelted_g,
             AVG(purity_percentage)          as avg_purity_pct
         ')->first();
+        $miningTotals = (clone $miningBase)->selectRaw('
+            SUM(ore_hoisted) as ore_hoisted_t,
+            SUM(ore_hoisted_target) as ore_hoisted_target_t,
+            SUM(waste_hoisted) as waste_hoisted_t
+        ')->first();
+        $totals->ore_hoisted_t = $miningTotals->ore_hoisted_t;
+        $totals->ore_hoisted_target_t = $miningTotals->ore_hoisted_target_t;
+        $totals->waste_hoisted_t = $miningTotals->waste_hoisted_t;
 
         $shiftBreakdown = DailyProduction::whereBetween('date', [$from, $to])
             ->selectRaw("COALESCE(shift,'Unassigned') as shift,

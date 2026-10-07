@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssayResult;
 use App\Models\DailyProduction;
+use App\Models\MiningRecord;
 use App\Models\Machine;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -39,8 +40,9 @@ class DashboardController extends Controller
         // ── Production aggregates for selected range ───────────────────────
         $rangeRows = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])->get();
 
-        $oreHoistedMonth   = $rangeRows->sum('ore_hoisted');
-        $wasteHoistedMonth = $rangeRows->sum('waste_hoisted');
+        $miningRows = MiningRecord::whereBetween('date', [$filterFromStr, $filterToStr])->get();
+        $oreHoistedMonth   = $miningRows->sum('ore_hoisted');
+        $wasteHoistedMonth = $miningRows->sum('waste_hoisted');
         $oreMilledMonth    = $rangeRows->sum('ore_milled');
         $goldSmeltedMonth  = $rangeRows->sum('gold_smelted');
         $avgPurity         = $rangeRows->avg('purity_percentage') ?? 0;
@@ -87,8 +89,16 @@ class DashboardController extends Controller
 
         // ── Production trend for selected range ───────────────────────────
         $trend = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])
+            ->selectRaw('date, SUM(ore_crushed) as ore_crushed, SUM(ore_milled) as ore_milled, SUM(gold_smelted) as gold_smelted')
+            ->groupBy('date')
             ->orderBy('date')
-            ->get(['date', 'ore_hoisted', 'waste_hoisted', 'ore_crushed', 'ore_milled', 'gold_smelted']);
+            ->get();
+        $miningByDate = $miningRows->groupBy(fn($record) => $record->date->format('Y-m-d'));
+        foreach ($trend as $row) {
+            $mineForDate = $miningByDate->get($row->date->format('Y-m-d'), collect());
+            $row->ore_hoisted = $mineForDate->sum('ore_hoisted');
+            $row->waste_hoisted = $mineForDate->sum('waste_hoisted');
+        }
 
         $trendLabels       = $trend->pluck('date')->map(fn($d) => $d->format('M d'))->toArray();
         $trendOreHoisted   = $trend->pluck('ore_hoisted')->map(fn($v) => (float) $v)->toArray();
@@ -151,15 +161,19 @@ class DashboardController extends Controller
         $shiftRows = DailyProduction::whereBetween('date', [$filterFromStr, $filterToStr])
             ->whereNotNull('shift')
             ->where('shift', '!=', '')
-            ->get(['shift', 'gold_smelted', 'ore_hoisted', 'ore_milled', 'purity_percentage']);
+            ->get(['shift', 'gold_smelted', 'ore_milled', 'purity_percentage']);
 
         $shiftGroups = $shiftRows->groupBy('shift')->map(fn($rows) => [
             'gold'   => round($rows->sum('gold_smelted'), 2),
-            'hoisted'=> round($rows->sum('ore_hoisted'), 2),
+            'hoisted'=> 0.0,
             'milled' => round($rows->sum('ore_milled'), 2),
             'purity' => round($rows->avg('purity_percentage'), 2),
             'count'  => $rows->count(),
         ])->sortKeys();
+        $miningByShift = $miningRows->groupBy('shift');
+        foreach ($shiftGroups as $shift => $group) {
+            $shiftGroups[$shift]['hoisted'] = round($miningByShift->get($shift, collect())->sum('ore_hoisted'), 2);
+        }
 
         $shiftLabels      = $shiftGroups->keys()->values()->toArray();
         $shiftGold        = $shiftGroups->pluck('gold')->values()->toArray();

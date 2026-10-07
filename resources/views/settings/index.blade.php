@@ -226,6 +226,15 @@
                     @error('gold_monthly_target')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
                     <p class="text-xs mt-1" style="color:#9ca3af;">Target used on the dashboard gold progress bar.</p>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ore Hoisting Skip Factor</label>
+                    <input type="number" name="skip_factor" step="0.0001" min="0.0001" max="10"
+                           value="{{ old('skip_factor', $settings['skip_factor'] ?? '0.8') }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);" required>
+                    @error('skip_factor')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                    <p class="text-xs mt-1" style="color:#9ca3af;">Multiplies entered ore-hoisted tonnes before they are saved and used in reporting.</p>
+                </div>
             </div>
         </div>
 
@@ -510,4 +519,3 @@ document.head.appendChild(style);
 </script>
 @endpush
 @endsection
-

@@ -6,6 +6,7 @@ use App\Models\AssayResult;
 use App\Models\BlastingRecord;
 use App\Models\ConsumableStockMovement;
 use App\Models\DailyProduction;
+use App\Models\MiningRecord;
 use App\Models\DrillingRecord;
 use App\Models\LabourEnergy;
 use App\Models\Machine;
@@ -46,15 +47,22 @@ class AnalyticsController extends Controller
         $prodRows = DailyProduction::whereBetween('date', [$from, $to])->orderBy('date')->get();
         $totalGoldSmelted = (float) $prodRows->sum('gold_smelted');
         $totalOreMilled   = (float) $prodRows->sum('ore_milled');
-        $totalOreHoisted  = (float) $prodRows->sum('ore_hoisted');
+        $totalOreHoisted  = (float) MiningRecord::whereBetween('date', [$from, $to])->sum('ore_hoisted');
         $daysRange        = max(1, Carbon::parse($from)->diffInDays(Carbon::parse($to)) + 1);
 
         // Per-day production sums (for join with assay)
         $prodByDay = DailyProduction::whereBetween('date', [$from, $to])
-            ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled, SUM(ore_hoisted) as hoisted')
+            ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled')
             ->groupBy('day')
             ->orderBy('day')
             ->get();
+        $mineByDay = MiningRecord::whereBetween('date', [$from, $to])
+            ->selectRaw('DATE(date) as day, SUM(ore_hoisted) as hoisted')
+            ->groupBy('day')
+            ->pluck('hoisted', 'day');
+        foreach ($prodByDay as $row) {
+            $row->hoisted = (float) ($mineByDay[$row->day] ?? 0);
+        }
 
         // ── Total costs by day (Labour+Energy + Consumables out) ──────────
         $leCostsByDay = LabourEnergy::whereBetween('date', [$from, $to])
@@ -393,8 +401,15 @@ class AnalyticsController extends Controller
 
         // Extra per-day detail the PDF needs
         $prodByDayPdf = DailyProduction::whereBetween('date', [$from, $to])
-            ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled, SUM(ore_hoisted) as hoisted')
+            ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled')
             ->groupBy('day')->orderBy('day')->get();
+        $mineByDayPdf = MiningRecord::whereBetween('date', [$from, $to])
+            ->selectRaw('DATE(date) as day, SUM(ore_hoisted) as hoisted')
+            ->groupBy('day')
+            ->pluck('hoisted', 'day');
+        foreach ($prodByDayPdf as $row) {
+            $row->hoisted = (float) ($mineByDayPdf[$row->day] ?? 0);
+        }
 
         $fireAssayByDatePdf = AssayResult::whereBetween('date', [$from, $to])
             ->where('type', 'fire_assay')
@@ -444,8 +459,15 @@ class AnalyticsController extends Controller
             fputcsv($handle, ['Date', 'Ore Milled (t)', 'Ore Hoisted (t)', 'Gold Smelted (g)', 'Fire Assay Grade (g/t)', 'Mill Recovery %']);
 
             $prodByDay = DailyProduction::whereBetween('date', [$from, $to])
-                ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled, SUM(ore_hoisted) as hoisted')
+                ->selectRaw('DATE(date) as day, SUM(gold_smelted) as gold, SUM(ore_milled) as milled')
                 ->groupBy('day')->orderBy('day')->get();
+            $mineByDay = MiningRecord::whereBetween('date', [$from, $to])
+                ->selectRaw('DATE(date) as day, SUM(ore_hoisted) as hoisted')
+                ->groupBy('day')
+                ->pluck('hoisted', 'day');
+            foreach ($prodByDay as $row) {
+                $row->hoisted = (float) ($mineByDay[$row->day] ?? 0);
+            }
 
             $fireAssayByDate = AssayResult::whereBetween('date', [$from, $to])
                 ->where('type', 'fire_assay')

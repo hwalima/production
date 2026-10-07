@@ -109,9 +109,9 @@ class ImportTest extends TestCase
     public function can_import_production_records_from_csv(): void
     {
         $csv = implode("\r\n", [
-            'date,shift,mining_site,ore_hoisted,ore_hoisted_target,waste_hoisted,uncrushed_stockpile,ore_crushed,unmilled_stockpile,ore_milled,ore_milled_target,gold_smelted,purity_percentage,fidelity_price',
-            '2026-04-01,Day,Main Pit,100.00,110.00,50.00,5.00,95.00,3.00,92.00,95.00,45.50,92.00,3450000.00',
-            '2026-04-02,Night,Main Pit,90.00,,45.00,,88.00,,85.00,,42.00,91.00,3400000.00',
+            'date,shift,mining_site,ore_crushed,ore_milled,ro_mine_milled,sanda_milled,ore_milled_target,gold_smelted,purity_percentage,fidelity_price',
+            '2026-04-01,Day,Main Pit,95.00,92.00,42.00,50.00,95.00,45.50,92.00,3450000.00',
+            '2026-04-02,Night,Main Pit,88.00,85.00,40.00,45.00,,42.00,91.00,3400000.00',
         ]);
 
         $this->actingAs($this->writer())
@@ -131,6 +131,7 @@ class ImportTest extends TestCase
         DailyProduction::create([
             'date'                => '2026-04-01',
             'shift'               => 'Day',
+            'mining_site'         => 'Main Pit',
             'ore_hoisted'         => 50.00,
             'waste_hoisted'       => 10.00,
             'uncrushed_stockpile' => 0.00,
@@ -143,8 +144,8 @@ class ImportTest extends TestCase
         ]);
 
         $csv = implode("\r\n", [
-            'date,shift,ore_hoisted,waste_hoisted,ore_crushed,ore_milled,gold_smelted,purity_percentage,fidelity_price',
-            '2026-04-01,Day,100.00,50.00,95.00,92.00,45.50,92.00,3450000.00',
+            'date,shift,mining_site,ore_crushed,ore_milled,ro_mine_milled,sanda_milled,gold_smelted,purity_percentage,fidelity_price',
+            '2026-04-01,Day,Main Pit,95.00,92.00,42.00,50.00,45.50,92.00,3450000.00',
         ]);
 
         $this->actingAs($this->writer())
@@ -158,8 +159,8 @@ class ImportTest extends TestCase
     public function production_import_skips_rows_with_invalid_date(): void
     {
         $csv = implode("\r\n", [
-            'date,ore_hoisted,waste_hoisted,ore_crushed,ore_milled,gold_smelted,purity_percentage,fidelity_price',
-            'not-a-date,100.00,50.00,95.00,92.00,45.50,92.00,3450000.00',
+            'date,shift,mining_site,ore_crushed,ore_milled,ro_mine_milled,sanda_milled,gold_smelted,purity_percentage,fidelity_price',
+            'not-a-date,Day,Main Pit,95.00,92.00,42.00,50.00,45.50,92.00,3450000.00',
         ]);
 
         $this->actingAs($this->writer())
@@ -175,7 +176,7 @@ class ImportTest extends TestCase
     /** @test */
     public function production_import_rejects_missing_required_columns(): void
     {
-        $csv = "date,ore_hoisted\r\n2026-04-01,100.00";
+        $csv = "date,ore_milled\r\n2026-04-01,100.00";
 
         $this->actingAs($this->writer())
             ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
@@ -187,10 +188,10 @@ class ImportTest extends TestCase
     public function production_import_skips_blank_rows(): void
     {
         $csv = implode("\r\n", [
-            'date,ore_hoisted,waste_hoisted,ore_crushed,ore_milled,gold_smelted,purity_percentage,fidelity_price',
-            '2026-04-01,100.00,50.00,95.00,92.00,45.50,92.00,3450000.00',
+            'date,shift,mining_site,ore_crushed,ore_milled,ro_mine_milled,sanda_milled,gold_smelted,purity_percentage,fidelity_price',
+            '2026-04-01,Day,Main Pit,95.00,92.00,42.00,50.00,45.50,92.00,3450000.00',
             ',,,,,,,',
-            '2026-04-02,90.00,45.00,88.00,85.00,42.00,91.00,3400000.00',
+            '2026-04-02,Night,Main Pit,88.00,85.00,40.00,45.00,42.00,91.00,3400000.00',
         ]);
 
         $this->actingAs($this->writer())
@@ -334,11 +335,10 @@ class ImportTest extends TestCase
     /** @test */
     public function import_requires_at_least_one_data_row(): void
     {
-        $csv = "date,ore_hoisted,waste_hoisted,ore_crushed,ore_milled,gold_smelted,purity_percentage,fidelity_price\r\n";
+        $csv = "date,shift,mining_site,ore_crushed,ore_milled,ro_mine_milled,sanda_milled,gold_smelted,purity_percentage,fidelity_price\r\n";
 
         $this->actingAs($this->writer())
             ->post(route('import.production.store'), ['file' => $this->csvFile($csv)])
             ->assertSessionHasErrors('file');
     }
 }
-

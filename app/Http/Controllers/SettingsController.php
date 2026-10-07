@@ -44,6 +44,7 @@ class SettingsController extends Controller
             'mine_latitude'         => 'nullable|numeric|between:-90,90',
             'mine_longitude'        => 'nullable|numeric|between:-180,180',
             'gold_monthly_target'   => 'required|numeric|min:1',
+            'skip_factor'           => 'required|numeric|gt:0|max:10',
         ]);
 
         $scalar = [
@@ -55,6 +56,7 @@ class SettingsController extends Controller
             'currency_symbol', 'currency_code',
             'mine_latitude', 'mine_longitude',
             'gold_monthly_target',
+            'skip_factor',
         ];
 
         foreach ($scalar as $key) {

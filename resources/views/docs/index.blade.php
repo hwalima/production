@@ -443,8 +443,8 @@
         <table class="doc-table">
             <thead><tr><th>Card</th><th>Metric</th><th>Formula / Source</th></tr></thead>
             <tbody>
-                <tr><td>Ore Hoisted</td><td>Tonnes hoisted in range</td><td><code>SUM(ore_hoisted)</code> from daily_productions</td></tr>
-                <tr><td>Ore Milled</td><td>Tonnes milled in range</td><td><code>SUM(ore_milled)</code></td></tr>
+                <tr><td>Ore Hoisted</td><td>Skip-factor-adjusted tonnes in range</td><td><code>SUM(ore_hoisted)</code> from mining_records</td></tr>
+                <tr><td>Total Ore Milled</td><td>Tonnes milled in range</td><td><code>SUM(ore_milled)</code></td></tr>
                 <tr><td>Gold Smelted</td><td>Grams of gold produced</td><td><code>SUM(gold_smelted)</code></td></tr>
                 <tr><td>Gold vs Target</td><td>% of monthly target achieved</td><td><code>(gold_smelted / gold_monthly_target) × 100</code></td></tr>
                 <tr><td>Stripping Ratio</td><td>Waste-to-ore ratio</td><td><code>waste_hoisted / ore_hoisted</code></td></tr>
@@ -474,14 +474,14 @@
             <h2>5. Daily Production</h2>
             <span class="section-num">§5</span>
         </div>
-        <p>Route: <code>GET /production</code>. Records the complete daily production cycle from ore hoisting through to gold smelting.</p>
+        <p>Route: <code>GET /production</code>. Captures plant processing separately from the underground mining data recorded under Mining and Assay.</p>
         <h3>Data Fields</h3>
         <div class="field-grid">
             <div class="field-pill">date</div><div class="field-pill">shift</div><div class="field-pill">mining_site</div>
-            <div class="field-pill">ore_hoisted</div><div class="field-pill">ore_hoisted_target</div>
-            <div class="field-pill">waste_hoisted</div><div class="field-pill">uncrushed_stockpile</div>
+            <div class="field-pill">uncrushed_stockpile</div>
             <div class="field-pill">ore_crushed</div><div class="field-pill">unmilled_stockpile</div>
-            <div class="field-pill">ore_milled</div><div class="field-pill">ore_milled_target</div>
+            <div class="field-pill">ore_milled</div><div class="field-pill">ro_mine_milled</div>
+            <div class="field-pill">sanda_milled</div><div class="field-pill">ore_milled_target</div>
             <div class="field-pill">gold_smelted</div><div class="field-pill">purity_percentage</div>
             <div class="field-pill">fidelity_price</div>
         </div>
@@ -491,17 +491,18 @@
                 <tr><td>date</td><td>Date</td><td>Production date (YYYY-MM-DD)</td></tr>
                 <tr><td>shift</td><td>Text</td><td>Day / Night / Morning / Afternoon — linked to configured shifts</td></tr>
                 <tr><td>mining_site</td><td>Text</td><td>The active mining site / stope</td></tr>
-                <tr><td>ore_hoisted / target</td><td>Tonnes</td><td>Actual vs target ore hoisted</td></tr>
-                <tr><td>waste_hoisted</td><td>Tonnes</td><td>Waste rock removed</td></tr>
                 <tr><td>uncrushed_stockpile</td><td>Tonnes</td><td>Ore waiting to be crushed</td></tr>
                 <tr><td>ore_crushed</td><td>Tonnes</td><td>Ore through the crusher</td></tr>
                 <tr><td>unmilled_stockpile</td><td>Tonnes</td><td>Crushed ore waiting for mill</td></tr>
-                <tr><td>ore_milled / target</td><td>Tonnes</td><td>Actual vs target ore milled</td></tr>
+                <tr><td>ore_milled / target</td><td>Tonnes</td><td>Total ore milled vs target</td></tr>
+                <tr><td>ro_mine_milled</td><td>Tonnes</td><td>Ore milled from R.O. Mine</td></tr>
+                <tr><td>sanda_milled</td><td>Tonnes</td><td>Prefilled as total milled minus R.O. Mine milled; can be edited</td></tr>
                 <tr><td>gold_smelted</td><td>Grams</td><td>Fine gold produced</td></tr>
                 <tr><td>purity_percentage</td><td>%</td><td>Gold purity (0–100)</td></tr>
                 <tr><td>fidelity_price</td><td>Currency</td><td>Gold price per gram (local currency)</td></tr>
             </tbody>
         </table>
+        <p>Underground records are entered separately under <strong>Mining and Assay → Mining</strong>. Their entered ore tonnes are multiplied by the configurable Ore Hoisting Skip Factor (default 0.8), and the adjusted value feeds stockpile calculations and reporting.</p>
         <h3>Shift Association</h3>
         <p>The shift dropdown is populated from the <strong>Shifts</strong> settings. A production record is tied to a shift, enabling shift-level analysis and reporting.</p>
         <h3>Production Calendar</h3>
@@ -780,10 +781,9 @@
         <h3>Production Import Columns</h3>
         <div class="field-grid">
             <div class="field-pill">date (YYYY-MM-DD)</div><div class="field-pill">shift</div>
-            <div class="field-pill">mining_site</div><div class="field-pill">ore_hoisted</div>
-            <div class="field-pill">ore_hoisted_target</div><div class="field-pill">waste_hoisted</div>
-            <div class="field-pill">uncrushed_stockpile</div><div class="field-pill">ore_crushed</div>
-            <div class="field-pill">unmilled_stockpile</div><div class="field-pill">ore_milled</div>
+            <div class="field-pill">mining_site</div><div class="field-pill">ore_crushed</div>
+            <div class="field-pill">ore_milled</div><div class="field-pill">ro_mine_milled</div>
+            <div class="field-pill">sanda_milled</div>
             <div class="field-pill">ore_milled_target</div><div class="field-pill">gold_smelted</div>
             <div class="field-pill">purity_percentage</div><div class="field-pill">fidelity_price</div>
         </div>

@@ -1,9 +1,9 @@
 @extends('layouts.app')
-@section('page-title', 'Daily Production')
+@section('page-title', 'Plant Production')
 @section('content')
 
 <div class="page-header">
-    <h1 class="page-title">Daily Production Records</h1>
+    <h1 class="page-title">Plant Production Records</h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <a href="{{ route('production.calendar') }}" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:.8rem;font-weight:700;border-radius:10px;border:1px solid var(--topbar-border);background:var(--card);color:var(--text);text-decoration:none;transition:background .15s,color .15s,border-color .15s;" onmouseover="this.style.background='#fcb913';this.style.color='#001a4d';this.style.borderColor='#fcb913'" onmouseout="this.style.background='';this.style.color='';this.style.borderColor=''">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -19,7 +19,7 @@
         </a>
         <a href="{{ route('production.create') }}" class="btn-add">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Record
+            Add Plant Record
         </a>
         @endif
     </div>
@@ -91,7 +91,9 @@
                 <th class="th-r" style="background:rgba(252,185,19,.15);">Uncrush Stk</th>
                 <th class="th-r">Crushed</th>
                 <th class="th-r" style="background:rgba(252,185,19,.15);">Unmill Stk</th>
-                <th class="th-r">Milled</th>
+                <th class="th-r">Total Ore Milled</th>
+                <th class="th-r">R.O. Mine Milled</th>
+                <th class="th-r">Sanda Milled</th>
                 <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Tgt</th>
                 <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Var</th>
                 <th class="th-r">Gold (g)</th>
@@ -100,7 +102,16 @@
             </tr>
         </thead>
         <tbody>
+            @php $shownMiningKeys = []; @endphp
             @forelse($productions as $prod)
+            @php
+                $miningKey = implode('|', [$prod->date->format('Y-m-d'), $prod->shift ?? '', $prod->mining_site ?? '']);
+                $mining = $shownMiningKeys[$miningKey] ?? false ? null : ($miningByKey[$miningKey] ?? null);
+                $shownMiningKeys[$miningKey] = true;
+                $oreHoisted = (float) ($mining->ore_hoisted ?? 0);
+                $oreHoistedTarget = $mining?->ore_hoisted_target;
+                $wasteHoisted = (float) ($mining->waste_hoisted ?? 0);
+            @endphp
             <tr style="white-space:nowrap;">
                 <td data-sort="{{ $prod->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $prod->date->format('d M Y') }}</span></td>
                 <td>
@@ -117,17 +128,19 @@
                     @endif
                 </td>
                 <td>{{ $prod->mining_site ?? '—' }}</td>
-                <td class="td-r">{{ number_format($prod->ore_hoisted, 1) }} t</td>
-                @php $hv = $prod->ore_hoisted_target !== null ? (float)$prod->ore_hoisted_target - (float)$prod->ore_hoisted : null; @endphp
-                <td class="td-r" style="color:#9ca3af;">{{ $prod->ore_hoisted_target !== null ? number_format($prod->ore_hoisted_target, 1).' t' : '—' }}</td>
+                <td class="td-r">{{ number_format($oreHoisted, 1) }} t</td>
+                @php $hv = $oreHoistedTarget !== null ? (float)$oreHoistedTarget - $oreHoisted : null; @endphp
+                <td class="td-r" style="color:#9ca3af;">{{ $oreHoistedTarget !== null ? number_format($oreHoistedTarget, 1).' t' : '—' }}</td>
                 <td class="td-r" style="font-weight:600;color:{{ $hv === null ? '#6b7280' : ($hv > 0 ? '#ef4444' : '#22c55e') }}">
                     {{ $hv === null ? '—' : (($hv > 0 ? '+' : '').number_format($hv, 1).' t') }}
                 </td>
-                <td class="td-r">{{ number_format($prod->waste_hoisted, 1) }} t</td>
+                <td class="td-r">{{ number_format($wasteHoisted, 1) }} t</td>
                 <td class="td-r" style="color:#fcb913;font-weight:600;">{{ number_format($prod->uncrushed_stockpile, 1) }} t</td>
                 <td class="td-r">{{ number_format($prod->ore_crushed, 1) }} t</td>
                 <td class="td-r" style="color:#fcb913;font-weight:600;">{{ number_format($prod->unmilled_stockpile, 1) }} t</td>
                 <td class="td-r">{{ number_format($prod->ore_milled, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->ro_mine_milled, 1) }} t</td>
+                <td class="td-r">{{ number_format($prod->sanda_milled, 1) }} t</td>
                 @php $mv = $prod->ore_milled_target !== null ? (float)$prod->ore_milled_target - (float)$prod->ore_milled : null; @endphp
                 <td class="td-r" style="color:#9ca3af;">{{ $prod->ore_milled_target !== null ? number_format($prod->ore_milled_target, 1).' t' : '—' }}</td>
                 <td class="td-r" style="font-weight:600;color:{{ $mv === null ? '#6b7280' : ($mv > 0 ? '#ef4444' : '#22c55e') }}">
@@ -155,7 +168,7 @@
                 </td>
             </tr>
             @empty
-            <tr class="empty-row"><td colspan="12">No production records yet.</td></tr>
+            <tr class="empty-row"><td colspan="18">No production records yet.</td></tr>
             @endforelse
         </tbody>
         @if($totals && ($totals->ore_hoisted || $totals->ore_milled || $totals->gold_smelted))
@@ -182,6 +195,8 @@
                 <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#6b7280;padding:7px 6px;" data-export="—">—</td>
                 <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;"
                     data-export="{{ number_format($totals->ore_milled ?? 0, 1) }} t">{{ number_format($totals->ore_milled ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;">{{ number_format($totals->ro_mine_milled ?? 0, 1) }} t</td>
+                <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;color:#fff;padding:7px 6px;">{{ number_format($totals->sanda_milled ?? 0, 1) }} t</td>
                 <td class="td-r" style="font-size:.78rem;background:#001a4d;color:#93c5fd;padding:7px 6px;"
                     data-export="{{ $totals->ore_milled_target ? number_format($totals->ore_milled_target, 1).' t' : '—' }}">{{ $totals->ore_milled_target ? number_format($totals->ore_milled_target, 1).' t' : '—' }}</td>
                 <td class="td-r" style="font-weight:700;font-size:.78rem;background:#001a4d;padding:7px 6px;color:{{ $tMilledVar === null ? '#6b7280' : ($tMilledVar > 0 ? '#fca5a5' : '#86efac') }};"

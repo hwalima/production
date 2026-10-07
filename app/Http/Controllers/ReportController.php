@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyProduction;
+use App\Models\MiningRecord;
 use App\Models\Consumable;
 use App\Models\ConsumableStockMovement;
 use App\Models\LabourEnergy;
@@ -22,13 +23,20 @@ class ReportController extends Controller
         $productions = DailyProduction::whereBetween('date', [$start, $end])
             ->orderBy('date')
             ->get();
+        [$miningByKey, $totHoisted, $totWaste, $totHoistTgt] = $this->miningSummary($start, $end);
+        $totHoistVar = $totHoistTgt > 0 ? round($totHoistTgt - $totHoisted, 2) : null;
 
         $totalOre  = $productions->sum('ore_milled');
         $totalGold = $productions->sum('gold_smelted');
         $avgPurity = $productions->avg('purity_percentage');
+        $totMillTgt = $productions->whereNotNull('ore_milled_target')->sum('ore_milled_target');
+        $totMillVar = $productions->whereNotNull('ore_milled_target')->count()
+            ? round($totMillTgt - $totalOre, 2) : null;
 
         return view('reports.production', compact(
-            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity'
+            'productions', 'month', 'totalOre', 'totalGold', 'avgPurity',
+            'miningByKey', 'totHoisted', 'totWaste', 'totHoistTgt', 'totHoistVar',
+            'totMillTgt', 'totMillVar'
         ));
     }
 
@@ -135,13 +143,10 @@ class ReportController extends Controller
         $totalGold     = $productions->sum('gold_smelted');
         $avgPurity     = $productions->avg('purity_percentage') ?? 0;
 
-        $totHoisted    = $productions->sum('ore_hoisted');
-        $totWaste      = $productions->sum('waste_hoisted');
+        [$miningByKey, $totHoisted, $totWaste, $totHoistTgt] = $this->miningSummary($start, $end);
         $totCrushed    = $productions->sum('ore_crushed');
-        $totHoistTgt   = $productions->whereNotNull('ore_hoisted_target')->sum('ore_hoisted_target');
         $totMillTgt    = $productions->whereNotNull('ore_milled_target')->sum('ore_milled_target');
-        $totHoistVar   = $productions->whereNotNull('ore_hoisted_target')->count()
-                            ? round($totHoistTgt - $totHoisted, 2) : null;
+        $totHoistVar   = $totHoistTgt > 0 ? round($totHoistTgt - $totHoisted, 2) : null;
         $totMillVar    = $productions->whereNotNull('ore_milled_target')->count()
                             ? round($totMillTgt - $totalOre, 2) : null;
 
@@ -237,6 +242,31 @@ class ReportController extends Controller
         return Pdf::loadView('pdf.accounts', $data)
             ->setPaper('a4', 'portrait')
             ->download($filename);
+    }
+
+    private function miningSummary($from, $to): array
+    {
+        $groups = MiningRecord::whereBetween('date', [$from, $to])
+            ->selectRaw('date, shift, mining_site, SUM(ore_hoisted) as ore_hoisted, SUM(ore_hoisted_target) as ore_hoisted_target, SUM(waste_hoisted) as waste_hoisted')
+            ->groupBy('date', 'shift', 'mining_site')
+            ->get();
+
+        $byKey = [];
+        foreach ($groups as $group) {
+            $key = implode('|', [substr((string) $group->date, 0, 10), $group->shift ?? '', $group->mining_site ?? '']);
+            $byKey[$key] = $group;
+        }
+
+        $totals = MiningRecord::whereBetween('date', [$from, $to])
+            ->selectRaw('SUM(ore_hoisted) as ore_hoisted, SUM(ore_hoisted_target) as ore_hoisted_target, SUM(waste_hoisted) as waste_hoisted')
+            ->first();
+
+        return [
+            $byKey,
+            (float) ($totals->ore_hoisted ?? 0),
+            (float) ($totals->waste_hoisted ?? 0),
+            (float) ($totals->ore_hoisted_target ?? 0),
+        ];
     }
 
     // ── Shared stores snapshot ─────────────────────────────────────

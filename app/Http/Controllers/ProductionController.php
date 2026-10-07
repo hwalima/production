@@ -3,9 +3,11 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyProduction;
 use App\Models\AuditLog;
+use App\Models\MiningRecord;
 use App\Models\Setting;
 use App\Models\Shift;
 use App\Models\MiningSite;
+use App\Services\StockpileService;
 use App\Http\Requests\StoreDailyProductionRequest;
 use App\Http\Requests\UpdateDailyProductionRequest;
 use Illuminate\Http\Request;
@@ -24,24 +26,42 @@ class ProductionController extends Controller
         $filterShift = $request->input('shift', '');   // '' = all shifts
 
         $baseQuery = DailyProduction::whereBetween('date', [$filterFrom, $filterTo]);
+        $miningQuery = MiningRecord::whereBetween('date', [$filterFrom, $filterTo]);
         if ($filterShift !== '') {
             $baseQuery->where('shift', $filterShift);
+            $miningQuery->where('shift', $filterShift);
         }
 
         $productions = (clone $baseQuery)->orderByDesc('date')->orderByDesc('id')
             ->paginate(30)->withQueryString();
+        $miningGroups = MiningRecord::whereBetween('date', [$filterFrom, $filterTo])
+            ->selectRaw('date, shift, mining_site, SUM(ore_hoisted) as ore_hoisted, SUM(ore_hoisted_target) as ore_hoisted_target, SUM(waste_hoisted) as waste_hoisted')
+            ->groupBy('date', 'shift', 'mining_site')
+            ->get();
+        $miningByKey = [];
+        foreach ($miningGroups as $group) {
+            $key = implode('|', [substr((string) $group->date, 0, 10), $group->shift ?? '', $group->mining_site ?? '']);
+            $miningByKey[$key] = $group;
+        }
 
         $totals = (clone $baseQuery)
             ->selectRaw('
-                SUM(ore_hoisted)        as ore_hoisted,
-                SUM(ore_hoisted_target) as ore_hoisted_target,
-                SUM(waste_hoisted)      as waste_hoisted,
                 SUM(ore_crushed)        as ore_crushed,
                 SUM(ore_milled)         as ore_milled,
+                SUM(ro_mine_milled)     as ro_mine_milled,
+                SUM(sanda_milled)       as sanda_milled,
                 SUM(ore_milled_target)  as ore_milled_target,
                 SUM(gold_smelted)       as gold_smelted,
                 AVG(purity_percentage)  as avg_purity
             ')->first();
+        $miningTotals = (clone $miningQuery)->selectRaw('
+            SUM(ore_hoisted) as ore_hoisted,
+            SUM(ore_hoisted_target) as ore_hoisted_target,
+            SUM(waste_hoisted) as waste_hoisted
+        ')->first();
+        $totals->ore_hoisted = $miningTotals->ore_hoisted;
+        $totals->ore_hoisted_target = $miningTotals->ore_hoisted_target;
+        $totals->waste_hoisted = $miningTotals->waste_hoisted;
 
         // Per-shift breakdown for the current date range (always unfiltered by shift)
         $shiftBreakdown = DailyProduction::whereBetween('date', [$filterFrom, $filterTo])
@@ -49,13 +69,19 @@ class ProductionController extends Controller
                 COALESCE(shift, \'Unassigned\') as shift_name,
                 COUNT(*)                        as records,
                 SUM(gold_smelted)               as gold_smelted,
-                SUM(ore_hoisted)                as ore_hoisted,
                 SUM(ore_milled)                 as ore_milled,
                 AVG(purity_percentage)          as avg_purity
             ')
             ->groupByRaw('COALESCE(shift, \'Unassigned\')')
             ->orderBy('shift_name')
             ->get();
+        $miningByShift = MiningRecord::whereBetween('date', [$filterFrom, $filterTo])
+            ->selectRaw('COALESCE(shift, \'Unassigned\') as shift_name, SUM(ore_hoisted) as ore_hoisted')
+            ->groupByRaw('COALESCE(shift, \'Unassigned\')')
+            ->pluck('ore_hoisted', 'shift_name');
+        foreach ($shiftBreakdown as $shiftRow) {
+            $shiftRow->ore_hoisted = (float) ($miningByShift[$shiftRow->shift_name] ?? 0);
+        }
 
         // All distinct known shift names for filter chips
         $knownShifts = Shift::orderBy('name')->pluck('name');
@@ -65,7 +91,7 @@ class ProductionController extends Controller
 
         return view('production.index', compact(
             'productions', 'filterFrom', 'filterTo', 'filterShift',
-            'isDefaultRange', 'totals', 'shiftBreakdown', 'knownShifts'
+            'isDefaultRange', 'totals', 'shiftBreakdown', 'knownShifts', 'miningByKey'
         ));
     }
 
@@ -75,19 +101,21 @@ class ProductionController extends Controller
     {
         $shifts      = Shift::active()->orderBy('name')->pluck('name');
         $miningSites = MiningSite::active()->orderBy('name')->pluck('name');
-        $prev        = DailyProduction::orderByDesc('date')->first();
-        return view('production.create', compact('shifts', 'miningSites', 'prev'));
+        $date = request('date', now()->toDateString());
+        $prev = DailyProduction::where('date', '<', $date)->orderByDesc('date')->orderByDesc('id')->first();
+        $mineHoistedForDate = MiningRecord::whereDate('date', $date)->sum('ore_hoisted');
+        return view('production.create', compact('shifts', 'miningSites', 'prev', 'mineHoistedForDate'));
     }
 
     public function store(StoreDailyProductionRequest $request)
     {
-        $data = $request->validated();
+        $data = $this->preparePlantData($request->validated());
 
         $data['uncrushed_stockpile'] = 0; // set by cascade below
         $data['unmilled_stockpile']  = 0;
 
         DailyProduction::create($data);
-        $this->recalculateFrom($data['date']);
+        app(StockpileService::class)->recalculateFrom($data['date']);
 
         AuditLog::record('production_created', "Added production record for {$data['date']}", 'DailyProduction');
 
@@ -98,7 +126,12 @@ class ProductionController extends Controller
 
     public function show(DailyProduction $production)
     {
-        return view('production.show', compact('production'));
+        $miningRecords = MiningRecord::whereDate('date', $production->date)
+            ->where('shift', $production->shift)
+            ->where('mining_site', $production->mining_site)
+            ->orderBy('id')
+            ->get();
+        return view('production.show', compact('production', 'miningRecords'));
     }
 
     /* ── edit / update ───────────────────────────────── */
@@ -110,12 +143,13 @@ class ProductionController extends Controller
         $prev = DailyProduction::where('date', '<', $production->date)
                                ->orderByDesc('date')->orderByDesc('id')
                                ->first();
-        return view('production.edit', compact('production', 'shifts', 'miningSites', 'prev'));
+        $mineHoistedForDate = MiningRecord::whereDate('date', $production->date)->sum('ore_hoisted');
+        return view('production.edit', compact('production', 'shifts', 'miningSites', 'prev', 'mineHoistedForDate'));
     }
 
     public function update(UpdateDailyProductionRequest $request, DailyProduction $production)
     {
-        $data = $request->validated();
+        $data = $this->preparePlantData($request->validated());
         $data['uncrushed_stockpile'] = 0;
         $data['unmilled_stockpile']  = 0;
 
@@ -123,7 +157,7 @@ class ProductionController extends Controller
         $production->update($data);
 
         // Recascade from the earlier of old/new date so all subsequent rows stay correct
-        $this->recalculateFrom(min($oldDate, $data['date']));
+        app(StockpileService::class)->recalculateFrom(min($oldDate, $data['date']));
 
         AuditLog::record('production_updated', "Updated production record for {$data['date']}", 'DailyProduction', $production->id);
 
@@ -137,7 +171,7 @@ class ProductionController extends Controller
         $date = $production->date->toDateString();
         $prodId = $production->id;
         $production->delete();
-        $this->recalculateFrom($date);
+        app(StockpileService::class)->recalculateFrom($date);
 
         AuditLog::record('production_deleted', "Deleted production record for {$date}", 'DailyProduction', $prodId);
 
@@ -314,39 +348,19 @@ class ProductionController extends Controller
         ));
     }
 
-    /* ── recalculate cumulative stockpiles from a date ── */
-
-    /**
-     * Re-computes uncrushed_stockpile and unmilled_stockpile for every record
-     * on or after $fromDate, in chronological (date ASC, id ASC) order.
-     * Each row's stockpile = previous row's stockpile + current row's in/out.
-     */
-    private function recalculateFrom(string $fromDate): void
+    private function preparePlantData(array $data): array
     {
-        // Seed from the record immediately before $fromDate
-        $seed = DailyProduction::where('date', '<', $fromDate)
-                               ->orderByDesc('date')->orderByDesc('id')
-                               ->first();
-
-        $prevUncrushed = $seed ? (float) $seed->uncrushed_stockpile : 0.0;
-        $prevUnmilled  = $seed ? (float) $seed->unmilled_stockpile  : 0.0;
-
-        $records = DailyProduction::where('date', '>=', $fromDate)
-                                  ->orderBy('date')->orderBy('id')
-                                  ->get();
-
-        foreach ($records as $record) {
-            $uncrushed = $prevUncrushed + (float) $record->ore_hoisted - (float) $record->ore_crushed;
-            $unmilled  = $prevUnmilled  + (float) $record->ore_crushed - (float) $record->ore_milled;
-
-            $record->updateQuietly([
-                'uncrushed_stockpile' => $uncrushed,
-                'unmilled_stockpile'  => $unmilled,
-            ]);
-
-            $prevUncrushed = $uncrushed;
-            $prevUnmilled  = $unmilled;
+        $manualSanda = filter_var($data['sanda_milled_manual'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $data['sanda_milled_manual'] = $manualSanda;
+        if (!$manualSanda) {
+            $data['sanda_milled'] = round((float) $data['ore_milled'] - (float) $data['ro_mine_milled'], 2);
         }
+
+        // Legacy columns remain for compatibility; underground values now live in mining_records.
+        $data['ore_hoisted'] = 0;
+        $data['ore_hoisted_target'] = null;
+        $data['waste_hoisted'] = 0;
+
+        return $data;
     }
 }
-

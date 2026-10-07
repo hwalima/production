@@ -22,10 +22,13 @@ class RoleMiddlewareTest extends TestCase
     {
         return [
             'date'              => '2026-04-14',
+            'shift'             => 'Day',
+            'mining_site'       => 'Main Pit',
             'ore_hoisted'       => '100.00',
-            'waste_hoisted'     => '10.00',
             'ore_crushed'       => '80.00',
             'ore_milled'        => '75.00',
+            'ro_mine_milled'    => '25.00',
+            'sanda_milled'      => '50.00',
             'gold_smelted'      => '2.50',
             'purity_percentage' => '85.00',
             'fidelity_price'    => '90000.00',

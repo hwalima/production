@@ -29,15 +29,20 @@
         @if($production->mining_site)
         <div class="detail-row"><span class="dr-label">Mining Site</span><span class="dr-value">{{ $production->mining_site }}</span></div>
         @endif
-        <div class="detail-row"><span class="dr-label">Ore Hoisted</span><span class="dr-value">{{ number_format($production->ore_hoisted, 2) }} t</span></div>
-        @if($production->ore_hoisted_target !== null)
-        @php $hv = (float)$production->ore_hoisted_target - (float)$production->ore_hoisted; @endphp
-        <div class="detail-row"><span class="dr-label">Hoist Target</span><span class="dr-value" style="color:#9ca3af;">{{ number_format($production->ore_hoisted_target, 2) }} t</span></div>
+        @php
+            $oreHoisted = (float) $miningRecords->sum('ore_hoisted');
+            $oreHoistedTarget = $miningRecords->sum('ore_hoisted_target');
+            $wasteHoisted = (float) $miningRecords->sum('waste_hoisted');
+        @endphp
+        <div class="detail-row"><span class="dr-label">Ore Hoisted (Skip-Factor Adjusted)</span><span class="dr-value">{{ number_format($oreHoisted, 2) }} t</span></div>
+        @if($miningRecords->whereNotNull('ore_hoisted_target')->isNotEmpty())
+        @php $hv = (float)$oreHoistedTarget - $oreHoisted; @endphp
+        <div class="detail-row"><span class="dr-label">Hoist Target</span><span class="dr-value" style="color:#9ca3af;">{{ number_format($oreHoistedTarget, 2) }} t</span></div>
         <div class="detail-row"><span class="dr-label">Hoist Variance</span>
             <span class="dr-value" style="color:{{ $hv > 0 ? '#ef4444' : '#22c55e' }};font-weight:700;">{{ ($hv > 0 ? '+' : '').number_format($hv, 2) }} t</span>
         </div>
         @endif
-        <div class="detail-row"><span class="dr-label">Waste Hoisted</span><span class="dr-value">{{ number_format($production->waste_hoisted, 2) }} t</span></div>
+        <div class="detail-row"><span class="dr-label">Waste Hoisted</span><span class="dr-value">{{ number_format($wasteHoisted, 2) }} t</span></div>
         <div class="detail-row" style="background:rgba(252,185,19,.06);">
             <span class="dr-label" style="color:#fcb913;">Uncrushed Stockpile</span>
             <span class="dr-value" style="color:#fcb913;">{{ number_format($production->uncrushed_stockpile, 2) }} t</span>
@@ -47,7 +52,9 @@
             <span class="dr-label" style="color:#fcb913;">Unmilled Stockpile</span>
             <span class="dr-value" style="color:#fcb913;">{{ number_format($production->unmilled_stockpile, 2) }} t</span>
         </div>
-        <div class="detail-row"><span class="dr-label">Ore Milled</span><span class="dr-value">{{ number_format($production->ore_milled, 2) }} t</span></div>
+        <div class="detail-row"><span class="dr-label">Total Ore Milled</span><span class="dr-value">{{ number_format($production->ore_milled, 2) }} t</span></div>
+        <div class="detail-row"><span class="dr-label">R.O. Mine Milled</span><span class="dr-value">{{ number_format($production->ro_mine_milled, 2) }} t</span></div>
+        <div class="detail-row"><span class="dr-label">Sanda Milled</span><span class="dr-value">{{ number_format($production->sanda_milled, 2) }} t</span></div>
         @if($production->ore_milled_target !== null)
         @php $mv = (float)$production->ore_milled_target - (float)$production->ore_milled; @endphp
         <div class="detail-row"><span class="dr-label">Mill Target</span><span class="dr-value" style="color:#9ca3af;">{{ number_format($production->ore_milled_target, 2) }} t</span></div>

@@ -73,7 +73,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Import Records
                 </button>
-                <span style="font-size:.75rem;color:#9ca3af;">Existing records (same date + shift) will be updated.</span>
+                <span style="font-size:.75rem;color:#9ca3af;">Existing plant records (same date, shift and mining site) will be updated.</span>
             </div>
         </form>
     </div>
@@ -90,15 +90,12 @@
             </thead>
             <tbody>
                 <tr><td><code>date</code></td><td style="color:#22c55e;">Yes</td><td>YYYY-MM-DD</td></tr>
-                <tr><td><code>shift</code></td><td style="color:#9ca3af;">No</td><td>Day / Night / Afternoon / Morning</td></tr>
-                <tr><td><code>mining_site</code></td><td style="color:#9ca3af;">No</td><td>Free text</td></tr>
-                <tr><td><code>ore_hoisted</code></td><td style="color:#22c55e;">Yes</td><td>Tonnes (decimal)</td></tr>
-                <tr><td><code>ore_hoisted_target</code></td><td style="color:#9ca3af;">No</td><td>Tonnes (decimal)</td></tr>
-                <tr><td><code>waste_hoisted</code></td><td style="color:#22c55e;">Yes</td><td>Tonnes (decimal)</td></tr>
-                <tr><td><code>uncrushed_stockpile</code></td><td style="color:#9ca3af;">No</td><td>Tonnes (decimal)</td></tr>
+                <tr><td><code>shift</code></td><td style="color:#22c55e;">Yes</td><td>Day / Night / Afternoon / Morning; matches mining records</td></tr>
+                <tr><td><code>mining_site</code></td><td style="color:#22c55e;">Yes</td><td>Mining site; matches mining records</td></tr>
                 <tr><td><code>ore_crushed</code></td><td style="color:#22c55e;">Yes</td><td>Tonnes (decimal)</td></tr>
-                <tr><td><code>unmilled_stockpile</code></td><td style="color:#9ca3af;">No</td><td>Tonnes (decimal)</td></tr>
-                <tr><td><code>ore_milled</code></td><td style="color:#22c55e;">Yes</td><td>Tonnes (decimal)</td></tr>
+                <tr><td><code>ore_milled</code></td><td style="color:#22c55e;">Yes</td><td>Total ore milled in tonnes</td></tr>
+                <tr><td><code>ro_mine_milled</code></td><td style="color:#22c55e;">Yes</td><td>R.O. Mine Milled in tonnes</td></tr>
+                <tr><td><code>sanda_milled</code></td><td style="color:#22c55e;">Yes</td><td>Sanda Milled in tonnes; import value is preserved</td></tr>
                 <tr><td><code>ore_milled_target</code></td><td style="color:#9ca3af;">No</td><td>Tonnes (decimal)</td></tr>
                 <tr><td><code>gold_smelted</code></td><td style="color:#22c55e;">Yes</td><td>Grams (decimal)</td></tr>
                 <tr><td><code>purity_percentage</code></td><td style="color:#22c55e;">Yes</td><td>0 – 100</td></tr>

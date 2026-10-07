@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\AssayResult;
 use App\Models\AuditLog;
 use App\Models\DailyProduction;
+use App\Models\MiningRecord;
 use App\Http\Requests\StoreAssayResultRequest;
 use App\Http\Requests\UpdateAssayResultRequest;
 use Illuminate\Http\Request;
@@ -15,7 +16,8 @@ class AssayController extends Controller
         $fire   = AssayResult::where('type', 'fire_assay')->orderByDesc('date')->paginate(10, ['*'], 'fire');
         $goc    = AssayResult::where('type', 'gold_on_carbon')->orderByDesc('date')->paginate(10, ['*'], 'goc');
         $bottle = AssayResult::where('type', 'bottle_roll')->orderByDesc('date')->paginate(10, ['*'], 'bottle');
-        return view('assay.index', compact('fire', 'goc', 'bottle'));
+        $miningRecords = MiningRecord::orderByDesc('date')->orderByDesc('id')->paginate(10, ['*'], 'mining');
+        return view('assay.index', compact('fire', 'goc', 'bottle', 'miningRecords'));
     }
 
     public function trends(Request $request)

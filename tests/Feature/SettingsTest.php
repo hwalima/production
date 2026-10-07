@@ -61,6 +61,7 @@ class SettingsTest extends TestCase
                 'diesel_daily'        => '428',
                 'labour_daily'        => '0',
                 'gold_monthly_target' => '30',
+                'skip_factor'         => '0.8',
             ])
             ->assertRedirect(route('settings.index'));
 
@@ -97,6 +98,8 @@ class SettingsTest extends TestCase
                 'zesa_daily'    => '633',
                 'diesel_daily'  => '428',
                 'labour_daily'  => '0',
+                'gold_monthly_target' => '30',
+                'skip_factor'   => '0.8',
                 'mining_levels' => 'Shaft',
                 'logo'          => UploadedFile::fake()->image('logo.png', 100, 100),
             ])

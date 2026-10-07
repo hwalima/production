@@ -13,7 +13,7 @@
             <div class="tile-value gold">{{ number_format($totalGoldSmelted, 2) }} g</div>
         </td>
         <td style="border-top:3px solid #0369a1;">
-            <div class="tile-label">Ore Milled</div>
+            <div class="tile-label">Total Ore Milled</div>
             <div class="tile-value" style="color:#0369a1;">{{ number_format($totalOreMilled, 0) }} t</div>
         </td>
         <td style="border-top:3px solid {{ $avgMillRecovery !== null && $avgMillRecovery >= 85 ? '#16a34a' : '#b91c1c' }};">
@@ -45,7 +45,7 @@
         <tr>
             <th>Date</th>
             <th class="th-r">Gold Smelted (g)</th>
-            <th class="th-r">Ore Milled (t)</th>
+            <th class="th-r">Total Ore Milled (t)</th>
             <th class="th-r">Fire Assay (g/t)</th>
             <th class="th-r">Recovery %</th>
         </tr>
@@ -180,7 +180,7 @@
             <td class="td-r">{{ number_format($ytdGold, 2) }}</td>
         </tr>
         <tr>
-            <td>Ore Milled (t)</td>
+            <td>Total Ore Milled (t)</td>
             <td class="td-r">{{ number_format($totalOreMilled, 0) }}</td>
             <td class="td-r">{{ number_format($prevMilled, 0) }}</td>
             <td class="td-r" style="{{ $momMilledDelta !== null && $momMilledDelta < 0 ? 'color:#b91c1c;font-weight:700;' : ($momMilledDelta !== null && $momMilledDelta > 0 ? 'color:#16a34a;font-weight:700;' : '') }}">

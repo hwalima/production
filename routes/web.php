@@ -11,6 +11,7 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MachineRuntimeController;
 use App\Http\Controllers\MachineServiceController;
 use App\Http\Controllers\AssayController;
+use App\Http\Controllers\MiningRecordController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
@@ -134,6 +135,11 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::delete('machine-runtimes/{machineRuntime}', [MachineRuntimeController::class, 'destroy'])->name('machine-runtimes.destroy');
         Route::post('machines/{machine}/services', [MachineServiceController::class, 'store'])->name('machines.services.store');
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
+        Route::get('assay/mining/create', [MiningRecordController::class, 'create'])->name('assay.mining.create');
+        Route::post('assay/mining', [MiningRecordController::class, 'store'])->name('assay.mining.store');
+        Route::get('assay/mining/{miningRecord}/edit', [MiningRecordController::class, 'edit'])->name('assay.mining.edit');
+        Route::put('assay/mining/{miningRecord}', [MiningRecordController::class, 'update'])->name('assay.mining.update');
+        Route::delete('assay/mining/{miningRecord}', [MiningRecordController::class, 'destroy'])->name('assay.mining.destroy');
     });
 
     // ── Documentation ─────────────────────────────────────────────────────

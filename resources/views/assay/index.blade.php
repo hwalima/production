@@ -1,20 +1,27 @@
 @extends('layouts.app')
-@section('title', 'Assay Results')
-@section('page-title', 'Assay Results')
+@section('title', 'Mining and Assay Records')
+@section('page-title', 'Mining and Assay Records')
 @section('content')
 
 <div class="page-header">
-    <h1 class="page-title">Assay Results</h1>
+    <h1 class="page-title">Mining and Assay Records</h1>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <a href="{{ route('assay.trends') }}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:.85rem;font-weight:600;text-decoration:none;background:rgba(252,185,19,.12);color:#fcb913;border:1px solid rgba(252,185,19,.35);transition:background .15s;" title="View assay grade trend charts">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
             Trend Analysis
         </a>
         @if(auth()->user()->canWrite())
+        @if(request('tab') === 'mining')
+        <a href="{{ route('assay.mining.create') }}" class="btn-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Mining Record
+        </a>
+        @else
         <a href="{{ route('assay.create') }}" class="btn-add">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Result
         </a>
+        @endif
         @endif
     </div>
 </div>
@@ -31,6 +38,11 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
 
 {{-- Tab bar --}}
 <div style="display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid rgba(255,255,255,.08);padding-bottom:0;">
+    <a href="{{ route('assay.index', ['tab' => 'mining'] + request()->except('tab')) }}"
+       style="padding:8px 18px;font-size:.82rem;font-weight:600;border-radius:6px 6px 0 0;text-decoration:none;
+              {{ request('tab') === 'mining' ? 'background:#10b981;color:#fff;' : 'color:#9ca3af;background:transparent;' }}">
+        Mining <span style="font-size:.7rem;margin-left:5px;opacity:.8;">({{ $miningRecords->total() }})</span>
+    </a>
     @foreach($tabs as $key => $tab)
     <a href="{{ route('assay.index', ['tab' => $key] + request()->except('tab')) }}"
        style="padding:8px 18px;font-size:.82rem;font-weight:600;border-radius:6px 6px 0 0;text-decoration:none;
@@ -43,6 +55,42 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
     @endforeach
 </div>
 
+@if(request('tab') === 'mining')
+<div class="data-card">
+    <div class="tbl-scroll">
+    <table class="data-table">
+        <thead><tr><th>Date</th><th>Shift</th><th>Mining Site</th><th class="th-r">Entered (t)</th><th class="th-r">Factor</th><th class="th-r">Adjusted Ore (t)</th><th class="th-r">Waste (t)</th><th class="th-c">Actions</th></tr></thead>
+        <tbody>
+            @forelse($miningRecords as $record)
+            <tr>
+                <td>{{ $record->date->format('d/m/y') }}</td>
+                <td>{{ $record->shift ?: '—' }}</td>
+                <td>{{ $record->mining_site ?: '—' }}</td>
+                <td class="td-r">{{ number_format($record->ore_hoisted_entered, 2) }}</td>
+                <td class="td-r">{{ number_format($record->skip_factor, 4) }}</td>
+                <td class="td-r" style="font-weight:700;color:#10b981;">{{ number_format($record->ore_hoisted, 2) }}</td>
+                <td class="td-r">{{ number_format($record->waste_hoisted, 2) }}</td>
+                <td class="td-c">
+                    @if(auth()->user()->canWrite())
+                    <div class="act-group">
+                        <a href="{{ route('assay.mining.edit', $record) }}" class="act-btn act-edit" title="Edit mining record">Edit</a>
+                        <form method="POST" action="{{ route('assay.mining.destroy', $record) }}" style="display:contents" onsubmit="event.preventDefault();confirmDelete('Delete this mining record? Stockpiles will be recalculated.',this)">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="act-btn act-delete" title="Delete mining record">Delete</button>
+                        </form>
+                    </div>
+                    @else — @endif
+                </td>
+            </tr>
+            @empty
+            <tr class="empty-row"><td colspan="8">No mining records yet.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="mt-4">{{ $miningRecords->appends(['tab' => 'mining'])->links() }}</div>
+@else
 @foreach($tabs as $key => $tab)
 @if($activeTab === $key)
 
@@ -123,6 +171,6 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
 
 @endif
 @endforeach
+@endif
 
 @endsection
-

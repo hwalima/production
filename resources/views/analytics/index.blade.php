@@ -127,7 +127,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
         <div style="margin-top:10px; display:flex; gap:20px; flex-wrap:wrap;">
             <span style="font-size:.72rem;color:#6b7280;">Period: <b style="color:var(--text);">{{ \Carbon\Carbon::parse($from)->format('d M Y') }} – {{ \Carbon\Carbon::parse($to)->format('d M Y') }}</b> ({{ $daysRange }} days)</span>
             <span style="font-size:.72rem;color:#6b7280;">Gold: <b style="color:#fcb913;">{{ number_format($totalGoldSmelted, 2) }} g</b></span>
-            <span style="font-size:.72rem;color:#6b7280;">Ore Milled: <b style="color:#38bdf8;">{{ number_format($totalOreMilled, 0) }} t</b></span>
+            <span style="font-size:.72rem;color:#6b7280;">Total Ore Milled: <b style="color:#38bdf8;">{{ number_format($totalOreMilled, 0) }} t</b></span>
             <span style="font-size:.72rem;color:#6b7280;">Total Costs: <b style="color:#a78bfa;">{{ $totalAllCosts > 0 ? '$'.number_format($totalAllCosts, 0) : 'N/A' }}</b></span>
         </div>
     </div>
@@ -138,7 +138,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             <div class="an-sec-icon" style="background:rgba(52,211,153,.12);">♻️</div>
             <div>
                 <h3>1. Mill Recovery %</h3>
-                <p>Gold recovered as % of theoretical gold in feed ore (fire assay × ore milled)</p>
+                <p>Gold recovered as % of theoretical gold in feed ore (fire assay × total ore milled)</p>
             </div>
         </div>
         <div class="an-kpi-row">
@@ -156,7 +156,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             </div>
             <div class="an-kpi">
                 <div class="an-kpi-val">{{ number_format($totalOreMilled, 0) }} t</div>
-                <div class="an-kpi-lbl">Ore Milled</div>
+                <div class="an-kpi-lbl">Total Ore Milled</div>
             </div>
             <div class="an-kpi">
                 @php $recDays = count(array_filter($recoveryTrendData)); @endphp
@@ -210,7 +210,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             <div class="an-sec-icon" style="background:rgba(167,139,250,.12);">🔬</div>
             <div>
                 <h3>3. Grade Reconciliation</h3>
-                <p>Fire Assay grade (sampled) vs Implied Head Grade (gold smelted ÷ ore milled)</p>
+                <p>Fire Assay grade (sampled) vs Implied Head Grade (gold smelted ÷ total ore milled)</p>
             </div>
         </div>
         <div class="an-kpi-row">
@@ -227,7 +227,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             <div class="an-kpi">
                 <div class="an-kpi-val">{{ $avgImplied !== null ? $avgImplied.' g/t' : 'N/A' }}</div>
                 <div class="an-kpi-lbl">Avg Implied Grade</div>
-                <div class="an-kpi-sub">Gold ÷ Ore Milled</div>
+                <div class="an-kpi-sub">Gold ÷ Total Ore Milled</div>
             </div>
             <div class="an-kpi">
                 <div class="an-kpi-val {{ $reconcDiff === null ? '' : ($reconcDiff >= 0 ? 'gv-green' : 'gv-red') }}">
@@ -250,7 +250,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             <div class="an-sec-icon" style="background:rgba(251,191,36,.12);">⚙️</div>
             <div>
                 <h3>4. Cost per Tonne Milled</h3>
-                <p>Total operating costs ÷ ore milled. Key milling efficiency metric.</p>
+                <p>Total operating costs ÷ total ore milled. Key milling efficiency metric.</p>
             </div>
         </div>
         <div class="an-kpi-row">
@@ -321,7 +321,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
                     </div>
                     <div class="an-kpi">
                         <div class="an-kpi-val gv-sky">{{ number_format($ytdMilled, 0) }} t</div>
-                        <div class="an-kpi-lbl">YTD Ore Milled</div>
+                        <div class="an-kpi-lbl">YTD Total Ore Milled</div>
                     </div>
                 </div>
             </div>
