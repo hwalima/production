@@ -175,6 +175,8 @@
             html.dark .act-edit   { background:#3d2400; color:#fde68a; }
             html.dark .act-delete { background:#3d0a0a; color:#fca5a5; }
             .act-group { display:flex; align-items:center; justify-content:center; gap:5px; }
+            .mining-actions { gap:6px; white-space:nowrap; }
+            .mining-actions .act-btn { width:auto; min-width:42px; height:32px; padding:0 8px; font-size:.74rem; font-weight:600; }
 
             /* ── DataTable toolbar ── */
             .dt-toolbar { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--topbar-border); }

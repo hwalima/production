@@ -72,7 +72,7 @@ if (!array_key_exists($activeTab, $tabs)) $activeTab = 'fire';
                 <td class="td-r">{{ number_format($record->waste_hoisted, 2) }}</td>
                 <td class="td-c">
                     @if(auth()->user()->canWrite())
-                    <div class="act-group">
+                    <div class="act-group mining-actions">
                         <a href="{{ route('assay.mining.edit', $record) }}" class="act-btn act-edit" title="Edit mining record">Edit</a>
                         <form method="POST" action="{{ route('assay.mining.destroy', $record) }}" style="display:contents" onsubmit="event.preventDefault();confirmDelete('Delete this mining record? Stockpiles will be recalculated.',this)">
                             @csrf @method('DELETE')
