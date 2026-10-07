@@ -72,14 +72,14 @@ function findComposerBin(): string {
         APP_DIR . '/composer.phar',
     ];
     foreach ($phars as $p) {
-        if (file_exists($p) && is_readable($p)) return "{$php} {$p}";
+        if (file_exists($p) && is_readable($p)) return escapeshellarg($php) . ' ' . escapeshellarg($p);
     }
     // Download to /tmp as last resort
     $phar = '/tmp/deploy-composer.phar';
     if (!file_exists($phar)) {
         @copy('https://getcomposer.org/composer-stable.phar', $phar);
     }
-    if (file_exists($phar)) return "{$php} {$phar}";
+    if (file_exists($phar)) return escapeshellarg($php) . ' ' . escapeshellarg($phar);
     return 'composer'; // final fallback
 }
 // ─────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ if ($ref !== 'refs/heads/' . BRANCH) {
     exit("Push to '{$ref}' ignored (not " . BRANCH . ").\n");
 }
 
-// 4. Run deploy — directly if shell_exec is available (cPanel), otherwise flag file + cron (DirectAdmin)
+// 4. Run deploy — directly if exec is available (cPanel), otherwise flag file + cron (DirectAdmin)
 $meta = json_encode([
     'triggered_at' => date('Y-m-d H:i:s'),
     'ref'          => $ref,
@@ -118,37 +118,41 @@ $meta = json_encode([
     'pusher'       => $data['pusher']['name'] ?? 'unknown',
 ]);
 
-$canExec = function_exists('shell_exec') && !in_array('shell_exec', array_map('trim', explode(',', ini_get('disable_functions'))));
+$canExec = function_exists('exec') && !in_array('exec', array_map('trim', explode(',', ini_get('disable_functions'))));
 
 if ($canExec) {
-    // ── Direct deploy (cPanel / shell_exec enabled) ──────────────────────────
+    // ── Direct deploy (cPanel / exec enabled) ────────────────────────────────
     $php      = findPhpBin();
     $composer = findComposerBin();
     $dir      = APP_DIR;
     $logFile  = LOG_FILE;
 
     $commands = [
-        "cd {$dir}",
-        "git fetch --all 2>&1",
-        "git reset --hard origin/" . BRANCH . " 2>&1",
-        "{$composer} install --no-interaction --prefer-dist --optimize-autoloader --no-dev 2>&1",
-        "{$php} artisan migrate --force 2>&1",
-        "{$php} artisan db:seed --class=KnowledgeBaseSeeder --force 2>&1",
-        "{$php} artisan config:cache 2>&1",
-        "{$php} artisan route:cache 2>&1",
-        "{$php} artisan view:cache 2>&1",
+        'git fetch --all',
+        'git reset --hard origin/' . BRANCH,
+        "{$composer} install --no-interaction --prefer-dist --optimize-autoloader --no-dev",
+        escapeshellarg($php) . ' artisan optimize:clear',
+        escapeshellarg($php) . ' artisan migrate --force',
+        escapeshellarg($php) . ' artisan db:seed --class=KnowledgeBaseSeeder --force',
+        escapeshellarg($php) . ' artisan config:cache',
+        escapeshellarg($php) . ' artisan route:cache',
+        escapeshellarg($php) . ' artisan view:cache',
     ];
 
     $log  = "[" . date('Y-m-d H:i:s') . "] Deploy started (direct).\n";
     $log .= "Commit: " . ($data['after'] ?? 'unknown') . "\n";
 
-    foreach ($commands as $cmd) {
-        $out  = shell_exec($cmd . ' 2>&1');
-        $log .= "$ {$cmd}\n{$out}\n";
-    }
+    $command = 'cd ' . escapeshellarg($dir) . ' && ' . implode(' && ', $commands);
+    exec($command . ' 2>&1', $output, $exitCode);
+    $log .= "$ {$command}\n" . implode("\n", $output) . "\n";
 
-    $log .= "[" . date('Y-m-d H:i:s') . "] Deploy complete.\n";
+    $log .= "[" . date('Y-m-d H:i:s') . "] Deploy " . ($exitCode === 0 ? 'complete' : "failed (exit {$exitCode})") . ".\n";
     file_put_contents($logFile, $log, FILE_APPEND);
+
+    if ($exitCode !== 0) {
+        http_response_code(500);
+        exit("Deploy failed. Check storage/logs/deploy.log.\n{$meta}\n");
+    }
 
     http_response_code(200);
     echo "Deploy executed directly.\n{$meta}\n";
