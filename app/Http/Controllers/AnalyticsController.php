@@ -8,7 +8,7 @@ use App\Models\ConsumableStockMovement;
 use App\Models\DailyProduction;
 use App\Models\DrillingRecord;
 use App\Models\LabourEnergy;
-use App\Models\MachineRuntime;
+use App\Models\Machine;
 use App\Models\Setting;
 use App\Models\SheIndicator;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -274,24 +274,25 @@ class AnalyticsController extends Controller
         $spcValues = $spcData->pluck('grade')->toArray();
 
         // ── 12. Predictive Maintenance ───────────────────────────────────
-        $machines = MachineRuntime::orderBy('machine_code')->get();
+        $machines = Machine::where('is_active', true)
+            ->with(['latestRuntime', 'latestService'])
+            ->orderBy('machine_code')
+            ->get();
         $machineScores = $machines->map(function ($m) {
-            $daysToService = $m->next_service_date
-                ? (int) Carbon::now()->diffInDays($m->next_service_date, false)
-                : null;
+            $hoursSinceService = $m->hoursSinceLastService();
+            $hoursToService = $m->service_interval_hours - $hoursSinceService;
             $score  = null;
             $status = 'unknown';
-            if ($daysToService !== null) {
-                // Service interval (hours → days, default 90 days)
-                $intervalDays = (float) ($m->service_after_hours > 0 ? $m->service_after_hours / 24 : 90);
-                $score        = max(0, min(100, (int) round(($daysToService / max(1, $intervalDays)) * 100)));
-                $status       = $daysToService < 0 ? 'overdue' : ($daysToService <= 7 ? 'due_soon' : 'ok');
+            if ($m->latestRuntime) {
+                $score = max(0, min(100, (int) round(($hoursToService / max(1, $m->service_interval_hours)) * 100)));
+                $status = $hoursToService <= 0 ? 'overdue' : ($m->isServiceDueSoon($hoursSinceService) ? 'due_soon' : 'ok');
             }
             return [
                 'code'            => $m->machine_code,
                 'description'     => $m->description,
-                'next_service'    => $m->next_service_date?->format('M d, Y'),
-                'days_to_service' => $daysToService,
+                'service_interval_hours' => $m->service_interval_hours,
+                'hours_since_service' => round($hoursSinceService, 2),
+                'hours_to_service' => round($hoursToService, 2),
                 'score'           => $score,
                 'status'          => $status,
             ];

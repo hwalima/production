@@ -540,7 +540,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             <div class="an-sec-icon" style="background:rgba(251,191,36,.12);">🔧</div>
             <div>
                 <h3>12. Predictive Maintenance Health Score</h3>
-                <p>Days to scheduled service relative to service interval. Score = days remaining as % of interval.</p>
+                <p>Operating hours remaining before the registered service interval. Score = hours remaining as % of interval.</p>
             </div>
         </div>
         @php
@@ -559,7 +559,7 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
             </div>
             <div class="an-kpi">
                 <div class="an-kpi-val" style="-webkit-text-fill-color:#fcb913;">{{ $dueSoon }}</div>
-                <div class="an-kpi-lbl">Due Soon (≤7 days)</div>
+                <div class="an-kpi-lbl">Due Soon</div>
             </div>
             <div class="an-kpi">
                 <div class="an-kpi-val gv-red">{{ $overdue }}</div>
@@ -573,11 +573,13 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
                 <div class="mach-desc">{{ $m['description'] }}</div>
             </div>
             <div style="font-size:.68rem;color:#6b7280;width:90px;flex-shrink:0;text-align:center;">
-                {{ $m['next_service'] ?? 'No date set' }}
-                @if($m['days_to_service'] !== null)
+                {{ number_format($m['hours_since_service'], 2) }} h run
+                @if($m['score'] !== null)
                 <br><span style="color:{{ $m['status']==='overdue'?'#f87171':($m['status']==='due_soon'?'#fcb913':'#34d399') }};font-weight:700;">
-                    {{ $m['days_to_service'] < 0 ? abs($m['days_to_service']).'d overdue' : $m['days_to_service'].'d left' }}
+                    {{ $m['hours_to_service'] < 0 ? number_format(abs($m['hours_to_service']), 2).' h over' : number_format($m['hours_to_service'], 2).' h left' }}
                 </span>
+                @else
+                    <br><span style="color:#9ca3af;">No runtime recorded</span>
                 @endif
             </div>
             <div class="mach-bar-wrap">

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use App\Models\MiningDepartment;
+use App\Models\Machine;
 use Carbon\Carbon;
 
 /**
@@ -227,20 +228,30 @@ class AprilAnalyticsSampleSeeder extends Seeder
         $existingMachines = DB::table('machine_runtimes')->count();
         if ($existingMachines === 0) {
             $machines = [
-                ['MILL-01',  'Ball Mill',         2160, 30],
-                ['CRUSH-01', 'Jaw Crusher',        1080, 20],
-                ['HOIST-01', 'Shaft Hoist',         504, 10],
-                ['PUMP-01',  'Dewatering Pump #1',  336, 5],
-                ['GEN-01',   'Diesel Generator #1', 504, 8],
+                ['MILL-01',  'Ball Mill',         2160],
+                ['CRUSH-01', 'Jaw Crusher',        1080],
+                ['HOIST-01', 'Shaft Hoist',         504],
+                ['PUMP-01',  'Dewatering Pump #1',  336],
+                ['GEN-01',   'Diesel Generator #1', 504],
             ];
-            foreach ($machines as [$code, $desc, $serviceHours, $daysLeft]) {
+            foreach ($machines as [$code, $desc, $serviceHours]) {
+                $machine = Machine::firstOrCreate(
+                    ['machine_code' => $code],
+                    [
+                        'description' => $desc,
+                        'service_interval_hours' => $serviceHours,
+                        'is_active' => true,
+                    ],
+                );
+
                 DB::table('machine_runtimes')->insert([
+                    'machine_id'         => $machine->id,
                     'machine_code'       => $code,
                     'description'        => $desc,
                     'start_time'         => '2026-04-13 07:00:00',
                     'end_time'           => '2026-04-13 19:00:00',
+                    'hours_run'          => 12,
                     'service_after_hours'=> $serviceHours,
-                    'next_service_date'  => Carbon::parse('2026-04-20')->addDays($daysLeft)->toDateString(),
                     'created_at'         => '2026-04-13',
                     'updated_at'         => '2026-04-20',
                 ]);

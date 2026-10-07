@@ -238,61 +238,53 @@ class AnalyticsCalculationTest extends TestCase
     /** @test */
     public function machine_health_score_is_100_when_service_not_yet_due(): void
     {
-        $daysToService = 90;
-        $intervalDays  = 90.0;
-        $score = max(0, min(100, (int) round(($daysToService / max(1, $intervalDays)) * 100)));
+        $hoursToService = 90;
+        $intervalHours  = 90.0;
+        $score = max(0, min(100, (int) round(($hoursToService / max(1, $intervalHours)) * 100)));
         $this->assertEquals(100, $score);
     }
 
     /** @test */
     public function machine_health_score_is_0_when_severely_overdue(): void
     {
-        $daysToService = -365;
-        $intervalDays  = 90.0;
-        $score = max(0, min(100, (int) round(($daysToService / max(1, $intervalDays)) * 100)));
+        $hoursToService = -365;
+        $intervalHours  = 90.0;
+        $score = max(0, min(100, (int) round(($hoursToService / max(1, $intervalHours)) * 100)));
         $this->assertEquals(0, $score);
     }
 
     /** @test */
-    public function machine_status_is_overdue_when_days_to_service_is_negative(): void
+    public function machine_status_is_overdue_when_hours_to_service_is_negative(): void
     {
-        $days   = -3;
-        $status = $days < 0 ? 'overdue' : ($days <= 7 ? 'due_soon' : 'ok');
+        $hours  = -3;
+        $status = $hours <= 0 ? 'overdue' : 'ok';
         $this->assertEquals('overdue', $status);
     }
 
     /** @test */
-    public function machine_status_is_due_soon_within_7_days(): void
+    public function machine_status_is_due_soon_within_10_percent_of_interval(): void
     {
-        foreach ([0, 1, 5, 7] as $days) {
-            $status = $days < 0 ? 'overdue' : ($days <= 7 ? 'due_soon' : 'ok');
-            $this->assertEquals('due_soon', $status, "Expected due_soon for days={$days}");
+        foreach ([[2, 20], [10, 100]] as [$hours, $interval]) {
+            $status = $hours <= 0 ? 'overdue' : ($hours <= min(24, $interval * 0.1) ? 'due_soon' : 'ok');
+            $this->assertEquals('due_soon', $status, "Expected due_soon with {$hours}h remaining");
         }
     }
 
     /** @test */
-    public function machine_status_is_ok_when_more_than_7_days_remain(): void
+    public function machine_status_is_ok_when_more_than_due_soon_threshold_remains(): void
     {
-        foreach ([8, 30, 90, 365] as $days) {
-            $status = $days < 0 ? 'overdue' : ($days <= 7 ? 'due_soon' : 'ok');
-            $this->assertEquals('ok', $status, "Expected ok for days={$days}");
+        foreach ([[3, 20], [11, 100], [25, 1000]] as [$hours, $interval]) {
+            $status = $hours <= 0 ? 'overdue' : ($hours <= min(24, $interval * 0.1) ? 'due_soon' : 'ok');
+            $this->assertEquals('ok', $status, "Expected ok with {$hours}h remaining");
         }
     }
 
     /** @test */
-    public function service_interval_defaults_to_90_days_when_hours_are_zero(): void
+    public function service_interval_is_stored_directly_as_operating_hours(): void
     {
-        $serviceAfterHours = 0;
-        $intervalDays      = (float) ($serviceAfterHours > 0 ? $serviceAfterHours / 24 : 90);
-        $this->assertEquals(90.0, $intervalDays);
-    }
-
-    /** @test */
-    public function service_interval_converts_hours_to_days(): void
-    {
-        $serviceAfterHours = 2160; // 90 days * 24h
-        $intervalDays      = (float) ($serviceAfterHours > 0 ? $serviceAfterHours / 24 : 90);
-        $this->assertEquals(90.0, $intervalDays);
+        $serviceIntervalHours = 2160;
+        $hoursSinceService = 216;
+        $this->assertEquals(1944, $serviceIntervalHours - $hoursSinceService);
     }
 
     // ── 13. Anomaly detection (z-score) ────────────────────────────────────

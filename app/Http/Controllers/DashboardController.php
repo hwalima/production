@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssayResult;
 use App\Models\DailyProduction;
-use App\Models\MachineRuntime;
+use App\Models\Machine;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,13 +74,15 @@ class DashboardController extends Controller
             : 0;
 
         // ── Machines status ───────────────────────────────────────────────
-        $machinesTotal   = MachineRuntime::count();
-        $machinesOverdue = MachineRuntime::whereNotNull('next_service_date')
-            ->where('next_service_date', '<', $now->toDateString())
+        $machines = Machine::where('is_active', true)
+            ->with(['latestRuntime', 'latestService'])
+            ->get();
+        $machinesTotal = $machines->count();
+        $machinesOverdue = $machines
+            ->filter(fn(Machine $machine) => $machine->latestRuntime && $machine->isServiceDue())
             ->count();
-        $machinesDueSoon = MachineRuntime::whereNotNull('next_service_date')
-            ->where('next_service_date', '>=', $now->toDateString())
-            ->where('next_service_date', '<=', $now->copy()->addDays(7)->toDateString())
+        $machinesDueSoon = $machines
+            ->filter(fn(Machine $machine) => $machine->latestRuntime && $machine->isServiceDueSoon())
             ->count();
 
         // ── Production trend for selected range ───────────────────────────

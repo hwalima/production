@@ -12,11 +12,8 @@ class UpdateMachineRuntimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'machine_code' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
             'start_time' => 'required|date',
-            'end_time' => 'required|date',
-            'service_after_hours' => 'required|integer|min:0',
+            'end_time' => 'required|date|after:start_time',
         ];
     }
 }

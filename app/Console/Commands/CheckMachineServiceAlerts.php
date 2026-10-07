@@ -3,11 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Mail\MachineServiceAlert;
-use App\Models\MachineRuntime;
+use App\Models\Machine;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\AppNotification;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -18,20 +17,12 @@ class CheckMachineServiceAlerts extends Command
 
     public function handle(): int
     {
-        // ── Find the latest runtime record per machine_code ────────────────
-        // A machine is "newly overdue" when its most-recent record has
-        // next_service_date < today AND service_alert_sent_at IS NULL.
-        $today = Carbon::today();
-
-        // Get the ID of the most-recent record for each machine_code
-        $latestIds = MachineRuntime::selectRaw('MAX(id) as id')
-            ->groupBy('machine_code')
-            ->pluck('id');
-
-        $newlyOverdue = MachineRuntime::whereIn('id', $latestIds)
-            ->whereDate('next_service_date', '<', $today)
+        $newlyOverdue = Machine::where('is_active', true)
             ->whereNull('service_alert_sent_at')
-            ->get();
+            ->with(['latestRuntime', 'latestService'])
+            ->get()
+            ->filter(fn(Machine $machine) => $machine->latestRuntime && $machine->isServiceDue())
+            ->values();
 
         if ($newlyOverdue->isEmpty()) {
             $this->info('No newly overdue machines. Nothing to send.');
@@ -88,9 +79,9 @@ class CheckMachineServiceAlerts extends Command
 
         // ── Mark as notified (even if some sends failed, avoid re-flooding) ─
         if ($sent > 0) {
-            MachineRuntime::whereIn('id', $newlyOverdue->pluck('id'))
+            Machine::whereIn('id', $newlyOverdue->pluck('id'))
                 ->update(['service_alert_sent_at' => now()]);
-            $this->info("Marked {$newlyOverdue->count()} record(s) as notified.");
+            $this->info("Marked {$newlyOverdue->count()} machine(s) as notified.");
 
             // ── Also push a database notification for each opted-in admin ──
             foreach ($admins as $admin) {

@@ -1,30 +1,22 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\MachineRuntime;
 use App\Models\AuditLog;
-use App\Http\Requests\StoreMachineRuntimeRequest;
-use App\Http\Requests\UpdateMachineRuntimeRequest;
+use App\Models\Machine;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class MachineController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $now        = \Carbon\Carbon::now();
-        $filterFrom = $request->filled('from') ? $request->input('from') : $now->copy()->startOfMonth()->toDateString();
-        $filterTo   = $request->filled('to')   ? $request->input('to')   : $now->copy()->endOfMonth()->toDateString();
-        if ($filterFrom > $filterTo) $filterFrom = $now->copy()->startOfMonth()->toDateString();
+        $machines = Machine::with(['latestRuntime', 'latestService'])
+            ->orderBy('machine_code')
+            ->paginate(30);
+        $canManageMachines = in_array(auth()->user()->role, ['super_admin', 'admin', 'manager'], true);
 
-        $machines = MachineRuntime::whereBetween(DB::raw('DATE(start_time)'), [$filterFrom, $filterTo])
-            ->orderByDesc('start_time')->paginate(30)->withQueryString();
-
-        $isDefaultRange = $filterFrom === $now->copy()->startOfMonth()->toDateString()
-                       && $filterTo   === $now->copy()->endOfMonth()->toDateString();
-
-        return view('machines.index', compact('machines', 'filterFrom', 'filterTo', 'isDefaultRange'));
+        return view('machines.index', compact('machines', 'canManageMachines'));
     }
 
     public function create()
@@ -32,40 +24,65 @@ class MachineController extends Controller
         return view('machines.create');
     }
 
-    public function store(StoreMachineRuntimeRequest $request)
+    public function store(Request $request)
     {
-        $data = $request->validated();
-        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays((int) $data['service_after_hours']);
-        $machine = MachineRuntime::create($data);
-        AuditLog::record('machine_created', "Added machine runtime record for {$machine->machine_name}", 'MachineRuntime', $machine->id);
-        return redirect()->route('machines.index')->with('success', 'Machine runtime added.');
+        $data = $request->validate([
+            'machine_code' => 'required|string|max:255|unique:machines,machine_code',
+            'description' => 'required|string|max:255',
+            'service_interval_hours' => 'required|integer|min:1',
+        ]);
+
+        $machine = Machine::create($data);
+        AuditLog::record('machine_registered', "Registered machine {$machine->machine_code}", 'Machine', $machine->id);
+
+        return redirect()->route('machines.show', $machine)->with('success', 'Machine registered.');
     }
 
-    public function show(MachineRuntime $machine)
+    public function show(Machine $machine)
     {
-        return view('machines.show', compact('machine'));
+        $machine->load(['latestRuntime', 'latestService']);
+        $runtimes = $machine->runtimes()->orderByDesc('start_time')->paginate(15, ['*'], 'runtime_page');
+        $services = $machine->services()->orderByDesc('serviced_at')->get();
+        $canManageMachines = in_array(auth()->user()->role, ['super_admin', 'admin', 'manager'], true);
+
+        return view('machines.show', compact('machine', 'runtimes', 'services', 'canManageMachines'));
     }
 
-    public function edit(MachineRuntime $machine)
+    public function edit(Machine $machine)
     {
         return view('machines.edit', compact('machine'));
     }
 
-    public function update(UpdateMachineRuntimeRequest $request, MachineRuntime $machine)
+    public function update(Request $request, Machine $machine)
     {
-        $data = $request->validated();
-        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays((int) $data['service_after_hours']);
+        $serviceIntervalChanged = (int) $request->input('service_interval_hours') !== $machine->service_interval_hours;
+        $data = $request->validate([
+            'machine_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('machines', 'machine_code')->ignore($machine->id),
+            ],
+            'description' => 'required|string|max:255',
+            'service_interval_hours' => 'required|integer|min:1',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $data['is_active'] = $request->boolean('is_active');
+        if ($serviceIntervalChanged) {
+            $data['service_alert_sent_at'] = null;
+        }
         $machine->update($data);
-        AuditLog::record('machine_updated', "Updated machine runtime #{$machine->id} for {$machine->machine_name}", 'MachineRuntime', $machine->id);
-        return redirect()->route('machines.index')->with('success', 'Machine runtime updated.');
+        AuditLog::record('machine_updated', "Updated machine {$machine->machine_code}", 'Machine', $machine->id);
+
+        return redirect()->route('machines.show', $machine)->with('success', 'Machine updated.');
     }
 
-    public function destroy(MachineRuntime $machine)
+    public function destroy(Machine $machine)
     {
-        $machineId   = $machine->id;
-        $machineName = $machine->machine_name;
-        $machine->delete();
-        AuditLog::record('machine_deleted', "Deleted machine runtime #{$machineId} for {$machineName}", 'MachineRuntime', $machineId);
-        return redirect()->route('machines.index')->with('success', 'Machine runtime deleted.');
+        $machine->update(['is_active' => false]);
+        AuditLog::record('machine_deactivated', "Deactivated machine {$machine->machine_code}", 'Machine', $machine->id);
+
+        return redirect()->route('machines.index')->with('success', 'Machine deactivated. Its runtime and service history has been kept.');
     }
 }

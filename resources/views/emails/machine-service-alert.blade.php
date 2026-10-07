@@ -49,7 +49,7 @@
     <div class="body">
         <div class="alert-box">
             ⚠️ <strong>{{ count($overdueList) }} machine{{ count($overdueList) > 1 ? 's are' : ' is' }} overdue for service</strong>
-            as of {{ now()->format('d M Y') }}. Immediate attention is required to prevent equipment failure.
+            Immediate attention is required to prevent equipment failure.
         </div>
 
         <div class="section-label">Overdue Machines</div>
@@ -58,19 +58,19 @@
                 <tr>
                     <th>Code</th>
                     <th>Description</th>
-                    <th>Service Due</th>
-                    <th class="r">Days Overdue</th>
+                    <th class="r">Run Hours</th>
+                    <th class="r">Over Interval</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($overdueList as $machine)
-                @php $daysOverdue = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($machine->next_service_date)); @endphp
+                @php $hoursOver = max(0, $machine->hoursSinceLastService() - $machine->service_interval_hours); @endphp
                 <tr>
                     <td class="code">{{ $machine->machine_code }}</td>
                     <td>{{ $machine->description }}</td>
-                    <td>{{ \Carbon\Carbon::parse($machine->next_service_date)->format('d M Y') }}</td>
-                    <td class="r" style="font-weight:700;color:#991b1b;">{{ $daysOverdue }}d</td>
+                    <td class="r">{{ number_format($machine->hoursSinceLastService(), 2) }} h</td>
+                    <td class="r" style="font-weight:700;color:#991b1b;">{{ number_format($hoursOver, 2) }} h</td>
                     <td><span class="badge-overdue">OVERDUE</span></td>
                 </tr>
                 @endforeach

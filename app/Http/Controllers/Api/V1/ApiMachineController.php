@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Machine;
 use App\Models\MachineRuntime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,8 +30,12 @@ class ApiMachineController extends Controller
         $perPage = min((int) $request->input('per_page', 30), 100);
 
         if ($request->input('filter') === 'overdue') {
-            $query = MachineRuntime::whereNotNull('next_service_date')
-                ->where('next_service_date', '<', $now->toDateString());
+            $latestRuntimeIds = Machine::where('is_active', true)
+                ->with(['latestRuntime', 'latestService'])
+                ->get()
+                ->filter(fn(Machine $machine) => $machine->latestRuntime && $machine->isServiceDue())
+                ->map(fn(Machine $machine) => $machine->latestRuntime->id);
+            $query = MachineRuntime::whereIn('id', $latestRuntimeIds);
         } else {
             $from = $request->filled('from') ? $request->input('from') : $now->startOfMonth()->toDateString();
             $to   = $request->filled('to')   ? $request->input('to')   : $now->endOfMonth()->toDateString();
@@ -38,7 +43,7 @@ class ApiMachineController extends Controller
         }
 
         return response()->json(
-            $query->orderByDesc('start_time')->paginate($perPage)
+            $query->with('machine')->orderByDesc('start_time')->paginate($perPage)
         );
     }
 }

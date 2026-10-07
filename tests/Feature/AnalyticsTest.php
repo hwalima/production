@@ -9,7 +9,7 @@ use App\Models\ConsumableStockMovement;
 use App\Models\DailyProduction;
 use App\Models\DrillingRecord;
 use App\Models\LabourEnergy;
-use App\Models\MachineRuntime;
+use App\Models\Machine;
 use App\Models\SheIndicator;
 use App\Models\MiningDepartment;
 use App\Models\User;
@@ -663,13 +663,19 @@ class AnalyticsTest extends TestCase
     /** @test */
     public function machines_overdue_for_service_have_status_overdue(): void
     {
-        MachineRuntime::create([
-            'machine_code'       => 'CRUSHER_01',
-            'description'        => 'Primary Crusher',
-            'service_after_hours'=> 2160,
-            'next_service_date'  => Carbon::now()->subDay()->toDateString(),
-            'start_time'         => Carbon::now()->subDays(100)->toDateTimeString(),
-            'end_time'           => Carbon::now()->subDays(99)->toDateTimeString(),
+        $machine = Machine::create([
+            'machine_code' => 'CRUSHER_01',
+            'description' => 'Primary Crusher',
+            'service_interval_hours' => 20,
+        ]);
+        $start = Carbon::now()->subDays(100);
+        $machine->runtimes()->create([
+            'machine_code' => 'CRUSHER_01',
+            'description' => 'Primary Crusher',
+            'service_after_hours' => 20,
+            'start_time' => $start,
+            'end_time' => $start->copy()->addHours(21),
+            'hours_run' => 21,
         ]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
@@ -679,19 +685,25 @@ class AnalyticsTest extends TestCase
 
         $this->assertNotNull($crusher);
         $this->assertEquals('overdue', $crusher['status']);
-        $this->assertLessThan(0, $crusher['days_to_service']);
+        $this->assertLessThan(0, $crusher['hours_to_service']);
     }
 
     /** @test */
     public function machines_due_within_7_days_have_status_due_soon(): void
     {
-        MachineRuntime::create([
-            'machine_code'       => 'MILL_01',
-            'description'        => 'Ball Mill',
-            'service_after_hours'=> 2160,
-            'next_service_date'  => Carbon::now()->addDays(5)->toDateString(),
-            'start_time'         => Carbon::now()->subDays(80)->toDateTimeString(),
-            'end_time'           => Carbon::now()->subDays(79)->toDateTimeString(),
+        $machine = Machine::create([
+            'machine_code' => 'MILL_01',
+            'description' => 'Ball Mill',
+            'service_interval_hours' => 22,
+        ]);
+        $start = Carbon::now()->subDays(80);
+        $machine->runtimes()->create([
+            'machine_code' => 'MILL_01',
+            'description' => 'Ball Mill',
+            'service_after_hours' => 22,
+            'start_time' => $start,
+            'end_time' => $start->copy()->addHours(20),
+            'hours_run' => 20,
         ]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
@@ -706,13 +718,10 @@ class AnalyticsTest extends TestCase
     /** @test */
     public function machines_with_no_service_date_have_status_unknown(): void
     {
-        MachineRuntime::create([
-            'machine_code'       => 'PUMP_01',
-            'description'        => 'Slurry Pump',
-            'service_after_hours'=> 0,
-            'next_service_date'  => null,
-            'start_time'         => Carbon::now()->subDays(10)->toDateTimeString(),
-            'end_time'           => Carbon::now()->subDays(9)->toDateTimeString(),
+        Machine::create([
+            'machine_code' => 'PUMP_01',
+            'description' => 'Slurry Pump',
+            'service_interval_hours' => 100,
         ]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
@@ -721,7 +730,7 @@ class AnalyticsTest extends TestCase
         $pump   = collect($scores)->firstWhere('code', 'PUMP_01');
 
         $this->assertEquals('unknown', $pump['status']);
-        $this->assertNull($pump['days_to_service']);
+        $this->assertNull($pump['score']);
     }
 
     // ── 13. Anomaly detection ──────────────────────────────────────────────

@@ -451,7 +451,7 @@
                 <tr><td>Milling Efficiency</td><td>% of hoisted ore that was milled</td><td><code>(ore_milled / ore_hoisted) × 100</code></td></tr>
                 <tr><td>Implied Grade</td><td>Gold grams per tonne milled</td><td><code>gold_smelted / ore_milled</code></td></tr>
                 <tr><td>Gold Projected</td><td>End-of-month projection</td><td>Daily pace × days in month</td></tr>
-                <tr><td>Machines Overdue</td><td>Equipment past service date</td><td>Count where <code>next_service_date &lt; today</code></td></tr>
+                <tr><td>Machines Overdue</td><td>Equipment at or beyond its operating-hour service interval</td><td>Accumulated runtime hours since the latest service record</td></tr>
                 <tr><td>Avg Purity</td><td>Average gold purity %</td><td><code>AVG(purity_percentage)</code></td></tr>
             </tbody>
         </table>
@@ -626,24 +626,24 @@
     <section id="machines">
         <div class="section-header">
             <div class="section-icon">⚙️</div>
-            <h2>10. Machine Runtime</h2>
+            <h2>10. Machine Register and Runtime</h2>
             <span class="section-num">§10</span>
         </div>
-        <p>Route: <code>GET /machines</code>. Tracks individual machine operating hours and service schedules.</p>
+        <p>Register each physical machine once at <code>/machines</code>, then record multiple start/end runtime sessions against it. The machine's service interval is configured in operating hours, and completed work is logged in Service History to reset the counter.</p>
         <h3>Data Fields</h3>
         <table class="doc-table">
             <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
             <tbody>
-                <tr><td>machine_code</td><td>Text</td><td>Unique identifier / registration number</td></tr>
-                <tr><td>description</td><td>Text</td><td>Machine name and type</td></tr>
-                <tr><td>start_time</td><td>DateTime</td><td>Shift start timestamp</td></tr>
-                <tr><td>end_time</td><td>DateTime</td><td>Shift end timestamp</td></tr>
-                <tr><td>service_after_hours</td><td>Hours</td><td>Service interval (e.g., every 250 hours)</td></tr>
-                <tr><td>next_service_date</td><td>Date</td><td>Calculated next service due date</td></tr>
+                <tr><td>machine_code</td><td>Text</td><td>Unique code for the registered machine</td></tr>
+                <tr><td>description</td><td>Text</td><td>Machine name and type, stored once in the register</td></tr>
+                <tr><td>service_interval_hours</td><td>Whole number</td><td>Operating-hour interval configured on the machine</td></tr>
+                <tr><td>start_time / end_time</td><td>DateTime</td><td>Start and end of each runtime session</td></tr>
+                <tr><td>hours_run</td><td>Decimal hours</td><td>Session duration, automatically calculated</td></tr>
+                <tr><td>serviced_at / notes</td><td>DateTime / Text</td><td>Completed service history; latest entry resets the accumulated-hour counter</td></tr>
             </tbody>
         </table>
         <h3>Service Alerts</h3>
-        <p>The dashboard shows a count of machines that are <em>overdue for service</em> (next_service_date is in the past) and machines <em>due within 7 days</em>. Email alerts are sent automatically when a machine passes its service date.</p>
+        <p>The dashboard and email alerts show machines whose accumulated runtime reaches their service interval, plus machines within 24 hours or 10% of the interval (whichever is smaller). Recording a completed service resets the operating-hour counter.</p>
         <div class="callout warn">
             <span class="callout-icon">⚠️</span>
             <span>Machines overdue for service appear in red on the dashboard KPI cards. Address these promptly to avoid unplanned downtime.</span>
@@ -954,7 +954,7 @@ Authorization: Bearer 1|abc123...</pre>
             <thead><tr><th>Event</th><th>Trigger</th><th>Who Can Opt In</th></tr></thead>
             <tbody>
                 <tr><td>Low Stock Alert</td><td>Consumable stock ≤ reorder level</td><td>All roles</td></tr>
-                <tr><td>Machine Service Due</td><td>Machine passes <code>next_service_date</code></td><td>All roles</td></tr>
+                <tr><td>Machine Service Due</td><td>Accumulated runtime reaches its registered service interval</td><td>All roles</td></tr>
                 <tr><td>Overdue Action Items</td><td>Action item past due date &amp; not completed</td><td>All roles</td></tr>
                 <tr><td>Production Target</td><td>Monthly gold target reached or missed</td><td>All roles</td></tr>
             </tbody>

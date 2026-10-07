@@ -419,8 +419,8 @@
         <tr>
             <th>Machine</th>
             <th>Description</th>
-            <th class="th-r">Next Service</th>
-            <th class="th-r">Days Left</th>
+            <th class="th-r">Run Hours</th>
+            <th class="th-r">Hours Remaining</th>
             <th>Status</th>
         </tr>
     </thead>
@@ -429,12 +429,12 @@
         <tr>
             <td>{{ $m['code'] }}</td>
             <td>{{ $m['description'] }}</td>
-            <td class="td-r">{{ $m['next_service'] ?? '—' }}</td>
+            <td class="td-r">{{ number_format($m['hours_since_service'], 2) }} h</td>
             <td class="td-r" style="{{ $m['status']==='overdue'?'color:#b91c1c;font-weight:700;':($m['status']==='due_soon'?'color:#b45309;font-weight:700;':'') }}">
-                {{ $m['days_to_service'] !== null ? ($m['days_to_service'] < 0 ? abs($m['days_to_service']).' overdue' : $m['days_to_service'].' days') : '—' }}
+                {{ $m['score'] !== null ? ($m['hours_to_service'] < 0 ? number_format(abs($m['hours_to_service']), 2).' over' : number_format($m['hours_to_service'], 2).' h') : '—' }}
             </td>
             <td style="{{ $m['status']==='overdue'?'color:#b91c1c;font-weight:700;':($m['status']==='due_soon'?'color:#b45309;font-weight:700;':'color:#16a34a;') }}">
-                {{ $m['status']==='overdue'?'OVERDUE':($m['status']==='due_soon'?'Due Soon':'OK') }}
+                {{ $m['status']==='overdue'?'OVERDUE':($m['status']==='due_soon'?'Due Soon':($m['status']==='ok'?'OK':'No runtime')) }}
             </td>
         </tr>
         @endforeach

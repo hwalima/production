@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActionItem;
 use App\Models\Consumable;
 use App\Models\DailyProduction;
-use App\Models\MachineRuntime;
+use App\Models\Machine;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -44,8 +44,10 @@ class DashboardController extends Controller
             ->count();
 
         // Machines overdue for service
-        $machinesOverdue = MachineRuntime::whereNotNull('next_service_date')
-            ->where('next_service_date', '<', $today)
+        $machinesOverdue = Machine::where('is_active', true)
+            ->with(['latestRuntime', 'latestService'])
+            ->get()
+            ->filter(fn(Machine $machine) => $machine->latestRuntime && $machine->isServiceDue())
             ->count();
 
         // MTD shift breakdown

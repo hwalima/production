@@ -8,6 +8,8 @@ use App\Http\Controllers\BlastingController;
 use App\Http\Controllers\ChemicalsController;
 use App\Http\Controllers\LabourEnergyController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\MachineRuntimeController;
+use App\Http\Controllers\MachineServiceController;
 use App\Http\Controllers\AssayController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
@@ -124,7 +126,13 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
         Route::post('consumables/{consumable}/use',     [ConsumableController::class, 'useStock'])->name('consumables.use');
         Route::delete('consumables/{consumable}/movements/{movement}', [ConsumableController::class, 'deleteMovement'])->name('consumables.movements.destroy');
         Route::resource('labour-energy', LabourEnergyController::class)->except(['index', 'show']);
-        Route::resource('machines',      MachineController::class)->except(['index', 'show']);
+        Route::resource('machines', MachineController::class)->except(['index', 'show']);
+        Route::get('machines/{machine}/runtimes/create', [MachineRuntimeController::class, 'create'])->name('machines.runtimes.create');
+        Route::post('machines/{machine}/runtimes', [MachineRuntimeController::class, 'store'])->name('machines.runtimes.store');
+        Route::get('machine-runtimes/{machineRuntime}/edit', [MachineRuntimeController::class, 'edit'])->name('machine-runtimes.edit');
+        Route::put('machine-runtimes/{machineRuntime}', [MachineRuntimeController::class, 'update'])->name('machine-runtimes.update');
+        Route::delete('machine-runtimes/{machineRuntime}', [MachineRuntimeController::class, 'destroy'])->name('machine-runtimes.destroy');
+        Route::post('machines/{machine}/services', [MachineServiceController::class, 'store'])->name('machines.services.store');
         Route::resource('assay',         AssayController::class)->except(['index', 'show']);
     });
 
@@ -150,7 +158,7 @@ Route::middleware(['auth', 'force.pw.change', 'require.2fa'])->group(function ()
     Route::resource('chemicals',     ChemicalsController::class)->only(['index', 'show']);
     Route::resource('consumables',   ConsumableController::class)->only(['index', 'show']);
     Route::resource('labour-energy', LabourEnergyController::class)->only(['index', 'show']);
-    Route::resource('machines',      MachineController::class)->only(['index', 'show']);
+    Route::resource('machines', MachineController::class)->only(['index', 'show']);
     Route::resource('assay',         AssayController::class)->only(['index', 'show']);
 
     Route::get('/reports/production',  [ReportController::class, 'production'])->name('reports.production');
