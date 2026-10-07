@@ -43,6 +43,10 @@ class MachineRuntimeTest extends TestCase
         $this->assertDatabaseCount('machines', 1);
         $this->assertDatabaseCount('machine_runtimes', 2);
         $this->assertSame(10.0, (float) MachineRuntime::firstOrFail()->hours_run);
+        $this->assertDatabaseHas('machine_runtimes', [
+            'id' => MachineRuntime::firstOrFail()->id,
+            'next_service_date' => null,
+        ]);
         $this->assertSame(22.0, $machine->fresh()->hoursSinceLastService());
         $this->assertTrue($machine->fresh()->isServiceDue());
     }
@@ -117,5 +121,38 @@ class MachineRuntimeTest extends TestCase
             ->assertDontSee('Record Runtime')
             ->assertDontSee('Record Completed Service')
             ->assertDontSee('Edit Machine');
+    }
+
+    public function test_machine_without_history_can_be_permanently_deleted(): void
+    {
+        $machine = $this->registerMachine();
+
+        $this->delete(route('machines.destroy', $machine))
+            ->assertRedirect(route('machines.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('machines', ['id' => $machine->id]);
+    }
+
+    public function test_machine_with_runtime_history_cannot_be_deleted_and_can_be_deactivated(): void
+    {
+        $machine = $this->registerMachine();
+        $this->recordRuntime($machine, '2026-10-01T08:00', '2026-10-01T18:00');
+
+        $this->delete(route('machines.destroy', $machine))
+            ->assertRedirect(route('machines.edit', $machine))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('machines', ['id' => $machine->id]);
+
+        $this->put(route('machines.update', $machine), [
+            'machine_code' => $machine->machine_code,
+            'description' => $machine->description,
+            'service_interval_hours' => $machine->service_interval_hours,
+            'is_active' => '0',
+        ])->assertRedirect(route('machines.show', $machine));
+
+        $this->assertDatabaseHas('machines', ['id' => $machine->id, 'is_active' => 0]);
+        $this->assertDatabaseCount('machine_runtimes', 1);
     }
 }

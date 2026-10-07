@@ -12,6 +12,7 @@ class MachineController extends Controller
     public function index()
     {
         $machines = Machine::with(['latestRuntime', 'latestService'])
+            ->withCount(['runtimes', 'services'])
             ->orderBy('machine_code')
             ->paginate(30);
         $canManageMachines = in_array(auth()->user()->role, ['super_admin', 'admin', 'manager'], true);
@@ -43,6 +44,7 @@ class MachineController extends Controller
         $machine->load(['latestRuntime', 'latestService']);
         $runtimes = $machine->runtimes()->orderByDesc('start_time')->paginate(15, ['*'], 'runtime_page');
         $services = $machine->services()->orderByDesc('serviced_at')->get();
+        $machine->loadCount(['runtimes', 'services']);
         $canManageMachines = in_array(auth()->user()->role, ['super_admin', 'admin', 'manager'], true);
 
         return view('machines.show', compact('machine', 'runtimes', 'services', 'canManageMachines'));
@@ -50,6 +52,8 @@ class MachineController extends Controller
 
     public function edit(Machine $machine)
     {
+        $machine->loadCount(['runtimes', 'services']);
+
         return view('machines.edit', compact('machine'));
     }
 
@@ -80,9 +84,16 @@ class MachineController extends Controller
 
     public function destroy(Machine $machine)
     {
-        $machine->update(['is_active' => false]);
-        AuditLog::record('machine_deactivated', "Deactivated machine {$machine->machine_code}", 'Machine', $machine->id);
+        if ($machine->runtimes()->exists() || $machine->services()->exists()) {
+            return redirect()->route('machines.edit', $machine)
+                ->with('error', 'This machine has runtime or service history and cannot be permanently deleted. Deactivate it instead.');
+        }
 
-        return redirect()->route('machines.index')->with('success', 'Machine deactivated. Its runtime and service history has been kept.');
+        $machineCode = $machine->machine_code;
+        $machineId = $machine->id;
+        $machine->delete();
+        AuditLog::record('machine_deleted', "Deleted machine {$machineCode}", 'Machine', $machineId);
+
+        return redirect()->route('machines.index')->with('success', "Machine {$machineCode} deleted.");
     }
 }

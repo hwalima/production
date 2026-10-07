@@ -32,15 +32,30 @@
                        style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);" required>
                 @error('service_interval_hours')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
             </div>
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $machine->is_active))>
-                Active (available for runtime entries)
-            </label>
+            <div>
+                <label class="block text-sm font-medium mb-1" for="is_active">Machine Status</label>
+                <select id="is_active" name="is_active"
+                        class="w-full border rounded-lg px-3 py-2 text-sm"
+                        style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    <option value="1" @selected((string) old('is_active', (int) $machine->is_active) === '1')>Active — available for runtime records</option>
+                    <option value="0" @selected((string) old('is_active', (int) $machine->is_active) === '0')>Inactive — retain history, prevent new runtime records</option>
+                </select>
+            </div>
             <div class="flex items-center gap-3 pt-2">
                 <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-sm" style="background:#fcb913;color:#001a4d;">Save Changes</button>
                 <a href="{{ route('machines.show', $machine) }}" class="px-5 py-2 rounded-lg font-semibold text-sm" style="background:var(--input-bg);color:var(--text);">Cancel</a>
             </div>
         </form>
+        <div class="flex items-center justify-end gap-3 mt-4 pt-4 border-t" style="border-color:var(--topbar-border);">
+            @if($machine->runtimes_count === 0 && $machine->services_count === 0)
+                <form method="POST" action="{{ route('machines.destroy', $machine) }}" onsubmit="event.preventDefault();confirmDelete('Permanently delete this machine?',this)">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-sm" style="background:#fee2e2;color:#991b1b;">Delete Machine</button>
+                </form>
+            @else
+                <span class="text-xs text-right" style="color:#9ca3af;">Delete unavailable while history exists. Set status to inactive to retire it.</span>
+            @endif
+        </div>
     </div>
 </div>
 @endsection
