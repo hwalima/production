@@ -16,7 +16,7 @@ class UpdateMachineRuntimeRequest extends FormRequest
             'description' => 'required|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'required|date',
-            'service_after_hours' => 'required|numeric|min:0',
+            'service_after_hours' => 'required|integer|min:0',
         ];
     }
 }

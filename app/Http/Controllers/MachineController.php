@@ -35,7 +35,7 @@ class MachineController extends Controller
     public function store(StoreMachineRuntimeRequest $request)
     {
         $data = $request->validated();
-        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays($data['service_after_hours']);
+        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays((int) $data['service_after_hours']);
         $machine = MachineRuntime::create($data);
         AuditLog::record('machine_created', "Added machine runtime record for {$machine->machine_name}", 'MachineRuntime', $machine->id);
         return redirect()->route('machines.index')->with('success', 'Machine runtime added.');
@@ -54,7 +54,7 @@ class MachineController extends Controller
     public function update(UpdateMachineRuntimeRequest $request, MachineRuntime $machine)
     {
         $data = $request->validated();
-        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays($data['service_after_hours']);
+        $data['next_service_date'] = Carbon::parse($data['end_time'])->addDays((int) $data['service_after_hours']);
         $machine->update($data);
         AuditLog::record('machine_updated', "Updated machine runtime #{$machine->id} for {$machine->machine_name}", 'MachineRuntime', $machine->id);
         return redirect()->route('machines.index')->with('success', 'Machine runtime updated.');
