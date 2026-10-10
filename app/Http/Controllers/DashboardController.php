@@ -171,9 +171,11 @@ class DashboardController extends Controller
             'count'  => $rows->count(),
         ])->sortKeys();
         $miningByShift = $miningRows->groupBy('shift');
-        foreach ($shiftGroups as $shift => $group) {
-            $shiftGroups[$shift]['hoisted'] = round($miningByShift->get($shift, collect())->sum('ore_hoisted'), 2);
-        }
+        $shiftGroups = $shiftGroups->map(function (array $group, string $shift) use ($miningByShift) {
+            $group['hoisted'] = round($miningByShift->get($shift, collect())->sum('ore_hoisted'), 2);
+
+            return $group;
+        });
 
         $shiftLabels      = $shiftGroups->keys()->values()->toArray();
         $shiftGold        = $shiftGroups->pluck('gold')->values()->toArray();
