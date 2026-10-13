@@ -14,6 +14,10 @@ class LabourEnergy extends Model
         'zesa_cost',
         'diesel_cost',
         'labour_cost',
+        'mining_cost',
+        'milling_cost',
+        'maintenance_cost',
+        'transport_cost',
         'date',
     ];
 
@@ -22,6 +26,10 @@ class LabourEnergy extends Model
         'zesa_cost' => 'decimal:2',
         'diesel_cost' => 'decimal:2',
         'labour_cost' => 'decimal:2',
+        'mining_cost' => 'decimal:2',
+        'milling_cost' => 'decimal:2',
+        'maintenance_cost' => 'decimal:2',
+        'transport_cost' => 'decimal:2',
     ];
 
     public function deptCosts()

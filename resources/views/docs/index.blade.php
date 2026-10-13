@@ -664,12 +664,17 @@
             <thead><tr><th>Field</th><th>Description</th></tr></thead>
             <tbody>
                 <tr><td>date</td><td>Cost date</td></tr>
-                <tr><td>zesa_cost</td><td>Grid electricity cost (ZESA)</td></tr>
-                <tr><td>diesel_cost</td><td>Diesel / generator fuel cost</td></tr>
+                <tr><td>zesa_cost</td><td>Grid electricity cost (ZESA), reported under Power</td></tr>
+                <tr><td>diesel_cost</td><td>Diesel / generator fuel cost, reported under Power</td></tr>
                 <tr><td>labour_cost</td><td>Total labour cost — automatically calculated from department breakdown</td></tr>
+                <tr><td>mining_cost</td><td>Mining operating costs</td></tr>
+                <tr><td>milling_cost</td><td>Milling operating costs</td></tr>
+                <tr><td>maintenance_cost</td><td>Maintenance costs</td></tr>
+                <tr><td>transport_cost</td><td>Transport costs</td></tr>
             </tbody>
         </table>
         <h3>Department Labour Breakdown</h3>
+        <p>Accounts reports group daily costs into mining, milling, labour, power, consumables, maintenance, and transport. Consumables are counted from stock movements recorded as <code>usage</code>; blasting/drilling activity records do not automatically issue stock.</p>
         <p>Each labour-energy record can have multiple department-level cost lines (<code>labour_dept_costs</code>). The parent <code>labour_cost</code> field is automatically synced as the sum of all department costs whenever a department line is saved.</p>
         <p>Use the department breakdown to allocate labour costs to specific mining departments (e.g., Underground, Processing, Admin) for cost centre reporting.</p>
     </section>

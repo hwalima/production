@@ -71,35 +71,48 @@ class ReportController extends Controller
         $totalGoldGrams   = $productions->sum('gold_smelted');
 
         // ── Consumables Cost (actual usage issues) ────────────────
-        $consumablesBreakdown = ConsumableStockMovement::whereBetween('movement_date', [$from, $to])
+        $consumableIssues = ConsumableStockMovement::with('consumable:id,name,category,use_unit')
+            ->whereBetween('movement_date', [$from->toDateString(), $to->toDateString()])
             ->where('direction', 'out')
-            ->join('consumables', 'consumables.id', '=', 'consumable_stock_movements.consumable_id')
-            ->selectRaw('consumables.category, SUM(consumable_stock_movements.total_cost) as total')
-            ->groupBy('consumables.category')
-            ->orderBy('consumables.category')
+            ->where('type', 'usage')
+            ->orderBy('movement_date')
             ->get()
-            ->keyBy('category');
+            ->map(function (ConsumableStockMovement $movement) {
+                $movement->category = $movement->consumable?->category ?? 'uncategorised';
+                return $movement;
+            });
 
-        $totalConsumablesCost = $consumablesBreakdown->sum('total');
+        $totalConsumablesCost = $consumableIssues->sum('total_cost');
 
-        // ── Labour & Energy Cost ──────────────────────────────────
+        // ── Operating costs ───────────────────────────────────────
         $labourBreakdown = LabourEnergy::whereBetween('date', [$from, $to])
-            ->selectRaw('SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour')
+            ->selectRaw(
+                'SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour, '
+                . 'SUM(mining_cost) as mining, SUM(milling_cost) as milling, '
+                . 'SUM(maintenance_cost) as maintenance, SUM(transport_cost) as transport'
+            )
             ->first();
 
-        $totalLabourCost = ($labourBreakdown->zesa ?? 0)
-                         + ($labourBreakdown->diesel ?? 0)
-                         + ($labourBreakdown->labour ?? 0);
+        $totalPowerCost = (float) ($labourBreakdown->zesa ?? 0)
+                        + (float) ($labourBreakdown->diesel ?? 0);
+        $totalLabourCost = (float) ($labourBreakdown->labour ?? 0);
+        $totalMiningCost = (float) ($labourBreakdown->mining ?? 0);
+        $totalMillingCost = (float) ($labourBreakdown->milling ?? 0);
+        $totalMaintenanceCost = (float) ($labourBreakdown->maintenance ?? 0);
+        $totalTransportCost = (float) ($labourBreakdown->transport ?? 0);
 
         // ── Totals ────────────────────────────────────────────────
-        $totalCosts   = $totalConsumablesCost + $totalLabourCost;
+        $totalCosts   = $totalMiningCost + $totalMillingCost + $totalLabourCost
+                      + $totalPowerCost + $totalConsumablesCost
+                      + $totalMaintenanceCost + $totalTransportCost;
         $profitLoss   = $totalGoldRevenue - $totalCosts;
 
         return view('reports.accounts', compact(
             'from', 'to',
             'productions', 'totalGoldRevenue', 'totalGoldGrams',
-            'consumablesBreakdown', 'totalConsumablesCost',
-            'labourBreakdown', 'totalLabourCost',
+            'consumableIssues', 'totalConsumablesCost',
+            'labourBreakdown', 'totalMiningCost', 'totalMillingCost', 'totalLabourCost',
+            'totalPowerCost', 'totalMaintenanceCost', 'totalTransportCost',
             'totalCosts', 'profitLoss'
         ));
     }
@@ -203,26 +216,38 @@ class ReportController extends Controller
         $totalGoldRevenue = $productions->sum('gold_revenue');
         $totalGoldGrams   = $productions->sum('gold_smelted');
 
-        $consumablesBreakdown = ConsumableStockMovement::whereBetween('movement_date', [$from, $to])
+        $consumableIssues = ConsumableStockMovement::with('consumable:id,name,category,use_unit')
+            ->whereBetween('movement_date', [$from->toDateString(), $to->toDateString()])
             ->where('direction', 'out')
-            ->join('consumables', 'consumables.id', '=', 'consumable_stock_movements.consumable_id')
-            ->selectRaw('consumables.category, SUM(consumable_stock_movements.total_cost) as total')
-            ->groupBy('consumables.category')
-            ->orderBy('consumables.category')
+            ->where('type', 'usage')
+            ->orderBy('movement_date')
             ->get()
-            ->keyBy('category');
+            ->map(function (ConsumableStockMovement $movement) {
+                $movement->category = $movement->consumable?->category ?? 'uncategorised';
+                return $movement;
+            });
 
-        $totalConsumablesCost = $consumablesBreakdown->sum('total');
+        $totalConsumablesCost = $consumableIssues->sum('total_cost');
 
         $labourBreakdown = LabourEnergy::whereBetween('date', [$from, $to])
-            ->selectRaw('SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour')
+            ->selectRaw(
+                'SUM(zesa_cost) as zesa, SUM(diesel_cost) as diesel, SUM(labour_cost) as labour, '
+                . 'SUM(mining_cost) as mining, SUM(milling_cost) as milling, '
+                . 'SUM(maintenance_cost) as maintenance, SUM(transport_cost) as transport'
+            )
             ->first();
 
-        $totalLabourCost = ($labourBreakdown->zesa ?? 0)
-                         + ($labourBreakdown->diesel ?? 0)
-                         + ($labourBreakdown->labour ?? 0);
+        $totalPowerCost = (float) ($labourBreakdown->zesa ?? 0)
+                        + (float) ($labourBreakdown->diesel ?? 0);
+        $totalLabourCost = (float) ($labourBreakdown->labour ?? 0);
+        $totalMiningCost = (float) ($labourBreakdown->mining ?? 0);
+        $totalMillingCost = (float) ($labourBreakdown->milling ?? 0);
+        $totalMaintenanceCost = (float) ($labourBreakdown->maintenance ?? 0);
+        $totalTransportCost = (float) ($labourBreakdown->transport ?? 0);
 
-        $totalCosts = $totalConsumablesCost + $totalLabourCost;
+        $totalCosts = $totalMiningCost + $totalMillingCost + $totalLabourCost
+                    + $totalPowerCost + $totalConsumablesCost
+                    + $totalMaintenanceCost + $totalTransportCost;
         $profitLoss = $totalGoldRevenue - $totalCosts;
         $isProfitable = $profitLoss >= 0;
 
@@ -232,8 +257,9 @@ class ReportController extends Controller
         $data = array_merge($this->pdfSettings(), compact(
             'from', 'to', 'filterFrom', 'filterTo',
             'productions', 'totalGoldRevenue', 'totalGoldGrams',
-            'consumablesBreakdown', 'totalConsumablesCost',
-            'labourBreakdown', 'totalLabourCost',
+            'consumableIssues', 'totalConsumablesCost',
+            'labourBreakdown', 'totalMiningCost', 'totalMillingCost', 'totalLabourCost',
+            'totalPowerCost', 'totalMaintenanceCost', 'totalTransportCost',
             'totalCosts', 'profitLoss', 'isProfitable'
         ));
 

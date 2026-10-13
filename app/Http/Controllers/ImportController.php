@@ -71,13 +71,20 @@ class ImportController extends Controller
         ],
         'labour-energy' => [
             'filename' => 'labour_energy_import_template.csv',
-            'headers'  => ['date', 'zesa_cost', 'diesel_cost', 'labour_cost'],
-            'example'  => ['2026-04-01', '15000.00', '22000.00', '85000.00'],
+            'headers'  => [
+                'date', 'zesa_cost', 'diesel_cost', 'labour_cost',
+                'mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost',
+            ],
+            'example'  => ['2026-04-01', '15000.00', '22000.00', '85000.00', '0.00', '0.00', '0.00', '0.00'],
             'notes'    => [
                 'date'        => 'YYYY-MM-DD format. Required.',
                 'zesa_cost'   => 'ZESA electricity cost. Required.',
                 'diesel_cost' => 'Diesel / generator cost. Required.',
                 'labour_cost' => 'Total labour cost. Required.',
+                'mining_cost' => 'Mining operating costs. Optional; defaults to 0.',
+                'milling_cost' => 'Milling operating costs. Optional; defaults to 0.',
+                'maintenance_cost' => 'Maintenance costs. Optional; defaults to 0.',
+                'transport_cost' => 'Transport costs. Optional; defaults to 0.',
             ],
         ],
     ];
@@ -373,6 +380,16 @@ class ImportController extends Controller
                 if (!$this->isValidDate($g('date'))) {
                     $rowErrors[] = "date must be YYYY-MM-DD";
                 }
+                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost'] as $costField) {
+                    if (!array_key_exists($costField, $map) || $g($costField) === '') {
+                        continue;
+                    }
+
+                    $cost = str_replace(',', '', $g($costField));
+                    if (!is_numeric($cost) || (float) $cost < 0) {
+                        $rowErrors[] = "$costField must be a non-negative number";
+                    }
+                }
                 if ($rowErrors) {
                     $errors[] = ['row' => $rowNum, 'message' => implode('; ', $rowErrors)];
                     continue;
@@ -384,6 +401,11 @@ class ImportController extends Controller
                     'diesel_cost' => $this->num($g('diesel_cost')),
                     'labour_cost' => $this->num($g('labour_cost')),
                 ];
+                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost'] as $costField) {
+                    if (array_key_exists($costField, $map)) {
+                        $data[$costField] = $g($costField) === '' ? 0 : $this->num($g($costField));
+                    }
+                }
 
                 $existing = LabourEnergy::whereDate('date', $data['date'])->first();
                 if ($existing) {

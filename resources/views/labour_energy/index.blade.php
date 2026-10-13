@@ -30,13 +30,19 @@
                 <th class="th-r">ZESA Cost ({{ $currencySymbol }})</th>
                 <th class="th-r">Diesel Cost ({{ $currencySymbol }})</th>
                 <th class="th-r">Labour Cost ({{ $currencySymbol }})</th>
+                <th class="th-r">Other Costs ({{ $currencySymbol }})</th>
                 <th class="th-r">Total ({{ $currencySymbol }})</th>
                 <th class="th-c">Actions</th>
             </tr>
         </thead>
         <tbody>
             @forelse($records as $rec)
-            @php $total = ($rec->zesa_cost ?? 0) + ($rec->diesel_cost ?? 0) + ($rec->labour_cost ?? 0); @endphp
+            @php
+                $otherCosts = (float) $rec->mining_cost + (float) $rec->milling_cost
+                    + (float) $rec->maintenance_cost + (float) $rec->transport_cost;
+                $total = (float) $rec->zesa_cost + (float) $rec->diesel_cost
+                    + (float) $rec->labour_cost + $otherCosts;
+            @endphp
             <tr>
                 <td data-sort="{{ $rec->date->format('Y-m-d') }}"><span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span></td>
                 <td class="td-r">{{ $currencySymbol }}{{ number_format($rec->zesa_cost, 2) }}</td>
@@ -49,6 +55,9 @@
                         @endforeach
                     </div>
                     @endif
+                </td>
+                <td class="td-r" title="Mining {{ number_format($rec->mining_cost, 2) }}, milling {{ number_format($rec->milling_cost, 2) }}, maintenance {{ number_format($rec->maintenance_cost, 2) }}, transport {{ number_format($rec->transport_cost, 2) }}">
+                    {{ $currencySymbol }}{{ number_format($otherCosts, 2) }}
                 </td>
                 <td class="td-r" style="font-weight:600;color:#fcc104;">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                 <td class="td-c">
@@ -71,7 +80,7 @@
                 </td>
             </tr>
             @empty
-            <tr class="empty-row"><td colspan="6">No labour &amp; energy records yet.</td></tr>
+            <tr class="empty-row"><td colspan="7">No labour &amp; energy records yet.</td></tr>
             @endforelse
         </tbody>
     </table>

@@ -66,7 +66,7 @@ class AnalyticsController extends Controller
 
         // ── Total costs by day (Labour+Energy + Consumables out) ──────────
         $leCostsByDay = LabourEnergy::whereBetween('date', [$from, $to])
-            ->selectRaw('DATE(date) as day, SUM(labour_cost + zesa_cost + diesel_cost) as total')
+            ->selectRaw('DATE(date) as day, SUM(labour_cost + zesa_cost + diesel_cost + mining_cost + milling_cost + maintenance_cost + transport_cost) as total')
             ->groupBy('day')
             ->pluck('total', 'day')
             ->map(fn($v) => (float) $v);
@@ -74,6 +74,7 @@ class AnalyticsController extends Controller
         $consumableCostsByDay = DB::table('consumable_stock_movements')
             ->whereBetween('movement_date', [$from, $to])
             ->where('direction', 'out')
+            ->where('type', 'usage')
             ->selectRaw('DATE(movement_date) as day, SUM(total_cost) as total')
             ->groupBy('day')
             ->pluck('total', 'day')
@@ -172,10 +173,12 @@ class AnalyticsController extends Controller
         $prevGold   = (float) $prevProd->sum('gold_smelted');
         $prevMilled = (float) $prevProd->sum('ore_milled');
         $prevCosts  = (float) (LabourEnergy::whereBetween('date', [$prevFrom, $prevTo])
-            ->selectRaw('SUM(labour_cost + zesa_cost + diesel_cost) as t')->value('t') ?? 0);
+            ->selectRaw('SUM(labour_cost + zesa_cost + diesel_cost + mining_cost + milling_cost + maintenance_cost + transport_cost) as t')->value('t') ?? 0);
         $prevCosts += (float) DB::table('consumable_stock_movements')
             ->whereBetween('movement_date', [$prevFrom, $prevTo])
-            ->where('direction', 'out')->sum('total_cost');
+            ->where('direction', 'out')
+            ->where('type', 'usage')
+            ->sum('total_cost');
 
         $ytdFrom = Carbon::parse($from)->startOfYear()->toDateString();
         $ytdProd  = DailyProduction::whereBetween('date', [$ytdFrom, $to])->get();
@@ -236,6 +239,7 @@ class AnalyticsController extends Controller
             ->join('consumables', 'consumables.id', '=', 'consumable_stock_movements.consumable_id')
             ->whereBetween('movement_date', [$from, $to])
             ->where('consumable_stock_movements.direction', 'out')
+            ->where('consumable_stock_movements.type', 'usage')
             ->selectRaw('consumables.category, SUM(consumable_stock_movements.total_cost) as total_cost, SUM(consumable_stock_movements.quantity) as total_qty')
             ->groupBy('consumables.category')
             ->orderByDesc('total_cost')
@@ -249,6 +253,7 @@ class AnalyticsController extends Controller
         $consumMonthly = DB::table('consumable_stock_movements')
             ->whereBetween('movement_date', [$from, $to])
             ->where('direction', 'out')
+            ->where('type', 'usage')
             ->selectRaw("{$monthExpr} as month, SUM(total_cost) as total")
             ->groupByRaw($monthExpr)
             ->orderBy('month')
@@ -483,14 +488,15 @@ class AnalyticsController extends Controller
             }
 
             fputcsv($handle, []);
-            fputcsv($handle, ['=== COSTS (Labour + Energy + Consumables Out) ===']);
-            fputcsv($handle, ['Date', 'Labour+Energy Cost', 'Consumables Cost', 'Total Cost']);
+            fputcsv($handle, ['=== COSTS (Operating Categories + Consumables Out) ===']);
+            fputcsv($handle, ['Date', 'Operating Costs', 'Consumables Cost', 'Total Cost']);
 
             $leCosts = LabourEnergy::whereBetween('date', [$from, $to])
-                ->selectRaw('DATE(date) as day, SUM(labour_cost + zesa_cost + diesel_cost) as total')
+                ->selectRaw('DATE(date) as day, SUM(labour_cost + zesa_cost + diesel_cost + mining_cost + milling_cost + maintenance_cost + transport_cost) as total')
                 ->groupBy('day')->pluck('total', 'day');
             $cCosts = DB::table('consumable_stock_movements')
                 ->whereBetween('movement_date', [$from, $to])->where('direction', 'out')
+                ->where('type', 'usage')
                 ->selectRaw('DATE(movement_date) as day, SUM(total_cost) as total')
                 ->groupBy('day')->pluck('total', 'day');
 

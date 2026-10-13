@@ -18,15 +18,25 @@
             </div>
             <div class="fc-grid" style="margin-bottom:14px;">
                 <div>
-                    <label class="fc-label">ZESA Cost ({{ $currencySymbol }})</label>
+                    <label class="fc-label">Power — ZESA ({{ $currencySymbol }})</label>
                     <input type="number" name="zesa_cost" step="0.01" class="fc-input" value="{{ old('zesa_cost', $labour_energy->zesa_cost) }}" required>
                     @error('zesa_cost')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Diesel Cost ({{ $currencySymbol }})</label>
+                    <label class="fc-label">Power — Diesel / Generator ({{ $currencySymbol }})</label>
                     <input type="number" name="diesel_cost" step="0.01" class="fc-input" value="{{ old('diesel_cost', $labour_energy->diesel_cost) }}" required>
                     @error('diesel_cost')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
+            </div>
+            <div style="margin:0 0 8px;font-size:.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Other Operating Costs ({{ $currencySymbol }})</div>
+            <div class="fc-grid" style="margin-bottom:14px;">
+                @foreach(['mining_cost' => 'Mining Cost', 'milling_cost' => 'Milling Cost', 'maintenance_cost' => 'Maintenance', 'transport_cost' => 'Transport'] as $field => $label)
+                <div>
+                    <label class="fc-label">{{ $label }}</label>
+                    <input type="number" name="{{ $field }}" min="0" step="0.01" class="fc-input" value="{{ old($field, $labour_energy->{$field}) }}">
+                    @error($field)<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+                @endforeach
             </div>
             @if($departments->isNotEmpty())
             <div style="margin-bottom:14px;">

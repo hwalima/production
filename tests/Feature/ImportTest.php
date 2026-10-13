@@ -268,9 +268,9 @@ class ImportTest extends TestCase
     public function can_import_labour_energy_from_csv(): void
     {
         $csv = implode("\r\n", [
-            'date,zesa_cost,diesel_cost,labour_cost',
-            '2026-04-01,15000.00,22000.00,85000.00',
-            '2026-04-02,14500.00,21000.00,83000.00',
+            'date,zesa_cost,diesel_cost,labour_cost,mining_cost,milling_cost,maintenance_cost,transport_cost',
+            '2026-04-01,15000.00,22000.00,85000.00,100.00,200.00,300.00,400.00',
+            '2026-04-02,14500.00,21000.00,83000.00,0,0,0,0',
         ]);
 
         $this->actingAs($this->writer())
@@ -279,6 +279,12 @@ class ImportTest extends TestCase
 
         $this->assertEquals(2, LabourEnergy::count());
         $this->assertDatabaseHas('labour_energy', ['zesa_cost' => 15000.00, 'diesel_cost' => 22000.00]);
+        $this->assertDatabaseHas('labour_energy', [
+            'mining_cost' => 100,
+            'milling_cost' => 200,
+            'maintenance_cost' => 300,
+            'transport_cost' => 400,
+        ]);
     }
 
     /** @test */

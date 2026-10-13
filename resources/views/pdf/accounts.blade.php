@@ -18,8 +18,8 @@
             <div class="tile-value">${{ number_format($totalConsumablesCost, 2) }}</div>
         </td>
         <td style="width:20%;border-top:3px solid #6b7280;">
-            <div class="tile-label">Labour &amp; Energy</div>
-            <div class="tile-value">${{ number_format($totalLabourCost, 2) }}</div>
+            <div class="tile-label">Labour &amp; Power</div>
+            <div class="tile-value">${{ number_format($totalLabourCost + $totalPowerCost, 2) }}</div>
         </td>
         <td style="width:20%;border-top:3px solid #b91c1c;">
             <div class="tile-label">Total Costs</div>
@@ -44,45 +44,19 @@
         </tr>
     </thead>
     <tbody>
-        {{-- Labour & Energy section --}}
+        <tr><td>Mining cost</td><td class="td-r">${{ number_format($totalMiningCost, 2) }}</td></tr>
+        <tr><td>Milling cost</td><td class="td-r">${{ number_format($totalMillingCost, 2) }}</td></tr>
+        <tr><td>Labour</td><td class="td-r">${{ number_format($totalLabourCost, 2) }}</td></tr>
         <tr>
-            <td colspan="2" style="background:#f1f5f9;font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;padding:5px 6px;">Labour &amp; Energy</td>
-        </tr>
-        <tr>
-            <td style="padding-left:16px;">ZESA (power)</td>
-            <td class="td-r">${{ number_format($labourBreakdown->zesa ?? 0, 2) }}</td>
-        </tr>
-        <tr>
-            <td style="padding-left:16px;">Diesel</td>
-            <td class="td-r">${{ number_format($labourBreakdown->diesel ?? 0, 2) }}</td>
+            <td>Power (ZESA + diesel/generator)</td>
+            <td class="td-r">${{ number_format($totalPowerCost, 2) }}</td>
         </tr>
         <tr>
-            <td style="padding-left:16px;">Labour (wages)</td>
-            <td class="td-r">${{ number_format($labourBreakdown->labour ?? 0, 2) }}</td>
-        </tr>
-        <tr style="font-weight:700;">
-            <td>Labour &amp; Energy Subtotal</td>
-            <td class="td-r">${{ number_format($totalLabourCost, 2) }}</td>
-        </tr>
-
-        {{-- Consumables section --}}
-        <tr>
-            <td colspan="2" style="background:#f1f5f9;font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#475569;padding:5px 6px;">Consumables</td>
-        </tr>
-        @forelse ($consumablesBreakdown as $category => $row)
-        <tr>
-            <td style="padding-left:16px;">{{ ucfirst($category ?? 'Uncategorised') }}</td>
-            <td class="td-r">${{ number_format($row->total, 2) }}</td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="2" class="td-c" style="color:#9ca3af;font-style:italic;">No consumable usage recorded</td>
-        </tr>
-        @endforelse
-        <tr style="font-weight:700;">
-            <td>Consumables Subtotal</td>
+            <td>Consumables ({{ $consumableIssues->count() }} stock issue(s))</td>
             <td class="td-r">${{ number_format($totalConsumablesCost, 2) }}</td>
         </tr>
+        <tr><td>Maintenance</td><td class="td-r">${{ number_format($totalMaintenanceCost, 2) }}</td></tr>
+        <tr><td>Transport</td><td class="td-r">${{ number_format($totalTransportCost, 2) }}</td></tr>
     </tbody>
     <tfoot>
         <tr>
@@ -90,6 +64,36 @@
             <td class="td-r">${{ number_format($totalCosts, 2) }}</td>
         </tr>
     </tfoot>
+</table>
+
+<div class="section-heading">Consumable Stock Issues</div>
+<table class="data-table" style="margin-bottom:18px;">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Item</th>
+            <th>Inventory Category</th>
+            <th class="th-r">Quantity</th>
+            <th class="th-r">Cost (USD)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($consumableIssues as $issue)
+        <tr>
+            <td>{{ $issue->movement_date->format('d M Y') }}</td>
+            <td>{{ $issue->consumable?->name ?? 'Deleted consumable' }}</td>
+            <td>{{ ucfirst($issue->category) }}</td>
+            <td class="td-r">{{ number_format($issue->quantity, 2) }} {{ $issue->consumable?->use_unit }}</td>
+            <td class="td-r">${{ number_format($issue->total_cost, 2) }}</td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="5" class="td-c" style="color:#9ca3af;font-style:italic;">
+                No consumable stock issues were recorded. Blasting/drilling activity records do not issue inventory automatically.
+            </td>
+        </tr>
+        @endforelse
+    </tbody>
 </table>
 
 {{-- ── Gold Revenue Detail ─────────────────────────────────────── --}}
