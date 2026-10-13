@@ -2,7 +2,7 @@
 @section('title', 'Edit SHE Indicator')
 @section('page-title', 'SHE')
 @section('content')
-<div style="max-width:720px;">
+<div class="she-form-wrap">
     <div class="page-header">
         <h1 class="page-title">Edit SHE Indicator Record</h1>
         <a href="{{ route('she.index') }}" class="btn-cancel">&larr; Back</a>
@@ -11,7 +11,7 @@
         <form action="{{ route('she.indicators.update', $indicator) }}" method="POST">
             @csrf
             @method('PUT')
-            <div class="fc-grid" style="margin-bottom:14px;">
+            <div class="fc-grid she-meta-grid">
                 <div>
                     <label class="fc-label">Date <span style="color:#ef4444;">*</span></label>
                     <input type="date" name="date" class="fc-input"
@@ -33,27 +33,7 @@
                 </div>
             </div>
 
-            <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-                        color:#9ca3af;border-bottom:1px solid rgba(255,255,255,.07);
-                        padding-bottom:8px;margin-bottom:12px;">
-                Indicators
-            </div>
-            <div class="fc-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;">
-                @foreach($indicatorLabels as $field => $label)
-                <div>
-                    <label class="fc-label" style="font-size:.75rem;">{{ $label }}</label>
-                    <input type="number" name="{{ $field }}" step="1" min="0"
-                           class="fc-input"
-                           value="{{ old($field, $indicator->{$field} > 0 ? $indicator->{$field} : '') }}"
-                           placeholder="0">
-                    @error($field)<p class="fc-error">{{ $message }}</p>@enderror
-                    <label class="fc-label" style="font-size:.72rem;margin-top:7px;">Description</label>
-                    <textarea name="{{ $field }}_description" class="fc-input" rows="2" maxlength="5000"
-                              placeholder="Optional details">{{ old($field . '_description', $indicator->{$field . '_description'}) }}</textarea>
-                    @error($field . '_description')<p class="fc-error">{{ $message }}</p>@enderror
-                </div>
-                @endforeach
-            </div>
+            @include('she._indicator-fields', ['indicator' => $indicator])
 
             <div class="form-actions">
                 <button type="submit" class="btn-submit">Update Record</button>

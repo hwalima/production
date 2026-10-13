@@ -41,4 +41,29 @@ class SheAttendanceSeparationTest extends TestCase
         $this->assertSame('Two discharge penalties recorded', $record->environmental_incidents_penalties_description);
         $this->assertSame('Fall of ground incident', $record->lti_description);
     }
+
+    public function test_she_page_offers_a_date_filtered_pdf_download(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($user)
+            ->get(route('she.index'))
+            ->assertOk()
+            ->assertSee('Export PDF');
+
+        $pdfMock = \Mockery::mock(\Barryvdh\DomPDF\PDF::class);
+        $pdfMock->shouldReceive('loadView')->once()->andReturnSelf();
+        $pdfMock->shouldReceive('setPaper')->once()->with('a4', 'landscape')->andReturnSelf();
+        $pdfMock->shouldReceive('download')->once()->andReturn(
+            response()->make('%PDF-1.4 fake', 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="she-report-2026-10-01-to-2026-10-13.pdf"',
+            ])
+        );
+        $this->app->instance('dompdf.wrapper', $pdfMock);
+
+        $this->get(route('she.pdf', ['from' => '2026-10-01', 'to' => '2026-10-13']))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+    }
 }
