@@ -73,13 +73,13 @@
                     @error('ro_mine_milled')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="fc-label">Sanda Milled (t)</label>
+                    <label class="fc-label">Sands Milled (t)</label>
                     <input type="number" name="sanda_milled" id="sanda_milled" step="0.01" min="0" class="fc-input"
                            value="{{ old('sanda_milled', $production->sanda_milled) }}" required>
                     <label style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:#6b7280;margin-top:5px;">
                         <input type="checkbox" name="sanda_milled_manual" id="sanda_milled_manual" value="1"
                                {{ old('sanda_milled_manual', $production->sanda_milled_manual) ? 'checked' : '' }}>
-                        Keep a manual Sanda value
+                        Keep a manual Sands value
                     </label>
                     <p style="font-size:.72rem;color:#6b7280;margin-top:4px;">Prefilled as Total Ore Milled minus R.O. Mine Milled. Check the box to keep a manual override.</p>
                     @error('sanda_milled')<p class="fc-error">{{ $message }}</p>@enderror

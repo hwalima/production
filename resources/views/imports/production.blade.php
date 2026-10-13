@@ -95,7 +95,7 @@
                 <tr><td><code>ore_crushed</code></td><td style="color:#22c55e;">Yes</td><td>Tonnes (decimal)</td></tr>
                 <tr><td><code>ore_milled</code></td><td style="color:#22c55e;">Yes</td><td>Total ore milled in tonnes</td></tr>
                 <tr><td><code>ro_mine_milled</code></td><td style="color:#22c55e;">Yes</td><td>R.O. Mine Milled in tonnes</td></tr>
-                <tr><td><code>sanda_milled</code></td><td style="color:#22c55e;">Yes</td><td>Sanda Milled in tonnes; import value is preserved</td></tr>
+                <tr><td><code>sanda_milled</code></td><td style="color:#22c55e;">Yes</td><td>Sands Milled in tonnes; import value is preserved</td></tr>
                 <tr><td><code>ore_milled_target</code></td><td style="color:#9ca3af;">No</td><td>Tonnes (decimal)</td></tr>
                 <tr><td><code>gold_smelted</code></td><td style="color:#22c55e;">Yes</td><td>Grams (decimal)</td></tr>
                 <tr><td><code>purity_percentage</code></td><td style="color:#22c55e;">Yes</td><td>0 – 100</td></tr>

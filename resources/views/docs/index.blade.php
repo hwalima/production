@@ -667,8 +667,8 @@
                 <tr><td>zesa_cost</td><td>Grid electricity cost (ZESA), reported under Power</td></tr>
                 <tr><td>diesel_cost</td><td>Diesel / generator fuel cost, reported under Power</td></tr>
                 <tr><td>labour_cost</td><td>Total labour cost — automatically calculated from department breakdown</td></tr>
-                <tr><td>mining_cost</td><td>Mining operating costs</td></tr>
-                <tr><td>milling_cost</td><td>Milling operating costs</td></tr>
+                <tr><td>mining_cost</td><td>Other mining costs</td></tr>
+                <tr><td>milling_cost</td><td>Other milling costs</td></tr>
                 <tr><td>maintenance_cost</td><td>Maintenance costs</td></tr>
                 <tr><td>transport_cost</td><td>Transport costs</td></tr>
                 <tr><td>leave</td><td>Leave days (recorded under Labour &amp; Energy)</td></tr>

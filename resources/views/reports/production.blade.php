@@ -49,7 +49,7 @@
                     <th style="background:rgba(0,0,0,.18);">&#x3A3; Unmilled Stk</th>
                     <th>Total Ore Milled</th>
                     <th>R.O. Mine Milled</th>
-                    <th>Sanda Milled</th>
+                    <th>Sands Milled</th>
                     <th>Mill Tgt</th>
                     <th>Mill Var</th>
                     <th>Gold (g)</th>

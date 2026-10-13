@@ -57,7 +57,7 @@
             <th class="th-r">Unmilled Stk (t)</th>
             <th class="th-r">Total Ore Milled (t)</th>
             <th class="th-r">R.O. Mine Milled (t)</th>
-            <th class="th-r">Sanda Milled (t)</th>
+            <th class="th-r">Sands Milled (t)</th>
             <th class="th-r">Mill Tgt</th>
             <th class="th-r">Mill Var</th>
             <th class="th-r">Gold (g)</th>

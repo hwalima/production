@@ -72,8 +72,8 @@ class AccountsReportTest extends TestCase
         ]));
 
         $response->assertOk()
-            ->assertSee('Mining cost')
-            ->assertSee('Milling cost')
+            ->assertSee('Other Mining Costs')
+            ->assertSee('Other Milling Costs')
             ->assertSee('Labour')
             ->assertSee('Power')
             ->assertSee('Consumables')

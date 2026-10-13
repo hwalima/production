@@ -93,7 +93,7 @@
                 <th class="th-r" style="background:rgba(252,185,19,.15);">Unmill Stk</th>
                 <th class="th-r">Total Ore Milled</th>
                 <th class="th-r">R.O. Mine Milled</th>
-                <th class="th-r">Sanda Milled</th>
+                <th class="th-r">Sands Milled</th>
                 <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Tgt</th>
                 <th class="th-r" style="background:rgba(96,165,250,.15);">Mill Var</th>
                 <th class="th-r">Gold (g)</th>

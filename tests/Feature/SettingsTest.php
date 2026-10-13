@@ -57,6 +57,10 @@ class SettingsTest extends TestCase
                 'company_phone'       => '+263 77 000 0000',
                 'company_email'       => 'info@epoch.co.zw',
                 'company_website'     => 'https://epoch.co.zw',
+                'developer_name'      => 'Example Developer',
+                'developer_website'   => 'https://developer.example',
+                'developer_email'     => 'hello@developer.example',
+                'developer_phone'     => '+1 555 0100',
                 'zesa_daily'          => '633',
                 'diesel_daily'        => '428',
                 'labour_daily'        => '0',
@@ -68,6 +72,18 @@ class SettingsTest extends TestCase
         $this->assertDatabaseHas('settings', ['key' => 'company_name', 'value' => 'Epoch Mines and Resources']);
         $this->assertDatabaseHas('settings', ['key' => 'company_location', 'value' => 'Filabusi, Zimbabwe']);
         $this->assertDatabaseHas('settings', ['key' => 'zesa_daily', 'value' => '633']);
+        $this->assertDatabaseHas('settings', ['key' => 'developer_name', 'value' => 'Example Developer']);
+        $this->assertDatabaseHas('settings', ['key' => 'developer_website', 'value' => 'https://developer.example']);
+        $this->assertDatabaseHas('settings', ['key' => 'developer_email', 'value' => 'hello@developer.example']);
+        $this->assertDatabaseHas('settings', ['key' => 'developer_phone', 'value' => '+1 555 0100']);
+
+        $this->actingAs($this->adminUser())
+            ->get(route('settings.index'))
+            ->assertOk()
+            ->assertSee('Example Developer')
+            ->assertSee('https://developer.example')
+            ->assertSee('mailto:hello@developer.example')
+            ->assertSee('tel:+15550100');
     }
 
     /** @test */

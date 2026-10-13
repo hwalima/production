@@ -25,6 +25,10 @@ class SettingsController extends Controller
             'company_phone'    => 'nullable|string|max:50',
             'company_email'    => 'nullable|email|max:100',
             'company_website'  => 'nullable|url|max:200',
+            'developer_name'   => 'nullable|string|max:200',
+            'developer_website'=> 'nullable|url|max:200',
+            'developer_email'  => 'nullable|email|max:100',
+            'developer_phone'  => 'nullable|string|max:50',
             'zesa_daily'       => 'required|numeric|min:0',
             'diesel_daily'     => 'required|numeric|min:0',
             'labour_daily'     => 'required|numeric|min:0',
@@ -61,6 +65,12 @@ class SettingsController extends Controller
 
         foreach ($scalar as $key) {
             Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key) ?? '']);
+        }
+
+        foreach (['developer_name', 'developer_website', 'developer_email', 'developer_phone'] as $key) {
+            if ($request->exists($key)) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key) ?? '']);
+            }
         }
 
         // Only overwrite password if a new one was provided

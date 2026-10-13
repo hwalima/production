@@ -11,8 +11,8 @@
         <div class="detail-row"><span class="dr-label">Date</span><span class="dr-value">{{ $labour_energy->date->format('d M Y') }}</span></div>
         <div class="detail-row"><span class="dr-label">Power — ZESA</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->zesa_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Power — Diesel / Generator</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->diesel_cost, 2) }}</span></div>
-        <div class="detail-row"><span class="dr-label">Mining Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->mining_cost, 2) }}</span></div>
-        <div class="detail-row"><span class="dr-label">Milling Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->milling_cost, 2) }}</span></div>
+        <div class="detail-row"><span class="dr-label">Other Mining Costs</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->mining_cost, 2) }}</span></div>
+        <div class="detail-row"><span class="dr-label">Other Milling Costs</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->milling_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Maintenance</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->maintenance_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Transport</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->transport_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Leave</span><span class="dr-value">{{ number_format($labour_energy->leave, 2) }} days</span></div>

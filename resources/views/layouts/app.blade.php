@@ -550,14 +550,28 @@
                             <a href="tel:{{ preg_replace('/\s+/', '', $appSettings['company_phone']) }}" style="color:inherit; text-decoration:none;">{{ $appSettings['company_phone'] }}</a>
                         @endif
                     </div>
-                    {{-- Row 2: Hwalima Digital (hardcoded developer credit) --}}
+                    {{-- Row 2: Developer credit from settings --}}
                     <div style="margin-top:2px;">
                         <span style="opacity:.6;">Developed by</span>
-                        <a href="https://www.hwalima.digital/" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600; margin-left:4px;">Hwalima Digital</a>
-                        <span style="margin:0 8px; opacity:.4;">|</span>
-                        <a href="mailto:info@hwalima.digital" style="color:inherit; text-decoration:none;">info@hwalima.digital</a>
-                        <span style="margin:0 8px; opacity:.4;">|</span>
-                        <a href="tel:+27785425978" style="color:inherit; text-decoration:none;">+27 78 542 5978</a>
+                        @php
+                            $developerName = $appSettings['developer_name'] ?? 'Hwalima Digital';
+                            $developerWebsite = $appSettings['developer_website'] ?? 'https://www.hwalima.digital/';
+                            $developerEmail = $appSettings['developer_email'] ?? 'info@hwalima.digital';
+                            $developerPhone = $appSettings['developer_phone'] ?? '+27 78 542 5978';
+                        @endphp
+                        @if($developerWebsite)
+                            <a href="{{ $developerWebsite }}" target="_blank" rel="noopener" style="color:#fcb913; text-decoration:none; font-weight:600; margin-left:4px;">{{ $developerName }}</a>
+                        @else
+                            <span style="color:#fcb913; font-weight:600; margin-left:4px;">{{ $developerName }}</span>
+                        @endif
+                        @if($developerEmail)
+                            <span style="margin:0 8px; opacity:.4;">|</span>
+                            <a href="mailto:{{ $developerEmail }}" style="color:inherit; text-decoration:none;">{{ $developerEmail }}</a>
+                        @endif
+                        @if($developerPhone)
+                            <span style="margin:0 8px; opacity:.4;">|</span>
+                            <a href="tel:{{ preg_replace('/[^+\d]/', '', $developerPhone) }}" style="color:inherit; text-decoration:none;">{{ $developerPhone }}</a>
+                        @endif
                     </div>
                 </footer>
             </main>

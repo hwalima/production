@@ -129,6 +129,45 @@
             </div>
         </div>
 
+        {{-- ══════════════ DEVELOPER CREDIT ══════════════ --}}
+        <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
+            <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Developer Credit (Footer)</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Developer Name</label>
+                    <input type="text" name="developer_name"
+                           value="{{ old('developer_name', $settings['developer_name'] ?? 'Hwalima Digital') }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('developer_name')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Developer Website</label>
+                    <input type="url" name="developer_website"
+                           value="{{ old('developer_website', $settings['developer_website'] ?? 'https://www.hwalima.digital/') }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('developer_website')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Developer Email</label>
+                    <input type="email" name="developer_email"
+                           value="{{ old('developer_email', $settings['developer_email'] ?? 'info@hwalima.digital') }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('developer_email')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Developer Phone</label>
+                    <input type="text" name="developer_phone"
+                           value="{{ old('developer_phone', $settings['developer_phone'] ?? '+27 78 542 5978') }}"
+                           class="w-full border rounded-lg px-3 py-2 text-sm"
+                           style="background:var(--input-bg);color:var(--text);border-color:var(--topbar-border);">
+                    @error('developer_phone')<p class="text-xs mt-1" style="color:#ef4444;">{{ $message }}</p>@enderror
+                </div>
+            </div>
+        </div>
+
         {{-- ══════════════ CURRENCY & REGION ══════════════ --}}
         <div class="rounded-xl shadow p-6 space-y-4" style="background:var(--card);">
             <h2 class="text-base font-semibold pb-2" style="border-bottom:2px solid #fcb913;">Currency &amp; Region</h2>

@@ -61,7 +61,7 @@
                     </div>
                     @endif
                 </td>
-                <td class="td-r" title="Mining {{ number_format($rec->mining_cost, 2) }}, milling {{ number_format($rec->milling_cost, 2) }}, maintenance {{ number_format($rec->maintenance_cost, 2) }}, transport {{ number_format($rec->transport_cost, 2) }}">
+                <td class="td-r" title="Other mining {{ number_format($rec->mining_cost, 2) }}, other milling {{ number_format($rec->milling_cost, 2) }}, maintenance {{ number_format($rec->maintenance_cost, 2) }}, transport {{ number_format($rec->transport_cost, 2) }}">
                     {{ $currencySymbol }}{{ number_format($otherCosts, 2) }}
                 </td>
                 <td class="td-r">{{ number_format($rec->leave, 2) }}</td>

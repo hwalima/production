@@ -54,7 +54,7 @@
         </div>
         <div class="detail-row"><span class="dr-label">Total Ore Milled</span><span class="dr-value">{{ number_format($production->ore_milled, 2) }} t</span></div>
         <div class="detail-row"><span class="dr-label">R.O. Mine Milled</span><span class="dr-value">{{ number_format($production->ro_mine_milled, 2) }} t</span></div>
-        <div class="detail-row"><span class="dr-label">Sanda Milled</span><span class="dr-value">{{ number_format($production->sanda_milled, 2) }} t</span></div>
+        <div class="detail-row"><span class="dr-label">Sands Milled</span><span class="dr-value">{{ number_format($production->sanda_milled, 2) }} t</span></div>
         @if($production->ore_milled_target !== null)
         @php $mv = (float)$production->ore_milled_target - (float)$production->ore_milled; @endphp
         <div class="detail-row"><span class="dr-label">Mill Target</span><span class="dr-value" style="color:#9ca3af;">{{ number_format($production->ore_milled_target, 2) }} t</span></div>

@@ -86,8 +86,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Mining cost</td><td style="text-align:right;">${{ number_format($totalMiningCost, 2) }}</td></tr>
-                    <tr><td>Milling cost</td><td style="text-align:right;">${{ number_format($totalMillingCost, 2) }}</td></tr>
+                    <tr><td>Other Mining Costs</td><td style="text-align:right;">${{ number_format($totalMiningCost, 2) }}</td></tr>
+                    <tr><td>Other Milling Costs</td><td style="text-align:right;">${{ number_format($totalMillingCost, 2) }}</td></tr>
                     <tr><td>Labour</td><td style="text-align:right;">${{ number_format($totalLabourCost, 2) }}</td></tr>
                     <tr>
                         <td>Power <span style="font-size:.75rem;color:#9ca3af;">(ZESA ${{ number_format($labourBreakdown->zesa ?? 0, 2) }} + diesel/generator ${{ number_format($labourBreakdown->diesel ?? 0, 2) }})</span></td>

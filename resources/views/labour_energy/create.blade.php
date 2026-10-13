@@ -29,7 +29,7 @@
             </div>
             <div style="margin:0 0 8px;font-size:.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Other Operating Costs ({{ $currencySymbol }})</div>
             <div class="fc-grid" style="margin-bottom:14px;">
-                @foreach(['mining_cost' => 'Mining Cost', 'milling_cost' => 'Milling Cost', 'maintenance_cost' => 'Maintenance', 'transport_cost' => 'Transport'] as $field => $label)
+                @foreach(['mining_cost' => 'Other Mining Costs', 'milling_cost' => 'Other Milling Costs', 'maintenance_cost' => 'Maintenance', 'transport_cost' => 'Transport'] as $field => $label)
                 <div>
                     <label class="fc-label">{{ $label }}</label>
                     <input type="number" name="{{ $field }}" min="0" step="0.01" class="fc-input" value="{{ old($field, 0) }}">
