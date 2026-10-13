@@ -7,8 +7,11 @@ class SheIndicator extends Model
 {
     protected $fillable = [
         'date', 'mining_department_id',
-        'medical_injury_case', 'fatal_incident', 'lti', 'nlti',
-        'leave', 'offdays', 'sick', 'iod', 'awol', 'terminations',
+        'medical_injury_case', 'fatal_incident', 'lti', 'nlti', 'iod',
+        'environmental_incidents_penalties',
+        'medical_injury_case_description', 'fatal_incident_description',
+        'lti_description', 'nlti_description', 'iod_description',
+        'environmental_incidents_penalties_description',
     ];
 
     protected $casts = ['date' => 'date'];

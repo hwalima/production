@@ -37,6 +37,16 @@
                 </div>
                 @endforeach
             </div>
+            <div style="margin:0 0 8px;font-size:.75rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Labour Attendance &amp; Turnover</div>
+            <div class="fc-grid" style="margin-bottom:14px;">
+                @foreach(['leave' => 'Leave', 'offdays' => 'Offdays', 'sick' => 'Sick', 'awol' => 'AWOL', 'terminations' => 'Terminations'] as $field => $label)
+                <div>
+                    <label class="fc-label">{{ $label }} (days / count)</label>
+                    <input type="number" name="{{ $field }}" min="0" step="0.01" class="fc-input" value="{{ old($field, 0) }}">
+                    @error($field)<p class="fc-error">{{ $message }}</p>@enderror
+                </div>
+                @endforeach
+            </div>
             @if($departments->isNotEmpty())
             <div style="margin-bottom:14px;">
                 <label class="fc-label" style="margin-bottom:8px;display:block;">Labour Cost by Department ({{ $currencySymbol }})</label>

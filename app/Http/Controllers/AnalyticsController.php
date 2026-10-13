@@ -216,9 +216,10 @@ class AnalyticsController extends Controller
         $totalNlti    = (int) $sheRows->sum('nlti');
         $totalFatal   = (int) $sheRows->sum('fatal_incident');
         $totalMedical = (int) $sheRows->sum('medical_injury_case');
-        $totalSick    = (int) $sheRows->sum('sick');
-        $totalLeave   = (int) $sheRows->sum('leave');
-        $totalAwol    = (int) $sheRows->sum('awol');
+        $attendanceRows = LabourEnergy::whereBetween('date', [$from, $to])->get();
+        $totalSick    = (int) $attendanceRows->sum('sick');
+        $totalLeave   = (int) $attendanceRows->sum('leave');
+        $totalAwol    = (int) $attendanceRows->sum('awol');
         $totalAbsence = $totalSick + $totalLeave + $totalAwol;
 
         $sheByMonth = $sheRows->groupBy(fn($r) => $r->date->format('Y-m'))
@@ -523,9 +524,13 @@ class AnalyticsController extends Controller
 
             fputcsv($handle, []);
             fputcsv($handle, ['=== SHE INDICATORS ===']);
-            fputcsv($handle, ['Date', 'LTI', 'NLTI', 'Fatal', 'Medical', 'Sick', 'Leave', 'AWOL']);
+            fputcsv($handle, ['Date', 'LTI', 'NLTI', 'Fatal', 'Medical', 'IOD', 'Environmental Incidents & Penalties', 'Environmental Description']);
             foreach (SheIndicator::whereBetween('date', [$from, $to])->orderBy('date')->get() as $r) {
-                fputcsv($handle, [$r->date->format('Y-m-d'), $r->lti, $r->nlti, $r->fatal_incident, $r->medical_injury_case, $r->sick, $r->leave, $r->awol]);
+                fputcsv($handle, [
+                    $r->date->format('Y-m-d'), $r->lti, $r->nlti, $r->fatal_incident,
+                    $r->medical_injury_case, $r->iod, $r->environmental_incidents_penalties,
+                    $r->environmental_incidents_penalties_description,
+                ]);
             }
 
             fclose($handle);

@@ -393,8 +393,8 @@ html.dark .an-filter input[type=date] { color-scheme:dark; }
         <div class="an-sec-hd">
             <div class="an-sec-icon" style="background:rgba(248,113,113,.12);">⚠️</div>
             <div>
-                <h3>8. Safety Health Environment (SHE) Rates</h3>
-                <p>Incident counts for selected period. LTIFR requires person-hours tracking.</p>
+                <h3>8. SHE Incidents &amp; Workforce Attendance</h3>
+                <p>Safety incident counts plus attendance figures recorded under Labour &amp; Energy.</p>
             </div>
         </div>
         <div class="she-grid">

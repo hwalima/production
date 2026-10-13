@@ -23,12 +23,8 @@ class SheController extends Controller
         'fatal_incident'      => 'Fatal Incident Injury',
         'lti'                 => 'LTI',
         'nlti'                => 'NLTI',
-        'leave'               => 'Leave',
-        'offdays'             => 'Offdays',
-        'sick'                => 'Sick',
         'iod'                 => 'IOD',
-        'awol'                => 'AWOL',
-        'terminations'        => 'Terminations',
+        'environmental_incidents_penalties' => 'Environmental Incidents & Penalties',
     ];
 
     const CAT_LABELS = [
@@ -78,12 +74,13 @@ class SheController extends Controller
                 Rule::unique('she_indicators')->where(fn ($q) => $q->where('mining_department_id', $deptId)),
             ],
             'mining_department_id' => 'required|exists:mining_departments,id',
-        ]);
+        ] + $this->indicatorRules());
 
         $row = ['date' => $request->date, 'mining_department_id' => $deptId];
         foreach (array_keys(self::INDICATORS) as $field) {
             $raw        = $request->input($field, '');
             $row[$field] = ($raw !== '' && is_numeric($raw)) ? max(0, (float) $raw) : 0;
+            $row[$field . '_description'] = trim((string) $request->input($field . '_description', '')) ?: null;
         }
 
         SheIndicator::create($row);
@@ -149,12 +146,13 @@ class SheController extends Controller
                     ->ignore($indicator->id),
             ],
             'mining_department_id' => 'required|exists:mining_departments,id',
-        ]);
+        ] + $this->indicatorRules());
 
         $row = ['date' => $request->date, 'mining_department_id' => $deptId];
         foreach (array_keys(self::INDICATORS) as $field) {
             $raw        = $request->input($field, '');
             $row[$field] = ($raw !== '' && is_numeric($raw)) ? max(0, (float) $raw) : 0;
+            $row[$field . '_description'] = trim((string) $request->input($field . '_description', '')) ?: null;
         }
 
         $indicator->update($row);
@@ -169,6 +167,17 @@ class SheController extends Controller
         $indicator->delete();
         AuditLog::record('she_deleted', "Deleted SHE indicator #{$indId} for {$indDate}", 'SheIndicator', $indId);
         return redirect()->route('she.index')->with('success', 'Record deleted.');
+    }
+
+    private function indicatorRules(): array
+    {
+        $rules = [];
+        foreach (array_keys(self::INDICATORS) as $field) {
+            $rules[$field] = 'nullable|numeric|min:0';
+            $rules[$field . '_description'] = 'nullable|string|max:5000';
+        }
+
+        return $rules;
     }
 
     // ── Requirements ──────────────────────────────────────────────────────
@@ -283,8 +292,7 @@ class SheController extends Controller
 
         $totalIncidents   = $totals['medical_injury_case'] + $totals['fatal_incident']
                           + $totals['lti'] + $totals['nlti'];
-        $totalAbsenteeism = $totals['leave'] + $totals['offdays']
-                          + $totals['sick'] + $totals['awol'];
+        $totalEnvironmental = $totals['environmental_incidents_penalties'];
 
         $deptSummary = $records
             ->groupBy(fn ($r) => $r->department?->name ?? 'Unknown')
@@ -300,9 +308,9 @@ class SheController extends Controller
         $filterTo   = $to->format('d M Y');
 
         $data = array_merge($this->pdfSettings(), compact(
-            'records', 'totals', 'totalIncidents', 'totalAbsenteeism',
+            'records', 'totals', 'totalIncidents', 'totalEnvironmental',
             'deptSummary', 'filterFrom', 'filterTo'
-        ));
+        ), ['indicatorLabels' => self::INDICATORS]);
 
         $filename = 'she-report-' . $from->format('Y-m-d') . '-to-' . $to->format('Y-m-d') . '.pdf';
 

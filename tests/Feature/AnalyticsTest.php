@@ -447,9 +447,14 @@ class AnalyticsTest extends TestCase
             'nlti'                  => 3,
             'fatal_incident'        => 0,
             'medical_injury_case'   => 1,
-            'sick'                  => 5,
-            'leave'                 => 3,
-            'awol'                  => 1,
+        ]);
+        LabourEnergy::create([
+            'date' => '2026-01-10',
+            'sick' => 5,
+            'leave' => 3,
+            'awol' => 1,
+            'zesa_cost' => 0,
+            'diesel_cost' => 0,
         ]);
         SheIndicator::create([
             'date'                  => '2026-01-20',
@@ -458,9 +463,14 @@ class AnalyticsTest extends TestCase
             'nlti'                  => 2,
             'fatal_incident'        => 0,
             'medical_injury_case'   => 0,
-            'sick'                  => 2,
-            'leave'                 => 1,
-            'awol'                  => 0,
+        ]);
+        LabourEnergy::create([
+            'date' => '2026-01-20',
+            'sick' => 2,
+            'leave' => 1,
+            'awol' => 0,
+            'zesa_cost' => 0,
+            'diesel_cost' => 0,
         ]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
@@ -480,8 +490,8 @@ class AnalyticsTest extends TestCase
     public function she_monthly_buckets_aggregate_by_calendar_month(): void
     {
         $dept = $this->dept();
-        SheIndicator::create(['date' => '2026-01-10', 'mining_department_id' => $dept->id, 'lti' => 2, 'nlti' => 0, 'fatal_incident' => 0, 'medical_injury_case' => 0, 'sick' => 0, 'leave' => 0, 'awol' => 0]);
-        SheIndicator::create(['date' => '2026-01-25', 'mining_department_id' => $dept->id, 'lti' => 1, 'nlti' => 0, 'fatal_incident' => 0, 'medical_injury_case' => 0, 'sick' => 0, 'leave' => 0, 'awol' => 0]);
+        SheIndicator::create(['date' => '2026-01-10', 'mining_department_id' => $dept->id, 'lti' => 2, 'nlti' => 0, 'fatal_incident' => 0, 'medical_injury_case' => 0]);
+        SheIndicator::create(['date' => '2026-01-25', 'mining_department_id' => $dept->id, 'lti' => 1, 'nlti' => 0, 'fatal_incident' => 0, 'medical_injury_case' => 0]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
 
@@ -899,7 +909,7 @@ class AnalyticsTest extends TestCase
     /** @test */
     public function total_absence_is_sum_of_sick_leave_and_awol(): void
     {
-        SheIndicator::create(['date' => '2026-01-15', 'mining_department_id' => $this->dept()->id, 'lti' => 0, 'nlti' => 0, 'fatal_incident' => 0, 'medical_injury_case' => 0, 'sick' => 4, 'leave' => 3, 'awol' => 2]);
+        LabourEnergy::create(['date' => '2026-01-15', 'zesa_cost' => 0, 'diesel_cost' => 0, 'sick' => 4, 'leave' => 3, 'awol' => 2]);
 
         $response = $this->actingAs($this->admin())->get($this->url());
         $this->assertEquals(9, $response->viewData('totalAbsence'));

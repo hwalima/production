@@ -31,6 +31,11 @@
                 <th class="th-r">Diesel Cost ({{ $currencySymbol }})</th>
                 <th class="th-r">Labour Cost ({{ $currencySymbol }})</th>
                 <th class="th-r">Other Costs ({{ $currencySymbol }})</th>
+                <th class="th-r">Leave</th>
+                <th class="th-r">Offdays</th>
+                <th class="th-r">Sick</th>
+                <th class="th-r">AWOL</th>
+                <th class="th-r">Terminations</th>
                 <th class="th-r">Total ({{ $currencySymbol }})</th>
                 <th class="th-c">Actions</th>
             </tr>
@@ -59,6 +64,11 @@
                 <td class="td-r" title="Mining {{ number_format($rec->mining_cost, 2) }}, milling {{ number_format($rec->milling_cost, 2) }}, maintenance {{ number_format($rec->maintenance_cost, 2) }}, transport {{ number_format($rec->transport_cost, 2) }}">
                     {{ $currencySymbol }}{{ number_format($otherCosts, 2) }}
                 </td>
+                <td class="td-r">{{ number_format($rec->leave, 2) }}</td>
+                <td class="td-r">{{ number_format($rec->offdays, 2) }}</td>
+                <td class="td-r">{{ number_format($rec->sick, 2) }}</td>
+                <td class="td-r">{{ number_format($rec->awol, 2) }}</td>
+                <td class="td-r">{{ number_format($rec->terminations, 2) }}</td>
                 <td class="td-r" style="font-weight:600;color:#fcc104;">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                 <td class="td-c">
                     <div class="act-group">
@@ -80,7 +90,7 @@
                 </td>
             </tr>
             @empty
-            <tr class="empty-row"><td colspan="7">No labour &amp; energy records yet.</td></tr>
+            <tr class="empty-row"><td colspan="12">No labour &amp; energy records yet.</td></tr>
             @endforelse
         </tbody>
     </table>

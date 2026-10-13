@@ -268,9 +268,9 @@ class ImportTest extends TestCase
     public function can_import_labour_energy_from_csv(): void
     {
         $csv = implode("\r\n", [
-            'date,zesa_cost,diesel_cost,labour_cost,mining_cost,milling_cost,maintenance_cost,transport_cost',
-            '2026-04-01,15000.00,22000.00,85000.00,100.00,200.00,300.00,400.00',
-            '2026-04-02,14500.00,21000.00,83000.00,0,0,0,0',
+            'date,zesa_cost,diesel_cost,labour_cost,mining_cost,milling_cost,maintenance_cost,transport_cost,leave,offdays,sick,awol,terminations',
+            '2026-04-01,15000.00,22000.00,85000.00,100.00,200.00,300.00,400.00,2,1,3,0,1',
+            '2026-04-02,14500.00,21000.00,83000.00,0,0,0,0,0,0,0,0,0',
         ]);
 
         $this->actingAs($this->writer())
@@ -284,6 +284,11 @@ class ImportTest extends TestCase
             'milling_cost' => 200,
             'maintenance_cost' => 300,
             'transport_cost' => 400,
+            'leave' => 2,
+            'offdays' => 1,
+            'sick' => 3,
+            'awol' => 0,
+            'terminations' => 1,
         ]);
     }
 

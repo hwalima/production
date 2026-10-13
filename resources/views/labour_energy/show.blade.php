@@ -15,6 +15,11 @@
         <div class="detail-row"><span class="dr-label">Milling Cost</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->milling_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Maintenance</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->maintenance_cost, 2) }}</span></div>
         <div class="detail-row"><span class="dr-label">Transport</span><span class="dr-value">{{ $currencySymbol }}{{ number_format($labour_energy->transport_cost, 2) }}</span></div>
+        <div class="detail-row"><span class="dr-label">Leave</span><span class="dr-value">{{ number_format($labour_energy->leave, 2) }} days</span></div>
+        <div class="detail-row"><span class="dr-label">Offdays</span><span class="dr-value">{{ number_format($labour_energy->offdays, 2) }}</span></div>
+        <div class="detail-row"><span class="dr-label">Sick</span><span class="dr-value">{{ number_format($labour_energy->sick, 2) }} days</span></div>
+        <div class="detail-row"><span class="dr-label">AWOL</span><span class="dr-value">{{ number_format($labour_energy->awol, 2) }}</span></div>
+        <div class="detail-row"><span class="dr-label">Terminations</span><span class="dr-value">{{ number_format($labour_energy->terminations, 2) }}</span></div>
         <div class="detail-row" style="align-items:flex-start;">
             <span class="dr-label" style="padding-top:2px;">Labour Cost</span>
             <span class="dr-value">

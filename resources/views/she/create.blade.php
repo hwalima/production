@@ -35,7 +35,7 @@
             <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
                         color:#9ca3af;border-bottom:1px solid rgba(255,255,255,.07);
                         padding-bottom:8px;margin-bottom:12px;">
-                Indicators <span style="font-weight:400;text-transform:none;letter-spacing:0;">(leave blank for 0)</span>
+                Indicators <span style="font-weight:400;text-transform:none;letter-spacing:0;">(leave each value blank for 0)</span>
             </div>
             <div class="fc-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px;">
                 @foreach($indicatorLabels as $field => $label)
@@ -44,6 +44,10 @@
                     <input type="number" name="{{ $field }}" step="1" min="0"
                            class="fc-input" value="{{ old($field, '') }}" placeholder="0">
                     @error($field)<p class="fc-error">{{ $message }}</p>@enderror
+                    <label class="fc-label" style="font-size:.72rem;margin-top:7px;">Description</label>
+                    <textarea name="{{ $field }}_description" class="fc-input" rows="2" maxlength="5000"
+                              placeholder="Optional details">{{ old($field . '_description') }}</textarea>
+                    @error($field . '_description')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 @endforeach
             </div>

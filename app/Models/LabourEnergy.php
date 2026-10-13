@@ -18,6 +18,11 @@ class LabourEnergy extends Model
         'milling_cost',
         'maintenance_cost',
         'transport_cost',
+        'leave',
+        'offdays',
+        'sick',
+        'awol',
+        'terminations',
         'date',
     ];
 
@@ -30,6 +35,11 @@ class LabourEnergy extends Model
         'milling_cost' => 'decimal:2',
         'maintenance_cost' => 'decimal:2',
         'transport_cost' => 'decimal:2',
+        'leave' => 'decimal:2',
+        'offdays' => 'decimal:2',
+        'sick' => 'decimal:2',
+        'awol' => 'decimal:2',
+        'terminations' => 'decimal:2',
     ];
 
     public function deptCosts()

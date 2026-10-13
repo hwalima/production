@@ -29,9 +29,8 @@
             <div class="tile-value gold">{{ number_format($totals['lti']) }}</div>
         </td>
         <td style="width:20%;border-top:3px solid #6b7280;">
-            <div class="tile-label">Total Absenteeism</div>
-            <div class="tile-value">{{ number_format($totalAbsenteeism) }}</div>
-            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">Leave + Offdays + Sick + AWOL</div>
+            <div class="tile-label">Environmental Incidents &amp; Penalties</div>
+            <div class="tile-value">{{ number_format($totalEnvironmental) }}</div>
         </td>
     </tr>
 </table>
@@ -47,48 +46,26 @@
             <th class="th-c">Fatal</th>
             <th class="th-c">LTI</th>
             <th class="th-c">NLTI</th>
-            <th class="th-c">Leave</th>
-            <th class="th-c">Offdays</th>
-            <th class="th-c">Sick</th>
             <th class="th-c">IOD</th>
-            <th class="th-c">AWOL</th>
-            <th class="th-c">Terminations</th>
+            <th class="th-c">Environmental Incidents &amp; Penalties</th>
         </tr>
     </thead>
     <tbody>
         @foreach($deptSummary as $dept => $row)
         <tr>
             <td style="font-weight:600;">{{ $dept }}</td>
-            <td class="td-c">{{ $row['medical_injury_case'] > 0 ? number_format($row['medical_injury_case']) : '-' }}</td>
-            <td class="td-c" style="{{ $row['fatal_incident'] > 0 ? 'color:#b91c1c;font-weight:700;' : '' }}">
-                {{ $row['fatal_incident'] > 0 ? number_format($row['fatal_incident']) : '-' }}
-            </td>
-            <td class="td-c" style="{{ $row['lti'] > 0 ? 'color:#b45309;font-weight:700;' : '' }}">
-                {{ $row['lti'] > 0 ? number_format($row['lti']) : '-' }}
-            </td>
-            <td class="td-c">{{ $row['nlti'] > 0 ? number_format($row['nlti']) : '-' }}</td>
-            <td class="td-c">{{ $row['leave'] > 0 ? number_format($row['leave']) : '-' }}</td>
-            <td class="td-c">{{ $row['offdays'] > 0 ? number_format($row['offdays']) : '-' }}</td>
-            <td class="td-c">{{ $row['sick'] > 0 ? number_format($row['sick']) : '-' }}</td>
-            <td class="td-c">{{ $row['iod'] > 0 ? number_format($row['iod']) : '-' }}</td>
-            <td class="td-c">{{ $row['awol'] > 0 ? number_format($row['awol']) : '-' }}</td>
-            <td class="td-c">{{ $row['terminations'] > 0 ? number_format($row['terminations']) : '-' }}</td>
+            @foreach($indicatorLabels as $field => $label)
+            <td class="td-c">{{ $row[$field] > 0 ? number_format($row[$field]) : '-' }}</td>
+            @endforeach
         </tr>
         @endforeach
     </tbody>
     <tfoot>
         <tr>
             <td>TOTAL</td>
-            <td class="td-c">{{ $totals['medical_injury_case'] > 0 ? number_format($totals['medical_injury_case']) : '-' }}</td>
-            <td class="td-c">{{ $totals['fatal_incident'] > 0 ? number_format($totals['fatal_incident']) : '-' }}</td>
-            <td class="td-c">{{ $totals['lti'] > 0 ? number_format($totals['lti']) : '-' }}</td>
-            <td class="td-c">{{ $totals['nlti'] > 0 ? number_format($totals['nlti']) : '-' }}</td>
-            <td class="td-c">{{ $totals['leave'] > 0 ? number_format($totals['leave']) : '-' }}</td>
-            <td class="td-c">{{ $totals['offdays'] > 0 ? number_format($totals['offdays']) : '-' }}</td>
-            <td class="td-c">{{ $totals['sick'] > 0 ? number_format($totals['sick']) : '-' }}</td>
-            <td class="td-c">{{ $totals['iod'] > 0 ? number_format($totals['iod']) : '-' }}</td>
-            <td class="td-c">{{ $totals['awol'] > 0 ? number_format($totals['awol']) : '-' }}</td>
-            <td class="td-c">{{ $totals['terminations'] > 0 ? number_format($totals['terminations']) : '-' }}</td>
+            @foreach($indicatorLabels as $field => $label)
+            <td class="td-c">{{ $totals[$field] > 0 ? number_format($totals[$field]) : '-' }}</td>
+            @endforeach
         </tr>
     </tfoot>
 </table>
@@ -105,12 +82,8 @@
             <th class="th-c">Fatal</th>
             <th class="th-c">LTI</th>
             <th class="th-c">NLTI</th>
-            <th class="th-c">Leave</th>
-            <th class="th-c">Offdays</th>
-            <th class="th-c">Sick</th>
             <th class="th-c">IOD</th>
-            <th class="th-c">AWOL</th>
-            <th class="th-c">Terminations</th>
+            <th class="th-c">Environmental Incidents &amp; Penalties</th>
         </tr>
     </thead>
     <tbody>
@@ -118,40 +91,27 @@
         <tr>
             <td style="white-space:nowrap;font-weight:600;">{{ $rec->date->format('d M Y') }}</td>
             <td>{{ $rec->department?->name ?? '—' }}</td>
-            <td class="td-c">{{ $rec->medical_injury_case > 0 ? number_format($rec->medical_injury_case) : '-' }}</td>
-            <td class="td-c" style="{{ $rec->fatal_incident > 0 ? 'color:#b91c1c;font-weight:700;' : '' }}">
-                {{ $rec->fatal_incident > 0 ? number_format($rec->fatal_incident) : '-' }}
+            @foreach($indicatorLabels as $field => $label)
+            <td class="td-c">
+                {{ $rec->{$field} > 0 ? number_format($rec->{$field}) : '-' }}
+                @if($rec->{$field . '_description'})
+                <div style="margin-top:2px;color:#6b7280;font-size:6px;text-align:left;">{{ $rec->{$field . '_description'} }}</div>
+                @endif
             </td>
-            <td class="td-c" style="{{ $rec->lti > 0 ? 'color:#b45309;font-weight:700;' : '' }}">
-                {{ $rec->lti > 0 ? number_format($rec->lti) : '-' }}
-            </td>
-            <td class="td-c">{{ $rec->nlti > 0 ? number_format($rec->nlti) : '-' }}</td>
-            <td class="td-c">{{ $rec->leave > 0 ? number_format($rec->leave) : '-' }}</td>
-            <td class="td-c">{{ $rec->offdays > 0 ? number_format($rec->offdays) : '-' }}</td>
-            <td class="td-c">{{ $rec->sick > 0 ? number_format($rec->sick) : '-' }}</td>
-            <td class="td-c">{{ $rec->iod > 0 ? number_format($rec->iod) : '-' }}</td>
-            <td class="td-c">{{ $rec->awol > 0 ? number_format($rec->awol) : '-' }}</td>
-            <td class="td-c">{{ $rec->terminations > 0 ? number_format($rec->terminations) : '-' }}</td>
+            @endforeach
         </tr>
         @empty
         <tr>
-            <td colspan="12" class="td-c" style="color:#9ca3af;font-style:italic;">No SHE indicator records for this period.</td>
+            <td colspan="{{ 2 + count($indicatorLabels) }}" class="td-c" style="color:#9ca3af;font-style:italic;">No SHE indicator records for this period.</td>
         </tr>
         @endforelse
     </tbody>
     <tfoot>
         <tr>
             <td colspan="2">TOTALS</td>
-            <td class="td-c">{{ $totals['medical_injury_case'] > 0 ? number_format($totals['medical_injury_case']) : '-' }}</td>
-            <td class="td-c">{{ $totals['fatal_incident'] > 0 ? number_format($totals['fatal_incident']) : '-' }}</td>
-            <td class="td-c">{{ $totals['lti'] > 0 ? number_format($totals['lti']) : '-' }}</td>
-            <td class="td-c">{{ $totals['nlti'] > 0 ? number_format($totals['nlti']) : '-' }}</td>
-            <td class="td-c">{{ $totals['leave'] > 0 ? number_format($totals['leave']) : '-' }}</td>
-            <td class="td-c">{{ $totals['offdays'] > 0 ? number_format($totals['offdays']) : '-' }}</td>
-            <td class="td-c">{{ $totals['sick'] > 0 ? number_format($totals['sick']) : '-' }}</td>
-            <td class="td-c">{{ $totals['iod'] > 0 ? number_format($totals['iod']) : '-' }}</td>
-            <td class="td-c">{{ $totals['awol'] > 0 ? number_format($totals['awol']) : '-' }}</td>
-            <td class="td-c">{{ $totals['terminations'] > 0 ? number_format($totals['terminations']) : '-' }}</td>
+            @foreach($indicatorLabels as $field => $label)
+            <td class="td-c">{{ $totals[$field] > 0 ? number_format($totals[$field]) : '-' }}</td>
+            @endforeach
         </tr>
     </tfoot>
 </table>

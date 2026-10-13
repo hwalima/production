@@ -43,12 +43,8 @@
                 <th class="th-r">Fatal</th>
                 <th class="th-r">LTI</th>
                 <th class="th-r">NLTI</th>
-                <th class="th-r">Leave</th>
-                <th class="th-r">Offdays</th>
-                <th class="th-r">Sick</th>
                 <th class="th-r">IOD</th>
-                <th class="th-r">AWOL</th>
-                <th class="th-r">Terminations</th>
+                <th class="th-r">Environmental Incidents &amp; Penalties</th>
                 @if(auth()->user()->canWrite())
                 <th class="th-c">Actions</th>
                 @endif
@@ -61,20 +57,18 @@
                     <span style="font-weight:600;">{{ $rec->date->format('d M Y') }}</span>
                 </td>
                 <td>{{ $rec->department?->name ?? '—' }}</td>
-                <td class="td-r">{{ $rec->medical_injury_case > 0 ? number_format($rec->medical_injury_case, 0) : '-' }}</td>
-                <td class="td-r" style="{{ $rec->fatal_incident > 0 ? 'color:#ef4444;font-weight:700;' : '' }}">
-                    {{ $rec->fatal_incident > 0 ? number_format($rec->fatal_incident, 0) : '-' }}
+                @foreach(\App\Http\Controllers\SheController::INDICATORS as $field => $label)
+                <td class="td-r" title="{{ $rec->{$field . '_description'} }}">
+                    <span style="{{ $field === 'fatal_incident' && $rec->{$field} > 0 ? 'color:#ef4444;font-weight:700;' : ($field === 'lti' && $rec->{$field} > 0 ? 'color:#fcb913;font-weight:700;' : '') }}">
+                        {{ $rec->{$field} > 0 ? number_format($rec->{$field}, 0) : '-' }}
+                    </span>
+                    @if($rec->{$field . '_description'})
+                    <div style="max-width:180px;margin-top:3px;font-size:.7rem;color:#9ca3af;text-align:left;white-space:normal;">
+                        {{ $rec->{$field . '_description'} }}
+                    </div>
+                    @endif
                 </td>
-                <td class="td-r" style="{{ $rec->lti > 0 ? 'color:#fcb913;font-weight:700;' : '' }}">
-                    {{ $rec->lti > 0 ? number_format($rec->lti, 0) : '-' }}
-                </td>
-                <td class="td-r">{{ $rec->nlti > 0 ? number_format($rec->nlti, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->leave > 0 ? number_format($rec->leave, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->offdays > 0 ? number_format($rec->offdays, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->sick > 0 ? number_format($rec->sick, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->iod > 0 ? number_format($rec->iod, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->awol > 0 ? number_format($rec->awol, 0) : '-' }}</td>
-                <td class="td-r">{{ $rec->terminations > 0 ? number_format($rec->terminations, 0) : '-' }}</td>
+                @endforeach
                 @if(auth()->user()->canWrite())
                 <td class="td-c">
                     <div class="act-group">
@@ -94,7 +88,7 @@
             </tr>
             @empty
             <tr class="empty-row">
-                <td colspan="{{ auth()->user()->canWrite() ? 13 : 12 }}">No SHE indicator records for this period.</td>
+                <td colspan="{{ auth()->user()->canWrite() ? 9 : 8 }}">No SHE indicator records for this period.</td>
             </tr>
             @endforelse
         </tbody>

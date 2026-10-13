@@ -671,6 +671,11 @@
                 <tr><td>milling_cost</td><td>Milling operating costs</td></tr>
                 <tr><td>maintenance_cost</td><td>Maintenance costs</td></tr>
                 <tr><td>transport_cost</td><td>Transport costs</td></tr>
+                <tr><td>leave</td><td>Leave days (recorded under Labour &amp; Energy)</td></tr>
+                <tr><td>offdays</td><td>Offdays (recorded under Labour &amp; Energy)</td></tr>
+                <tr><td>sick</td><td>Sick days (recorded under Labour &amp; Energy)</td></tr>
+                <tr><td>awol</td><td>AWOL count (recorded under Labour &amp; Energy)</td></tr>
+                <tr><td>terminations</td><td>Termination count (recorded under Labour &amp; Energy)</td></tr>
             </tbody>
         </table>
         <h3>Department Labour Breakdown</h3>
@@ -686,7 +691,7 @@
             <h2>12. Safety, Health &amp; Environment (SHE)</h2>
             <span class="section-num">§12</span>
         </div>
-        <p>Route: <code>GET /she</code>. Centralises all safety and health tracking including incident recording, compliance requirements, and workforce health indicators.</p>
+        <p>Route: <code>GET /she</code>. Centralises safety and environmental incident recording and compliance requirements. Workforce attendance is captured in Labour &amp; Energy.</p>
         <h3>SHE Indicators</h3>
         <p>Daily metrics per department:</p>
         <table class="doc-table">
@@ -696,14 +701,11 @@
                 <tr><td>fatal_incident</td><td>Fatalities (count)</td></tr>
                 <tr><td>lti</td><td>Lost Time Injuries</td></tr>
                 <tr><td>nlti</td><td>Non-Lost Time Injuries</td></tr>
-                <tr><td>leave</td><td>Planned leave days</td></tr>
-                <tr><td>offdays</td><td>Rest days / off days</td></tr>
-                <tr><td>sick</td><td>Sick days</td></tr>
                 <tr><td>iod</td><td>Injury on Duty</td></tr>
-                <tr><td>awol</td><td>Absent without leave</td></tr>
-                <tr><td>terminations</td><td>Employee terminations</td></tr>
+                <tr><td>environmental_incidents_penalties</td><td>Environmental incidents and penalties (with description)</td></tr>
             </tbody>
         </table>
+        <p>Each SHE indicator value has an optional description field for incident context.</p>
         <h3>SHE Requirements</h3>
         <p>Route: <code>GET /she/requirements/edit</code>. Define compliance requirements and track whether they have been met. Each requirement can have checklist items with a pass/fail status per period.</p>
         <h3>PDF Export</h3>

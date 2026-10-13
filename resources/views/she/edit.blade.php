@@ -47,6 +47,10 @@
                            value="{{ old($field, $indicator->{$field} > 0 ? $indicator->{$field} : '') }}"
                            placeholder="0">
                     @error($field)<p class="fc-error">{{ $message }}</p>@enderror
+                    <label class="fc-label" style="font-size:.72rem;margin-top:7px;">Description</label>
+                    <textarea name="{{ $field }}_description" class="fc-input" rows="2" maxlength="5000"
+                              placeholder="Optional details">{{ old($field . '_description', $indicator->{$field . '_description'}) }}</textarea>
+                    @error($field . '_description')<p class="fc-error">{{ $message }}</p>@enderror
                 </div>
                 @endforeach
             </div>

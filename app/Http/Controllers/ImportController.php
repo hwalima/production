@@ -74,8 +74,9 @@ class ImportController extends Controller
             'headers'  => [
                 'date', 'zesa_cost', 'diesel_cost', 'labour_cost',
                 'mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost',
+                'leave', 'offdays', 'sick', 'awol', 'terminations',
             ],
-            'example'  => ['2026-04-01', '15000.00', '22000.00', '85000.00', '0.00', '0.00', '0.00', '0.00'],
+            'example'  => ['2026-04-01', '15000.00', '22000.00', '85000.00', '0.00', '0.00', '0.00', '0.00', '0', '0', '0', '0', '0'],
             'notes'    => [
                 'date'        => 'YYYY-MM-DD format. Required.',
                 'zesa_cost'   => 'ZESA electricity cost. Required.',
@@ -85,6 +86,11 @@ class ImportController extends Controller
                 'milling_cost' => 'Milling operating costs. Optional; defaults to 0.',
                 'maintenance_cost' => 'Maintenance costs. Optional; defaults to 0.',
                 'transport_cost' => 'Transport costs. Optional; defaults to 0.',
+                'leave' => 'Leave days. Optional; defaults to 0.',
+                'offdays' => 'Offdays. Optional; defaults to 0.',
+                'sick' => 'Sick days. Optional; defaults to 0.',
+                'awol' => 'AWOL count. Optional; defaults to 0.',
+                'terminations' => 'Termination count. Optional; defaults to 0.',
             ],
         ],
     ];
@@ -380,7 +386,7 @@ class ImportController extends Controller
                 if (!$this->isValidDate($g('date'))) {
                     $rowErrors[] = "date must be YYYY-MM-DD";
                 }
-                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost'] as $costField) {
+                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost', 'leave', 'offdays', 'sick', 'awol', 'terminations'] as $costField) {
                     if (!array_key_exists($costField, $map) || $g($costField) === '') {
                         continue;
                     }
@@ -401,7 +407,7 @@ class ImportController extends Controller
                     'diesel_cost' => $this->num($g('diesel_cost')),
                     'labour_cost' => $this->num($g('labour_cost')),
                 ];
-                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost'] as $costField) {
+                foreach (['mining_cost', 'milling_cost', 'maintenance_cost', 'transport_cost', 'leave', 'offdays', 'sick', 'awol', 'terminations'] as $costField) {
                     if (array_key_exists($costField, $map)) {
                         $data[$costField] = $g($costField) === '' ? 0 : $this->num($g($costField));
                     }
